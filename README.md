@@ -1,7 +1,7 @@
 # os-project
 
 ## Requisiti implementativi:
-- utilizzare almeno memoria condivisa, semaforie un meccanismo di comunicazione fra processi a scelta fra code di messaggi o pipe;
+- utilizzare almeno memoria condivisa, semafori e un meccanismo di comunicazione fra processi a scelta fra code di messaggi o pipe;
 - sfruttare tecniche di divisione in moduli del codice (i vari processi devono essere lanciati da eseguibili diversi con `execve()`;
 - compilare mediante utility `make`;
 - massimizzare il grado di concorrenza fra processi;
