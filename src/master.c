@@ -29,6 +29,24 @@ int main()
 
 
 }
+
+void read_constants_from_file(char *path)
+{
+	FILE *file;
+	int shm_id;
+	struct data *read_data;
+	shm_id = get_shm(SHM_DATA_KEY, sizeof(*read_data));
+	attach_shm(shm_id, 0);
+
+	file = fopen(path, "r");
+	if(file == NULL)
+		close_all();
+
+
+
+	fclose(file);
+}
+
 void signal_handler(int signal)
 {
 	switch (signal){
