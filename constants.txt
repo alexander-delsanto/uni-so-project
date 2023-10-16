@@ -1,6 +1,5 @@
 # Simulation constants
-
-0.0 # SO_LATO
+10.560 # SO_LATO
 1 # SO_DAYS
 
 2 # SO_NAVI
