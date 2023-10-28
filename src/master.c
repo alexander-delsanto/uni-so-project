@@ -12,7 +12,7 @@ pid_t master_pid;
 pid_t *children_pid = NULL;
 int children_num = 0;
 
-struct data read_constants_from_file(char *path);
+data_general read_constants_from_file(char *path);
 void signal_handler(int signal);
 void close_all();
 
@@ -43,7 +43,7 @@ int main()
 
 }
 
-struct data read_constants_from_file(char *path)
+data_general read_constants_from_file(char *path)
 {
 	FILE *file;
     char c;
