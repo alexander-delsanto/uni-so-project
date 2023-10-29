@@ -19,7 +19,7 @@ shm *shm_create(char *name, int oflag, mode_t mode)
 		fprintf(stderr, "Empty shmem name\n");
 		return NULL;
 	}
-	if (name[1] != '/') {
+	if (name[0] != '/') {
 		fprintf(stderr, "Malformed name, missing slash\n");
 		return NULL;
 	}
