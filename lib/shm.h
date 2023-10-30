@@ -2,15 +2,19 @@
 #define SHM_H
 
 struct SHM {
-	int fd;
-	char *name;
-	void *data;
+	unsigned int id;
+	size_t length;
+	char *data;
 };
 typedef struct SHM shm;
 
-shm *shm_create(char *name, int oflag, mode_t mode);
+shm *shm_create(size_t length);
 void shm_delete(shm *shared);
-void shm_write(shm *shared, void *data, size_t size, int flags);
-void *shm_read(shm *shared);
 
-#endif //SHM_H
+shm *shm_open(unsigned int id, size_t length);
+void shm_close(shm *shared);
+
+void *shm_read(shm *shared);
+void shm_write(shm *shared, const char *data, size_t length);
+
+#endif
