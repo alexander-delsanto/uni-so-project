@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sys/shm.h>
 #include <sys/stat.h>
@@ -145,7 +146,5 @@ void shm_write(shm *shared, const char *data, size_t length)
 		return;
 	}
 
-	for (u = 0; u < (unsigned int)length; u++) {
-		shared->data[u] = data[u];
-	}
+	memcpy(shared->data, data, length);
 }
