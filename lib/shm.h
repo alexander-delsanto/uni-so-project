@@ -3,7 +3,7 @@
 
 typedef struct SHM shm;
 
-shm *shm_create(size_t length);
+shm *shm_create(key_t key, size_t length);
 void shm_delete(shm *shared);
 
 unsigned int shm_getid(shm *shared);
