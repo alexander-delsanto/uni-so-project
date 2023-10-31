@@ -1,6 +1,9 @@
 #ifndef SHM_H
 #define SHM_H
 
+#include <sys/shm.h>
+#include <sys/stat.h>
+
 typedef struct SHM shm;
 
 shm *shm_create(key_t key, size_t length);
