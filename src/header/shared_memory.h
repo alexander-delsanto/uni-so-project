@@ -40,5 +40,11 @@ struct data_cargo{
 	int time_of_life; 	/* in [SO_MIN_VITA, SO_MAX_VITA] */
 };
 
+struct data_ship{
+	pid_t pid;
+	double x_coord;
+	double y_coord;
+};
+
 
 #endif
