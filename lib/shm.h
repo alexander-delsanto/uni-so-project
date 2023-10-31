@@ -1,11 +1,6 @@
 #ifndef SHM_H
 #define SHM_H
 
-struct SHM {
-	unsigned int id;
-	size_t length;
-	void *data;
-};
 typedef struct SHM shm;
 
 shm *shm_create(size_t length);
