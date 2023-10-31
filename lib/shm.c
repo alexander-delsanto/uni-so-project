@@ -66,7 +66,7 @@ void shm_delete(shm *shared)
 }
 
 /*
- * Create a shm instance that is attachable to a preallocated shm segment,
+ * Create a shm instance that is attachable to a pre-allocated shm segment,
  * given proper id
  */
 shm *shm_open(unsigned int id, size_t length)
@@ -127,7 +127,7 @@ void *shm_read(shm *shared)
 	return shared->data;
 }
 
-void shm_write(shm *shared, const char *data, size_t length)
+void shm_write(shm *shared, const void *data, size_t length)
 {
 	unsigned int u;
 

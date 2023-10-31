@@ -4,7 +4,7 @@
 struct SHM {
 	unsigned int id;
 	size_t length;
-	char *data;
+	void *data;
 };
 typedef struct SHM shm;
 
@@ -15,6 +15,6 @@ shm *shm_open(unsigned int id, size_t length);
 void shm_close(shm *shared);
 
 void *shm_read(shm *shared);
-void shm_write(shm *shared, const char *data, size_t length);
+void shm_write(shm *shared, const void *data, size_t length);
 
 #endif
