@@ -34,7 +34,6 @@ struct data_ship{
 	pid_t pid;
 	struct coordinates coord;
 };
-
 struct data_cargo{
 	int weight;		/* in [1, SO_SIZE] */
 	int time_of_life; 	/* in [SO_MIN_VITA, SO_MAX_VITA] */
