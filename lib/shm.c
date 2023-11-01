@@ -13,7 +13,7 @@ struct SHM {
 /*
  * Adding getter for id, setter not required since we want it read-only.
  */
-unsigned int shm_get_id(shm *shared)
+shm_id_t shm_get_id(shm *shared)
 {
 	if (shared == NULL) {
 		fprintf(stderr,
@@ -86,7 +86,7 @@ void shm_delete(shm *shared)
  * Create a shm instance that is attachable to a pre-allocated shm segment,
  * given proper id
  */
-shm *shm_attach(unsigned int id, size_t length)
+shm *shm_attach(shm_id_t id, size_t length)
 {
 	shm *shared;
 

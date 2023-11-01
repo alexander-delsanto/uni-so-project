@@ -5,12 +5,13 @@
 #include <sys/stat.h>
 
 typedef struct SHM shm;
+typedef unsigned int shm_id_t;
 
 shm *shm_create(key_t key, size_t length);
 void shm_delete(shm *shared);
 
-unsigned int shm_get_id(shm *shared);
-shm *shm_attach(unsigned int id, size_t length);
+shm_id_t shm_get_id(shm *shared);
+shm *shm_attach(shm_id_t id, size_t length);
 void shm_detach(shm *shared);
 
 void *shm_read(shm *shared);
