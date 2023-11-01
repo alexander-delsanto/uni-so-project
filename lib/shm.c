@@ -16,8 +16,10 @@ struct SHM {
 shm_id_t shm_get_id(shm *shared)
 {
 	if (shared == NULL) {
+#ifndef TEST
 		fprintf(stderr,
 			"shm.c - shm_getid() : SHM instance is NULL.\n");
+#endif
 		return 0;
 	}
 
@@ -32,8 +34,10 @@ shm *shm_create(key_t key, size_t length)
 	shm *shared;
 
 	if (length == 0) {
+#ifndef TEST
 		fprintf(stderr,
 			"shm.c - shm_create() : Cannot allocate 0 bytes.\n");
+#endif
 		return NULL;
 	}
 
@@ -72,8 +76,10 @@ shm *shm_create(key_t key, size_t length)
 void shm_delete(shm *shared)
 {
 	if (shared == NULL) {
+#ifndef TEST
 		fprintf(stderr,
 			"shm.c - shm_delete() : SHM instance is NULL.\n");
+#endif
 		return;
 	}
 
@@ -91,8 +97,10 @@ shm *shm_attach(shm_id_t id, size_t length)
 	shm *shared;
 
 	if (length == 0) {
+#ifndef TEST
 		fprintf(stderr,
 			"shm.c - shm_open() : Cannot allocate 0 bytes.\n");
+#endif
 		return NULL;
 	}
 
@@ -125,8 +133,10 @@ shm *shm_attach(shm_id_t id, size_t length)
 void shm_detach(shm *shared)
 {
 	if (shared == NULL) {
+#ifndef TEST
 		fprintf(stderr,
 			"shm.c - shm_close() : SHM instance is NULL.\n");
+#endif
 		return;
 	}
 
@@ -137,7 +147,9 @@ void shm_detach(shm *shared)
 void *shm_read(shm *shared)
 {
 	if (shared == NULL) {
+#ifndef TEST
 		fprintf(stderr, "shm.c - shm_read() : SHM instance is NULL.\n");
+#endif
 		return NULL;
 	}
 
@@ -149,17 +161,23 @@ void shm_write(shm *shared, const void *data, size_t length)
 	unsigned int u;
 
 	if (shared == NULL) {
+#ifndef TEST
 		fprintf(stderr,
 			"shm.c - shm_write() : SHM instance is NULL.\n");
+#endif
 		return;
 	}
 	if (data == NULL) {
+#ifndef TEST
 		fprintf(stderr, "shm.c - shm_write() : Given data is NULL.\n");
+#endif
 		return;
 	}
 	if (length > shared->length) {
+#ifndef TEST
 		fprintf(stderr,
 			"shm.c - shm_write() : Data given are greater than reserved memory.\n");
+#endif
 		return;
 	}
 
