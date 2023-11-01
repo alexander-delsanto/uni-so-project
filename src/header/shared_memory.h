@@ -17,12 +17,6 @@ typedef struct _data_general{
 	int so_storm_duration, so_swell_duration, so_maelstrom;
 } data_general;
 
-void initialize_general_shm(data_general *general);
-id_shm_t get_shm(key_t shm_key, size_t size);
-void *attach_shm(id_shm_t shm_id, int flags);
-void detach_shm(void *shm_ptr);
-
-
 struct data_port{
 	pid_t pid;
 	double x_coord;
