@@ -1,40 +1,64 @@
 #define _GNU_SOURCE
-#include "header/shared_memory.h"
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
+#include "header/shared_memory.h"
+#include "../lib/shm.h"
 
 #define NANOSECONDS_IN_SECOND 1000000000L /* constant for conversion to ns */
 #define SECONDS_IN_DAY 86400 /* seconds in a day */
 
-int base = 100; // base of the map
-int capacity = 1000; // capacity of the ship
-int speed = 10; // speed of the ship
-struct data_ship ship;
-struct data_port destination;	/* we need to be able to access ports data */
+int base = 100; // example base of the map
+//int capacity = 1000; // example capacity
+int speed = 10; // example speed
+
+struct data_ship *ship;
+struct coordinates *dest;
+
+shm *ship_shm;
+
+#define SIZE (sizeof(*ship))
 
 /*
  *  for the stack we need a struct of cargo struct ???
  */
 
-void init_location(struct data_ship *ship);
-void signal_handler(int signal);
-void move(struct data_ship *ship);
+void init_location();
+/*void signal_handler(int signal);*/
+void move();
 
-
-int main(int argc, char const *argv[])
+int main()
 {
-        /* obtain the necessary data from shm */
+	//shm_id_t this_id;
+	/* init signals */
 
-        /* init signals */
-        
-        /* generate a random location on the map */
-        init_location(&ship);
+	/* obtain the necessary data from data_general
+	 * (so_speed, so_capacity, so_lato)
+	 */
+	
+	/* example */
+	dest = malloc(sizeof(*dest));
+	dest->x = 6.0;
+	dest->y = 8.0;
+	ship = malloc(SIZE);  // Allocazione di memoria per ship
 
+	ship_shm = shm_create(SHM_DATA_SHIPS_KEY, SIZE);
+	
+	init_location();
+	
+	shm_write(ship_shm, (void*) ship, SIZE);
+	ship = shm_read(ship_shm);
+	fprintf(stdout, "\nprima: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
+	
+	/* try to move */
+	move();
+	shm_write(ship_shm, (void*) ship, SIZE);
+	ship = shm_read(ship_shm);
+	fprintf(stdout, "\ndopo: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
 
-
+	shm_delete(ship_shm);
 
         return 0;
 }
@@ -42,14 +66,14 @@ int main(int argc, char const *argv[])
 void init_location()
 {
         /* generate a random location on the map */
-        srand(time(NULL) * getpid());
-        ship->coord.x = rand() % base;
-        ship->coord.y = rand() % base;
+	srand((unsigned int)time(NULL) * getpid());
+	ship->coord.x = rand() % base;
+	ship->coord.y = rand() % base;
 }
 
 void signal_handler(int signal)
 {
-        /* TODO */
+         /* TODO */
 }
 
 void move()
@@ -57,22 +81,23 @@ void move()
         double distance;
         double time_required;
         struct timespec sleep_time;
-
+	
         /* calculate distance between actual position and destination */
-        distance = sqrt(destination.coord.x - ship->coord.x, 2) + pow(destination->coord.y - ship->coord.y, 2));
+        distance = sqrt(pow(dest->x - ship->coord.x, 2) + pow(dest->y - ship->coord.y, 2));
 
-        /* calculate time required to cover the distance at ship's speed (in km/day) */
+        /* calculate time required to cover the distance at ship's speed
+         * (in km/day)
+         */
         time_required = distance / speed;
         time_required *= SECONDS_IN_DAY; /* conversion in seconds */
 
-        /* conversion in timespec to invoke nanosleep */
+        /* conversion in timespec to invoke nanosleep() */
         sleep_time.tv_sec = (int) time_required;
-        sleep_time.tv_nsec = (time_required - sleep_time.tv_sec) * NANOSECONDS_IN_SECOND;
-
-        nanosleep(&sleep_time, NULL);
-
+        sleep_time.tv_nsec = (long)(time_required - (double)sleep_time.tv_sec) * NANOSECONDS_IN_SECOND;
+	
+	nanosleep(&sleep_time, NULL);
         /* new location */
-        ship->coord = destination.coord;
+        ship->coord = *dest;
 }
 
 /**
