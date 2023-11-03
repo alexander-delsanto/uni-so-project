@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
-typedef int id_shm_t;
+typedef int bool_t;
+#define TRUE 1
+#define FALSE 0
 
 #endif
