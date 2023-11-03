@@ -13,7 +13,7 @@
  *
  * @param sem_key semaphore key, if 0 IPC_PRIVATE flag is used.
  * @param nsems number of semaphores in the array.
- * @return the id of the semaphore array.
+ * @return the id of the semaphore array. Returns -1 on failure.
  */
 id_t sem_create(key_t sem_key, int nsems);
 
