@@ -68,4 +68,3 @@ static struct sembuf create_sembuf(int index, int semop_value, int flags)
 
 	return res;
 }
-
