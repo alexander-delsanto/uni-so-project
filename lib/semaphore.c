@@ -28,7 +28,7 @@ void sem_execute_semop(id_t sem_id, int sem_index, int op_val, int flags)
 {
 	struct sembuf operation;
 
-	operation = create_sembuf(sem_index, operation, flags);
+	operation = create_sembuf(sem_index, op_val, flags);
 	while(semop(sem_id, &operation, 1) == -1);
 }
 
