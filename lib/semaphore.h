@@ -26,7 +26,7 @@ id_t sem_create(key_t sem_key, int nsems);
 void sem_setval(id_t sem_id, int sem_index, int value);
 
 /**
- * @brief
+ * @brief Sets the initial value of a semaphore in the array.
  *
  * @param sem_id the id of the semaphore array.
  * @param sem_index the index of the semaphore in the array.
