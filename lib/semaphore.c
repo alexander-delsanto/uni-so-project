@@ -6,12 +6,11 @@
 /* Private functions prototypes */
 static struct sembuf create_sembuf(int index, int semop_value, int flags);
 
-id_t sem_create(key_t sem_key, int nsems)
+int sem_create(key_t sem_key, int nsems)
 {
 	int res;
 	if (( res = semget(sem_key, nsems, 0660 | IPC_CREAT)) < 0) {
 		dprintf(2, "semaphore.c - sem_create: Failed to create semaphore array.\n");
-		exit(EXIT_FAILURE);
 	}
 	return res;
 }
@@ -20,7 +19,6 @@ void sem_setval(id_t sem_id, int sem_index, int value)
 {
 	if (semctl(sem_id, sem_index, SETVAL, value) < 0) {
 		dprintf(2, "semaphore.c - sem_setval: Failed to set semaphore value\n");
-		exit(EXIT_FAILURE);
 	}
 }
 
@@ -36,7 +34,6 @@ void sem_delete(id_t sem_id)
 {
 	if (semctl(sem_id, 0, IPC_RMID) < 0) {
 		dprintf(2, "semaphore.c - sem_delete: Failed to delete semaphore set.\n");
-		exit(EXIT_FAILURE);
 	}
 }
 
