@@ -15,6 +15,15 @@ int sem_create(key_t sem_key, int nsems)
 	return res;
 }
 
+int sem_get_id(key_t key)
+{
+	int res;
+	if ((res = semget(key, 0, 0)) == -1) {
+		dprintf(2, "semaphore.c - sem_get_id: Failed to obtain semaphore array id.\n");
+	}
+	return res;
+}
+
 void sem_setval(id_t sem_id, int sem_index, int value)
 {
 	if (semctl(sem_id, sem_index, SETVAL, value) < 0) {
