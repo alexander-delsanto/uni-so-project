@@ -1,5 +1,4 @@
 #define _GNU_SOURCE
-#include <stdlib.h>
 #include <stdio.h>
 #include "semaphore.h"
 
@@ -13,7 +12,7 @@ int sem_create(key_t sem_key, int nsems)
 		dprintf(2, "semaphore.c - sem_create: nsems must be greater than 0.\n");
 		return -1;
 	}
-	
+
 	if (( res = semget(sem_key, nsems, 0660 | IPC_CREAT)) < 0) {
 		dprintf(2, "semaphore.c - sem_create: Failed to create semaphore array.\n");
 	}
