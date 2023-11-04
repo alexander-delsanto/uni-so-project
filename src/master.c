@@ -1,10 +1,11 @@
 #define _GNU_SOURCE
-#include "header/utils.h"
-#include "header/shared_memory.h"
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include "header/ipc_utils.h"
+#include "header/utils.h"
+#include "header/shared_memory.h"
 
 #define NUM_CONST 16
 
@@ -12,7 +13,7 @@ pid_t master_pid;
 pid_t *children_pid = NULL;
 int children_num = 0;
 
-data_general read_constants_from_file(char *path);
+struct data_general read_constants_from_file(char *path);
 void signal_handler(int signal);
 void close_all();
 
@@ -20,8 +21,7 @@ int main()
 {
 	struct sigaction sa;
 	sigset_t masked_signals;
-	data_general read_data;
-	int i = 0;
+	struct data_general read_data;
 
 	master_pid = getpid();
 
@@ -35,18 +35,18 @@ int main()
 	sigaction(SIGINT, &sa, NULL);
 
 	read_data = read_constants_from_file("../constants.txt");
-	initialize_general_shm(&read_data);
 
+	initialize_general_shm(&read_data);
 
 }
 
-data_general read_constants_from_file(char *path)
+struct data_general read_constants_from_file(char *path)
 {
 	FILE *file;
 	char c;
 	int n_char, counter = 0;
 	double value;
-	data_general read_data;
+	struct data_general read_data;
 
 	file = fopen(path, "r");
 	if(file == NULL)
