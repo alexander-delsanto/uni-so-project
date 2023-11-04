@@ -21,17 +21,18 @@ shm *ship_shm;
 
 #define SIZE (sizeof(*ship))
 
-/*
- *  for the stack we need a struct of cargo struct ???
- */
-
 void init_location();
 /*void signal_handler(int signal);*/
 void move();
+void convert_and_sleep(double param, int speed);	/* we need it for move() and mooring in port */
+struct data_cargo * generate_cargo();
 
 int main()
 {
 	//shm_id_t this_id;
+	int cargo_quantity = 0;	/* counter for total objects in cargo
+ * 					must be in [0,so_capacity] */
+	struct data_cargo *my_cargo = NULL;
 	/* init signals */
 
 	/* obtain the necessary data from data_general
@@ -42,13 +43,14 @@ int main()
 	dest = malloc(sizeof(*dest));
 	dest->x = 6.0;
 	dest->y = 8.0;
-	ship = malloc(SIZE);  // Allocazione di memoria per ship
+	ship = malloc(SIZE);
 
 	ship_shm = shm_create(SHM_DATA_SHIPS_KEY, SIZE);
 	
 	init_location();
 	
-	shm_write(ship_shm, (void*) ship, SIZE);
+	my_cargo = generate_cargo();
+	
 	ship = shm_read(ship_shm);
 	fprintf(stdout, "\nprima: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
 	
@@ -58,6 +60,7 @@ int main()
 	ship = shm_read(ship_shm);
 	fprintf(stdout, "\ndopo: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
 
+	free(ship);
 	shm_delete(ship_shm);
 
         return 0;
@@ -79,23 +82,10 @@ void signal_handler(int signal)
 void move()
 {
         double distance;
-        double time_required;
-        struct timespec sleep_time;
-	
         /* calculate distance between actual position and destination */
         distance = sqrt(pow(dest->x - ship->coord.x, 2) + pow(dest->y - ship->coord.y, 2));
-
-        /* calculate time required to cover the distance at ship's speed
-         * (in km/day)
-         */
-        time_required = distance / speed;
-        time_required *= SECONDS_IN_DAY; /* conversion in seconds */
-
-        /* conversion in timespec to invoke nanosleep() */
-        sleep_time.tv_sec = (int) time_required;
-        sleep_time.tv_nsec = (long)(time_required - (double)sleep_time.tv_sec) * NANOSECONDS_IN_SECOND;
-	
-	nanosleep(&sleep_time, NULL);
+	/* conversions and wait */
+	convert_and_sleep(distance, so_speed);
         /* new location */
         ship->coord = *dest;
 }
@@ -103,3 +93,29 @@ void move()
 /**
  *  function to decide the next port based on availability and distance ???
  */
+ 
+
+void convert_and_sleep(double param, int speed)
+{
+	double time_required;
+	struct timespec sleep_time;
+	
+	/* calculate time required to terminate the operation
+         * (in days)
+         */
+	time_required = param / speed;
+	time_required *= SECONDS_IN_DAY; /* conversion in seconds */
+	
+	/* conversion in timespec to invoke nanosleep() */
+	sleep_time.tv_sec = (int) time_required;
+	sleep_time.tv_nsec = (long)(time_required - (double)sleep_time.tv_sec) * NANOSECONDS_IN_SECOND;
+	
+	nanosleep(&sleep_time, NULL);
+}
+
+struct data_cargo * generate_cargo()
+{
+	struct data_cargo *cargo = malloc(so_capacity * sizeof(*cargo));
+	
+	
+}
