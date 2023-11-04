@@ -1,0 +1,78 @@
+#define _GNU_SOURCE
+
+#include <string.h>
+#include "header/ipc_utils.h"
+
+/* Data structures */
+struct data_general *general;
+struct data_ship *ships;
+struct data_port *ports;
+struct data_cargo *cargo;
+
+/* Shared memory ids */
+int id_shm_general;
+int id_shm_ship;
+int id_shm_port;
+int id_shm_cargo;
+
+/* Semaphore ids */
+int id_sem_simulation;
+
+void initialize_general_shm(struct data_general *data)
+{
+	id_shm_general = shm_create(SHM_DATA_GENERAL_KEY, sizeof(*general));
+	general = shm_attach(id_shm_general);
+	memcpy(general, data, sizeof(*data));
+}
+
+void initialize_shm()
+{
+	shm_attach(id_shm_general);
+	id_shm_ship = shm_create(SHM_DATA_SHIPS_KEY, (sizeof(*ships) * general->so_navi));
+	id_shm_port = shm_create(SHM_DATA_PORTS_KEY, (sizeof(*ports) * general->so_porti));
+
+	ships = shm_attach(id_shm_ship);
+	ports = shm_attach(id_shm_port);
+}
+
+/* Getters */
+int get_general_shm_id(){return id_shm_general;}
+int get_ship_shm_id(){return id_shm_ship;}
+int get_cargo_shm_id(){return id_shm_cargo;}
+
+pid_t get_ship_pid(int ship_id){return ships[ship_id].pid;};
+struct coordinates get_ship_coords(int ship_id){return ships[ship_id].coord;};
+
+
+/* Setters */
+void set_ship_pid(int ship_id, pid_t ship_pid){ships[ship_id].pid = ship_pid;}
+void set_ship_coords(int ship_id, struct coordinates coords){ships[ship_id].coord = coords;}
+
+double get_constant(int const_num)
+{
+	switch (const_num % 16) {
+	case 0  :return general->so_lato;
+	case 1 : return general->so_days;
+	case 2 : return general->so_navi;
+	case 3 : return general->so_speed;
+	case 4 : return general->so_capacity;
+	case 5 : return general->so_porti;
+	case 6 : return general->so_banchine;
+	case 7 : return general->so_fill;
+	case 8 : return general->so_loadspeed;
+	case 9 : return general->so_merci;
+	case 10: return general->so_size;
+	case 11 : return general->so_min_vita;
+	case 12 : return general->so_max_vita;
+	case 13 : return general->so_storm_duration;
+	case 14 : return general->so_swell_duration;
+	case 15 : return general->so_maelstrom;
+	}
+}
+
+void delete_all_shm()
+{
+	shm_delete(id_shm_general);
+	shm_delete(id_shm_ship);
+	shm_delete(id_shm_port);
+}
