@@ -7,9 +7,6 @@
 #include "header/shared_memory.h"
 #include "../lib/shm.h"
 
-#define NANOSECONDS_IN_SECOND 1000000000L /* constant for conversion to ns */
-#define SECONDS_IN_DAY 86400 /* seconds in a day */
-
 int base = 100; // example base of the map
 //int capacity = 1000; // example capacity
 int speed = 10; // example speed
