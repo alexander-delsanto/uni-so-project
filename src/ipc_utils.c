@@ -77,4 +77,5 @@ void delete_all_shm()
 	shm_delete(id_shm_general);
 	shm_delete(id_shm_ship);
 	shm_delete(id_shm_port);
+	shm_delete(id_shm_cargo);
 }
