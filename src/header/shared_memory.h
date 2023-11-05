@@ -36,9 +36,8 @@ struct data_ship{
 };
 
 struct data_cargo{
-	int id;
-	int quantity;
-	int time_of_life;
+	int weight;		/* in [1, SO_SIZE] */
+	int time_of_life; 	/* in [SO_MIN_VITA, SO_MAX_VITA] */
 };
 
 
