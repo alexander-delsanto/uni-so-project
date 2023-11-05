@@ -1,7 +1,15 @@
 #ifndef _UTILS_H
 #define _UTILS_H
 
+#include <signal.h>
 #include <stdlib.h>
+
+/* Custom signals */
+#define SIGDAY SIGUSR1
+#define SIGSWELL SIGUSR2
+#define SIGSTORM SIGUSR2
+#define SIGMAELSTROM SIGINT
+
 
 typedef int bool_t;
 #define TRUE 1
