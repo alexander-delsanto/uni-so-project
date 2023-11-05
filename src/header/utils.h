@@ -8,7 +8,7 @@
 #define SIGDAY SIGUSR1
 #define SIGSWELL SIGUSR2
 #define SIGSTORM SIGUSR2
-#define SIGMAELSTROM SIGINT
+#define SIGMAELSTROM SIGTERM
 
 
 typedef int bool_t;
