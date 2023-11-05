@@ -13,4 +13,7 @@ typedef int bool_t;
 #define RANDOM_DOUBLE(min, max)\
 	(rand() / (double)RAND_MAX * (max - min) + (min))
 
+#define SECONDS_IN_DAY 86400 /* constant for conversion in seconds */
+#define NANOSECONDS_IN_SECOND 1000000000L /* constant for conversion to nanoseconds */
+
 #endif
