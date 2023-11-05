@@ -3,41 +3,73 @@
 #include <signal.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 #include <math.h>
 #include "header/shared_memory.h"
 #include "../lib/shm.h"
 #include "header/ipc_utils.h"
+#include "header/utils.h"
 
+cargo_hold *ship_cargo;
 struct data_ship *ship;
-int this_shm_id;
+struct coordinates *dest;
+int _this_id;
 
 void init_location();
-/*void signal_handler(int signal);*/
 void move();
 void convert_and_sleep(double param, int speed);
+void signal_handler(int signal);
+void close_all();
 
-int main()
+void loop_test();
+
+int main(int argc, char *argv)
 {
-	//shm_id_t this_shm_id;
-	int cargo_quantity = 0;	/* counter for total objects in cargo
- * 					must be in [0,so_capacity] */
+	struct sigaction sa;
+	sigset_t mask;
 
-	initialize_shm();
-	this_shm_id = get_ship_shm_id();
-	
-	init_location();
+	bzero(&sa, sizeof(sa));
+	sa.sa_handler = &signal_handler;
 
-	
+	/* Signal handler initialization */
+	sigfillset(&mask);
+	sa.sa_mask = mask;
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGSEGV, &sa, NULL);
+
+	_this_id = atoi(&argv[1]);
+	//initialize_shm();
+	//ship_cargo = calloc(SO_MERCI, sizeof(*ship_cargo));
+
+	//init_location();
+
+	sigemptyset(&mask);
+	sa.sa_mask = mask;
+	sigaction(SIGDAY, &sa, NULL);
+	sigaction(SIGSTORM, &sa, NULL);
+	sigaction(SIGMAELSTROM, &sa, NULL);
+
+
+	loop_test();
 	//my_cargo = generate_cargo();
 
-	fprintf(stdout, "\nprima: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
+	fprintf(stdout, "Prima: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
 	
 	/* try to move */
 	move();
-	fprintf(stdout, "\ndopo: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
+	fprintf(stdout, "Dopo: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
 
     return 0;
 }
+
+
+void loop_test() {
+    dprintf(1, "My pid is: %d\n", getpid());
+    while (1) {
+	    sleep(1);
+    }
+}
+
 
 /**
  * @brief initializes ship's location.
@@ -48,12 +80,7 @@ void init_location()
 	srand((unsigned int)time(NULL) * getpid());
 	ship->coord.x = RANDOM_DOUBLE(0, SO_LATO);
 	ship->coord.y = RANDOM_DOUBLE(0, SO_LATO);
-	set_ship_coords(this_shm_id, ship->coord);
-}
-
-void signal_handler(int signal)
-{
-         /* TODO */
+	set_ship_coords(_this_id, ship->coord);
 }
 
 /**
@@ -67,7 +94,7 @@ void move()
 	convert_and_sleep(distance, SO_SPEED);
         /* new location */
         ship->coord = *dest;
-	set_ship_coords(this_shm_id, ship->coord);
+	set_ship_coords(_this_id, ship->coord);
 }
 
 /**
@@ -91,4 +118,37 @@ void convert_and_sleep(double param, int speed)
 	sleep_time.tv_nsec = (long)(time_required - (double)sleep_time.tv_sec) * NANOSECONDS_IN_SECOND;
 	
 	nanosleep(&sleep_time, NULL);
+}
+
+void signal_handler(int signal)
+{
+	switch (signal) {
+	case SIGDAY:
+	    dprintf(1, "Received SIGDAY signal.\n");
+		/* TODO */
+		break;
+	case SIGSTORM:
+		dprintf(1, "Received SIGSTORM signal.\n");
+		/* TODO */
+		break;
+	case SIGMAELSTROM:
+		dprintf(1, "Received SIGMAELSTROM signal.\n");
+		/* TODO */
+		close_all();
+		break;
+	case SIGSEGV:
+		dprintf(1, "Received SIGSEGV signal.\n");
+		//dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n", _this_id);
+		close_all();
+		break;
+	case SIGINT:
+		dprintf(1, "Received SIGINT signal.\n");
+		close_all();
+		break;
+	}
+}
+
+void close_all()
+{
+
 }
