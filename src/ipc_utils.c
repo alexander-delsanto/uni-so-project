@@ -30,9 +30,11 @@ void initialize_shm()
 	shm_attach(id_shm_general);
 	id_shm_ship = shm_create(SHM_DATA_SHIPS_KEY, (sizeof(*ships) * general->so_navi));
 	id_shm_port = shm_create(SHM_DATA_PORTS_KEY, (sizeof(*ports) * general->so_porti));
+	id_shm_cargo = shm_create(SHM_DATA_CARGO_KEY, (sizeof(*cargo) * general->so_merci));
 
 	ships = shm_attach(id_shm_ship);
 	ports = shm_attach(id_shm_port);
+	cargo = shm_attach(id_shm_cargo);
 }
 
 /* Getters */
