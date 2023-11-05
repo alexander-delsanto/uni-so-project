@@ -7,6 +7,12 @@ typedef int bool_t;
 #define TRUE 1
 #define FALSE 0
 
+typedef struct{
+	struct cargo_node *head;
+} cargo_hold;
+
+void insert_cargo(cargo_hold *cargo);
+
 /**
  * @return a random double between min and max.
  */
