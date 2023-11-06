@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 #include "header/ipc_utils.h"
 #include "header/utils.h"
 #include "header/shared_memory.h"
