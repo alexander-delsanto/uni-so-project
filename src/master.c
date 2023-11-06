@@ -44,6 +44,10 @@ int main()
 	create_children();
 	start_simulation();
 
+	while(1) {
+		sleep(1);
+		send_signal_to_children(SIGDAY);
+	}
 }
 
 void create_children() {
