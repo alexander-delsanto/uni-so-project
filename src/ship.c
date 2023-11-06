@@ -11,15 +11,20 @@
 #include "header/utils.h"
 
 cargo_hold *ship_cargo;
-struct data_ship *ship;
-struct coordinates *dest;
+struct coordinates dest;
 int _this_id;
+
+#define GET_DISTANCE(dest)\
+	(sqrt(pow(dest.x - get_ship_coords(_this_id).x, 2) + pow(dest.y - get_ship_coords(_this_id).y, 2)))
 
 void init_location();
 void move();
 void convert_and_sleep(double param, int speed);
 void signal_handler(int signal);
 void close_all();
+void loop();
+void find_new_destination(int *port_id, struct coordinates *coords);
+void trade(int id_port);
 
 int main(int argc, char *argv[])
 {
@@ -57,11 +62,13 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-
-void loop_test() {
-    dprintf(1, "My pid is: %d\n", getpid());
-    while (1) {
-	    sleep(1);
+void loop() {
+    int id_dest_port;
+    struct coordinates destination_coords;
+    while(1) {
+	    find_new_destination(&id_dest_port, &destination_coords);
+	    move(destination_coords);
+	    trade(id_dest_port);
     }
 }
 
@@ -71,6 +78,7 @@ void loop_test() {
  */
 void init_location()
 {
+    	struct coordinates coords;
         /* generate a random location on the map */
 	srand((unsigned int)time(NULL) * getpid());
 	ship->coord.x = RANDOM_DOUBLE(0, SO_LATO);
@@ -84,12 +92,14 @@ void init_location()
 void move()
 {
         double distance;
+	double time_required;
         /* calculate distance between actual position and destination */
-        distance = sqrt(pow(dest->x - ship->coord.x, 2) + pow(dest->y - ship->coord.y, 2));
-	convert_and_sleep(distance, SO_SPEED);
-        /* new location */
-        ship->coord = *dest;
-	set_ship_coords(_this_id, ship->coord);
+        distance = GET_DISTANCE(dest);
+	/* calculate time required to arrive (in days) */
+	time_required = distance / SO_SPEED;
+	convert_and_sleep(time_required);
+        /* set new location */
+	set_ship_coords(_this_id, dest);
 }
 
 /**
