@@ -10,6 +10,8 @@
 #define SHM_DATA_SHIPS_KEY 0x3fff
 #define SHM_DATA_CARGO_KEY 0x4fff
 
+#define SEM_START_KEY 0x10fff
+
 
 struct data_general{
 	double so_lato;
