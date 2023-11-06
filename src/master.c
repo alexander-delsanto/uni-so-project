@@ -77,7 +77,6 @@ pid_t run_process(char *name, int index)
 		args[0] = name;
 		args[1] = buf;
 		args[2] = NULL;
-		dprintf(1, "%d\n", index);
 		if (execve(name, args, NULL) == -1) {
 			perror("execve");
 			exit(EXIT_SUCCESS);
