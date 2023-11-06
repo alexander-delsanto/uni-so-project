@@ -21,9 +21,7 @@ void convert_and_sleep(double param, int speed);
 void signal_handler(int signal);
 void close_all();
 
-void loop_test();
-
-int main(int argc, char *argv)
+int main(int argc, char *argv[])
 {
 	struct sigaction sa;
 	sigset_t mask;
