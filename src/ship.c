@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
 {
 	struct sigaction sa;
 	sigset_t mask;
-
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = &signal_handler;
 
@@ -71,7 +70,6 @@ void loop() {
 	    trade(id_dest_port);
     }
 }
-
 
 /**
  * @brief initializes ship's location.
