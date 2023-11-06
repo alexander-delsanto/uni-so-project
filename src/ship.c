@@ -37,8 +37,8 @@ int main(int argc, char *argv)
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGSEGV, &sa, NULL);
 
-	_this_id = atoi(&argv[1]);
-	//initialize_shm();
+	_this_id = atoi(argv[1]);
+	attach_process_to_shm(); /* Still segmentation fault here */
 	//ship_cargo = calloc(SO_MERCI, sizeof(*ship_cargo));
 
 	//init_location();
