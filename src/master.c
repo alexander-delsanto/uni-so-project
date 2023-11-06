@@ -14,6 +14,8 @@ pid_t master_pid;
 pid_t *children_pid = NULL;
 int children_num = 0;
 
+void create_children();
+pid_t run_process(char *name, int index);
 struct data_general read_constants_from_file(char *path);
 void send_signal_to_children(int signal);
 void signal_handler(int signal);
@@ -38,8 +40,49 @@ int main()
 
 	read_data = read_constants_from_file("../constants.txt");
 
-	initialize_general_shm(&read_data);
+	initialize_shm(&read_data);
+	create_children();
+	start_simulation();
 
+}
+
+void create_children() {
+	int i;
+	children_pid = calloc(SO_NAVI + SO_PORTI + 1, sizeof(*children_pid));
+	/* Running ports */
+/*	for (i = 0; i < SO_PORTI; i++) {
+		set_port_pid(i, run_process("./port", i));
+	}*/
+	/* Running ships */
+	for (i = 0; i < SO_NAVI; i++) {
+		set_ship_pid(i, run_process("./ship", i));
+	}
+	/* Running weather */
+	// run_process("./weather", 0);
+}
+
+pid_t run_process(char *name, int index)
+{
+	pid_t process_pid;
+	char *args[3], buf[10];
+	if((process_pid = fork()) == -1) {
+		dprintf(2, "master.c: Error in fork.\n");
+		close_all();
+	} else if (process_pid == 0) {
+		sprintf(buf, "%d", index);
+		args[0] = name;
+		args[1] = buf;
+		args[2] = NULL;
+		dprintf(1, "%d\n", index);
+		if (execve(name, args, NULL) == -1) {
+			perror("execve");
+			exit(EXIT_SUCCESS);
+		}
+	}
+
+	children_pid[children_num] = process_pid;
+	children_num++;
+	return process_pid;
 }
 
 struct data_general read_constants_from_file(char *path)
