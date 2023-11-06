@@ -50,15 +50,12 @@ int main(int argc, char *argv)
 	sigaction(SIGMAELSTROM, &sa, NULL);
 
 
-	loop_test();
-	//my_cargo = generate_cargo();
 
-	fprintf(stdout, "Prima: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
-	
-	/* try to move */
-	move();
-	fprintf(stdout, "Dopo: coord = (%f,%f)\n", ship->coord.x, ship->coord.y);
 
+
+	while(1) {
+		sleep(1);
+	}
     return 0;
 }
 
@@ -124,7 +121,7 @@ void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGDAY:
-	    dprintf(1, "Received SIGDAY signal.\n");
+	    dprintf(1, "Ship %d: Received SIGDAY signal.\n", _this_id);
 		/* TODO */
 		break;
 	case SIGSTORM:
@@ -138,7 +135,7 @@ void signal_handler(int signal)
 		break;
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");
-		//dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n", _this_id);
+		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n", _this_id);
 		close_all();
 		break;
 	case SIGINT:
