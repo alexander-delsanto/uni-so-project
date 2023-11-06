@@ -14,6 +14,7 @@ pid_t *children_pid = NULL;
 int children_num = 0;
 
 struct data_general read_constants_from_file(char *path);
+void send_signal_to_children(int signal);
 void signal_handler(int signal);
 void close_all();
 
@@ -80,10 +81,21 @@ struct data_general read_constants_from_file(char *path)
 	return read_data;
 }
 
+void send_signal_to_children(int signal)
+{
+	int i;
+	if(children_pid != NULL) {
+		for (i = 0; i < children_num; i++) {
+			kill(children_pid[i], signal);
+		}
+	}
+}
+
 void signal_handler(int signal)
 {
 	switch (signal){
 	case SIGSEGV:
+		dprintf(2, "master.c: Segmentation fault. Closing all.\n");
 		close_all();
 	case SIGTERM:
 	case SIGINT:
@@ -96,5 +108,10 @@ void signal_handler(int signal)
 
 void close_all()
 {
-	/* TODO */
+	send_signal_to_children(SIGKILL);
+	while (wait(NULL) > 0);
+
+	free(children_pid);
+	delete_all_shm();
+	exit(0);
 }
