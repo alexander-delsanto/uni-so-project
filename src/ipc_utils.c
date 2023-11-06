@@ -4,10 +4,10 @@
 #include "header/ipc_utils.h"
 
 /* Data structures */
-struct data_general *general;
-struct data_ship *ships;
-struct data_port *ports;
-struct data_cargo *cargo;
+struct data_general *general = NULL;
+struct data_ship *ships = NULL;
+struct data_port *ports = NULL;
+struct data_cargo *cargo = NULL;
 
 /* Shared memory ids */
 int id_shm_general;
@@ -18,14 +18,22 @@ int id_shm_cargo;
 /* Semaphore ids */
 int id_sem_simulation;
 
-void initialize_general_shm(struct data_general *data)
+void initialize_shm(struct data_general *data)
 {
 	id_shm_general = shm_create(SHM_DATA_GENERAL_KEY, sizeof(*general));
 	general = shm_attach(id_shm_general);
 	memcpy(general, data, sizeof(*data));
+
+	id_shm_ship = shm_create(SHM_DATA_SHIPS_KEY, (sizeof(*ships) * general->so_navi));
+	id_shm_port = shm_create(SHM_DATA_PORTS_KEY, (sizeof(*ports) * general->so_porti));
+	id_shm_cargo = shm_create(SHM_DATA_CARGO_KEY, (sizeof(*cargo) * general->so_merci));
+
+	ships = shm_attach(id_shm_ship);
+	ports = shm_attach(id_shm_port);
+	cargo = shm_attach(id_shm_cargo);
 }
 
-void initialize_shm()
+void attach_process_to_shm()
 {
 	shm_attach(id_shm_general);
 	id_shm_ship = shm_create(SHM_DATA_SHIPS_KEY, (sizeof(*ships) * general->so_navi));
