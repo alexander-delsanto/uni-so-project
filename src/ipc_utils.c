@@ -62,8 +62,14 @@ int get_cargo_shm_id(){return id_shm_cargo;}
 pid_t get_ship_pid(int ship_id){return ships[ship_id].pid;};
 struct coordinates get_ship_coords(int ship_id){return ships[ship_id].coord;};
 
+/* Cargo getters */
+int get_cargo_life_duration(int id_cargo) {return cargo[id_cargo].time_of_life;}
+
 
 /* Setters */
+void set_port_pid(int port_id, pid_t port_pid){ports[port_id].pid = port_pid;}
+void set_port_coords(int port_id, struct coordinates coords){ports[port_id].coord = coords;}
+
 void set_ship_pid(int ship_id, pid_t ship_pid){ships[ship_id].pid = ship_pid;}
 void set_ship_coords(int ship_id, struct coordinates coords){ships[ship_id].coord = coords;}
 
