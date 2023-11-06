@@ -10,12 +10,14 @@
  *
  * @param data a pointer to a struct data_general.
  */
-void initialize_general_shm(struct data_general *data);
+void initialize_shm(struct data_general *data);
 
 /**
  * @brief Initializes and attaches ship, port and cargo shared memory structures.
  */
-void initialize_shm();
+void attach_process_to_shm();
+
+void start_simulation();
 
 /* Getters */
 int get_general_shm_id();

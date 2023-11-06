@@ -16,10 +16,12 @@ int id_shm_port;
 int id_shm_cargo;
 
 /* Semaphore ids */
-int id_sem_simulation;
+int id_sem_start;
 
 void initialize_shm(struct data_general *data)
 {
+	id_sem_start = sem_create(SEM_START_KEY, 1);
+
 	id_shm_general = shm_create(SHM_DATA_GENERAL_KEY, sizeof(*general));
 	general = shm_attach(id_shm_general);
 	memcpy(general, data, sizeof(*data));
@@ -35,7 +37,14 @@ void initialize_shm(struct data_general *data)
 
 void attach_process_to_shm()
 {
-	shm_attach(id_shm_general);
+	id_sem_start = sem_create(SEM_START_KEY, 1);
+	sem_execute_semop(id_sem_start, 0, 0, 0);
+
+	/* Attaching to general for simulation constants */
+	id_shm_general = shm_create(SHM_DATA_GENERAL_KEY, sizeof(*general));
+	general = shm_attach(id_shm_general);
+
+	/* Attaching to other segments */
 	id_shm_ship = shm_create(SHM_DATA_SHIPS_KEY, (sizeof(*ships) * general->so_navi));
 	id_shm_port = shm_create(SHM_DATA_PORTS_KEY, (sizeof(*ports) * general->so_porti));
 	id_shm_cargo = shm_create(SHM_DATA_CARGO_KEY, (sizeof(*cargo) * general->so_merci));
@@ -80,10 +89,13 @@ double get_constant(int const_num)
 	}
 }
 
+void start_simulation(){sem_setval(id_sem_start, 0, 0);}
+
 void delete_all_shm()
 {
 	shm_delete(id_shm_general);
 	shm_delete(id_shm_ship);
 	shm_delete(id_shm_port);
 	shm_delete(id_shm_cargo);
+	sem_delete(id_sem_start);
 }
