@@ -3,6 +3,7 @@
 
 #include <signal.h>
 #include <stdlib.h>
+#include <time.h>
 
 /* Custom signals */
 #define SIGDAY SIGUSR1
