@@ -16,6 +16,7 @@ typedef int bool_t;
 #define FALSE 0
 
 typedef struct{
+	int available_quantity;
 	struct cargo_node *head;
 } cargo_hold;
 
