@@ -22,7 +22,7 @@ void close_all();
 int main()
 {
 	struct sigaction sa;
-	sigset_t masked_signals;
+	sigset_t mask;
 	struct data_general read_data;
 
 	master_pid = getpid();
@@ -30,8 +30,8 @@ int main()
 	/* Signal handler initialization */
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = signal_handler;
-	sigfillset(&masked_signals);
-	sa.sa_mask = masked_signals;
+	sigfillset(&mask);
+	sa.sa_mask = mask;
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
