@@ -32,8 +32,10 @@ int main()
 	/* Signal handler initialization */
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = signal_handler;
+
 	sigfillset(&mask);
 	sa.sa_mask = mask;
+	sigaction(SIGALRM, &sa, NULL);
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
@@ -44,9 +46,10 @@ int main()
 	create_children();
 	start_simulation();
 
+	alarm(1);
+
 	while(1) {
-		sleep(1);
-		send_signal_to_children(SIGDAY);
+		pause();
 	}
 }
 
@@ -148,7 +151,8 @@ void signal_handler(int signal)
 	case SIGINT:
 		close_all();
 	case SIGALRM:
-		/* TODO */
+		send_signal_to_children(SIGDAY);
+		alarm(1);
 		break;
 	}
 }
