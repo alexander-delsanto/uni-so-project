@@ -1,8 +1,6 @@
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <signal.h>
 #include <unistd.h>
-#include <time.h>
 #include <string.h>
 #include <math.h>
 #include "header/shared_memory.h"
@@ -18,8 +16,7 @@ int _this_id;
 	(sqrt(pow(dest.x - get_ship_coords(_this_id).x, 2) + pow(dest.y - get_ship_coords(_this_id).y, 2)))
 
 void init_location();
-void move();
-void convert_and_sleep(double param, int speed);
+void move(struct coordinates destination_coords);
 void signal_handler(int signal);
 void close_all();
 void loop();
@@ -78,16 +75,16 @@ void init_location()
 {
     	struct coordinates coords;
         /* generate a random location on the map */
-	srand((unsigned int)time(NULL) * getpid());
-	ship->coord.x = RANDOM_DOUBLE(0, SO_LATO);
-	ship->coord.y = RANDOM_DOUBLE(0, SO_LATO);
-	set_ship_coords(_this_id, ship->coord);
+	srand(time(NULL) * getpid());
+	coords.x = RANDOM_DOUBLE(0, SO_LATO);
+	coords.y = RANDOM_DOUBLE(0, SO_LATO);
+	set_ship_coords(_this_id, coords);
 }
 
 /**
- * @brief simulate the movement of the ship and updates the location.
+ * @brief simulates the movement of the ship and updates the location.
  */
-void move()
+void move(struct coordinates dest)
 {
         double distance;
 	double time_required;
@@ -100,27 +97,14 @@ void move()
 	set_ship_coords(_this_id, dest);
 }
 
-/**
- * @brief converts time data from days to nanoseconds and calls nanosleep().
- *
- * @param param data of the action
- * @param speed speed required to perform the action
- */
-void convert_and_sleep(double param, int speed)
+void find_new_destination(int *port_id, struct coordinates *coords)
 {
-	double time_required;
-	struct timespec sleep_time;
-	
-	/* calculate time required to terminate the operation (in days) */
-	time_required = param / speed;
-	/* conversion in seconds */
-	time_required *= SECONDS_IN_DAY;
-	
-	/* conversion in timespec to invoke nanosleep() */
-	sleep_time.tv_sec = (int) time_required;
-	sleep_time.tv_nsec = (long)(time_required - (double)sleep_time.tv_sec) * NANOSECONDS_IN_SECOND;
-	
-	nanosleep(&sleep_time, NULL);
+	/* TODO */
+}
+
+void trade(int id_port)
+{
+	/* TODO */
 }
 
 void signal_handler(int signal)
@@ -153,5 +137,6 @@ void signal_handler(int signal)
 
 void close_all()
 {
-
+	exit(0);
+	/* TODO */
 }

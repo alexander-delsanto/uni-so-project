@@ -26,8 +26,12 @@ int get_cargo_shm_id();
 pid_t get_ship_pid(int ship_id);
 struct coordinates get_ship_coords(int ship_id);
 double get_constant(int const_num);
+int get_cargo_life_duration(int id_cargo);
 
 /* Setters */
+void set_port_pid(int port_id, pid_t port_pid);
+void set_port_coords(int port_id, struct coordinates coords);
+
 void set_ship_pid(int ship_id, pid_t ship_pid);
 void set_ship_coords(int ship_id, struct coordinates coords);
 void delete_all_shm();

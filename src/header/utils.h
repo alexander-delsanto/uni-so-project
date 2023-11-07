@@ -21,7 +21,14 @@ typedef struct{
 	struct cargo_node *head;
 } cargo_hold;
 
-void insert_cargo(cargo_hold *cargo);
+//void insert_cargo(cargo_hold *cargo);
+
+/**
+ * @brief converts time data to timespec and calls nanosleep().
+ *
+ * @param time_required time required to terminate.
+ */
+void convert_and_sleep(double time_required);
 
 /**
  * @return a random double between min and max.
@@ -29,7 +36,7 @@ void insert_cargo(cargo_hold *cargo);
 #define RANDOM_DOUBLE(min, max)\
 	(rand() / (double)RAND_MAX * (max - min) + (min))
 
-#define SECONDS_IN_DAY 86400 /* constant for conversion in seconds */
-#define NANOSECONDS_IN_SECOND 1000000000L /* constant for conversion to nanoseconds */
+#define HOURS_IN_DAY 24
+#define NANOSECONDS_IN_SECOND 1000000000 /* constant for conversion to nanoseconds */
 
 #endif
