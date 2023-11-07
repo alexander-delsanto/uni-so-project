@@ -2,6 +2,7 @@
 .PHONY: recompile
 _MAIN=master
 SRC=src
+LIB=lib
 BIN=bin
 BINARIES=$(_MAIN) port ship weather
 
@@ -19,7 +20,13 @@ REQUIRED_O=$(patsubst src/%.c, $(BIN)/%.o, $(REQUIRED))
 
 
 # Main
-all: $(BINARIES_OUT)
+all: master ship# $(BINARIES_OUT)
+
+master: | $(BIN)
+	$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@
+
+ship: | $(BIN)
+	$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
 
 $(BIN):
 	@mkdir -p $@
