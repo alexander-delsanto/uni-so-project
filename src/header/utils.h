@@ -31,7 +31,13 @@ typedef struct{
 void convert_and_sleep(double time_required);
 
 /**
- * @return a random double between min and max.
+ * @return a random integer between min and max (included).
+ */
+#define RANDOM_INTEGER(min, max)\
+((rand() % ((max) - (min) + 1)) + (min))
+
+/**
+ * @return a random double between min and max (included).
  */
 #define RANDOM_DOUBLE(min, max)\
 	(rand() / (double)RAND_MAX * (max - min) + (min))
