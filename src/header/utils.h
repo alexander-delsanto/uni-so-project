@@ -21,14 +21,30 @@ typedef struct{
 	struct cargo_node *head;
 } cargo_hold;
 
-/*void insert_cargo(cargo_hold *cargo);*/
-
 /**
  * @brief converts time data to timespec and calls nanosleep().
  *
  * @param time_required time required to terminate.
  */
 void convert_and_sleep(double time_required);
+
+/**
+ * Inserts cargo in the list ordered by expiration date.
+ * If expiration date does not exist, a new node is created.
+ * @param cargo list of cargo with same id
+ * @param quantity quantity to add
+ * @param expiration_date
+ */
+void insert_cargo(cargo_hold *cargo, int quantity, int expiration_date);
+
+/**
+ * Extracts cargo from the list ordered by expiration date.
+ * If quantity is 0, the node is deleted.
+ * @param cargo list of cargo with same id
+ * @param quantity quantity to add
+ * @param expiration_date
+ */
+void remove_cargo(cargo_hold *cargo, int quantity, int expiration_date);
 
 /**
  * @return a random integer between min and max (included).
