@@ -76,7 +76,7 @@ void set_ship_coords(int ship_id, struct coordinates coords){ships[ship_id].coor
 double get_constant(int const_num)
 {
 	switch (const_num % 16) {
-	case 0  :return general->so_lato;
+	case 0 : return general->so_lato;
 	case 1 : return general->so_days;
 	case 2 : return general->so_navi;
 	case 3 : return general->so_speed;
@@ -86,7 +86,7 @@ double get_constant(int const_num)
 	case 7 : return general->so_fill;
 	case 8 : return general->so_loadspeed;
 	case 9 : return general->so_merci;
-	case 10: return general->so_size;
+	case 10 : return general->so_size;
 	case 11 : return general->so_min_vita;
 	case 12 : return general->so_max_vita;
 	case 13 : return general->so_storm_duration;
