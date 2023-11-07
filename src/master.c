@@ -153,7 +153,14 @@ void signal_handler(int signal)
 	case SIGALRM:
 		new_day();
 		dprintf(1, "\n");
+
+		if (get_current_day() == SO_DAYS + 1) {
+			dprintf(1, "Reached last day of simulation. Terminating...\n");
+			close_all();
+		}
+
 		send_signal_to_children(SIGDAY);
+
 		alarm(1);
 		break;
 	}
