@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	attach_process_to_shm(); /* Still segmentation fault here */
 	//ship_cargo = calloc(SO_MERCI, sizeof(*ship_cargo));
 
-	//init_location();
+	/*init_location();*/
 
 	sigemptyset(&mask);
 	sa.sa_mask = mask;
