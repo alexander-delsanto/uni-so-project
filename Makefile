@@ -23,10 +23,10 @@ REQUIRED_O=$(patsubst src/%.c, $(BIN)/%.o, $(REQUIRED))
 all: master ship# $(BINARIES_OUT)
 
 master: | $(BIN)
-	$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@
+	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@
 
 ship: | $(BIN)
-	$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
+	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
 
 $(BIN):
 	@mkdir -p $@
