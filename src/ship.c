@@ -111,7 +111,7 @@ void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGDAY:
-	    dprintf(1, "Ship %d: Received SIGDAY signal.\n", _this_id);
+	    dprintf(1, "Ship %d: Received SIGDAY signal. Current day: %d\n", _this_id, get_current_day());
 		/* TODO */
 		break;
 	case SIGSTORM:
@@ -126,12 +126,8 @@ void signal_handler(int signal)
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");
 		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n", _this_id);
-		close_all();
-		break;
 	case SIGINT:
-		dprintf(1, "Received SIGINT signal.\n");
 		close_all();
-		break;
 	}
 }
 

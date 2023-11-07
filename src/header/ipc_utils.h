@@ -18,6 +18,7 @@ void initialize_shm(struct data_general *data);
 void attach_process_to_shm();
 
 void start_simulation();
+void new_day();
 
 /* Getters */
 int get_general_shm_id();

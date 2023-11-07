@@ -20,6 +20,8 @@ struct data_general{
 	int so_porti, so_banchine, so_fill, so_loadspeed;
 	int so_merci, so_size, so_min_vita, so_max_vita;
 	int so_storm_duration, so_swell_duration, so_maelstrom;
+
+	int current_day;
 };
 
 struct coordinates{

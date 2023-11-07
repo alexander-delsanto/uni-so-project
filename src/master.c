@@ -151,6 +151,8 @@ void signal_handler(int signal)
 	case SIGINT:
 		close_all();
 	case SIGALRM:
+		new_day();
+		dprintf(1, "\n");
 		send_signal_to_children(SIGDAY);
 		alarm(1);
 		break;
