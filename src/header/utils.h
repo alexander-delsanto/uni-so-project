@@ -21,7 +21,7 @@ typedef struct{
 	struct cargo_node *head;
 } cargo_hold;
 
-//void insert_cargo(cargo_hold *cargo);
+/*void insert_cargo(cargo_hold *cargo);*/
 
 /**
  * @brief converts time data to timespec and calls nanosleep().

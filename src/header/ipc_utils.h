@@ -21,6 +21,7 @@ void start_simulation();
 void new_day();
 
 /* Getters */
+int get_current_day();
 int get_general_shm_id();
 int get_ship_shm_id();
 int get_cargo_shm_id();

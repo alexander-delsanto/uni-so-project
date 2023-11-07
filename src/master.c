@@ -65,7 +65,7 @@ void create_children() {
 		set_ship_pid(i, run_process("./ship", i));
 	}
 	/* Running weather */
-	// run_process("./weather", 0);
+	/* run_process("./weather", 0);*/
 }
 
 pid_t run_process(char *name, int index)
