@@ -10,22 +10,30 @@
  *
  * @param data a pointer to a struct data_general.
  */
-void initialize_general_shm(struct data_general *data);
+void initialize_shm(struct data_general *data);
 
 /**
  * @brief Initializes and attaches ship, port and cargo shared memory structures.
  */
-void initialize_shm();
+void attach_process_to_shm();
+
+void start_simulation();
+void new_day();
 
 /* Getters */
+int get_current_day();
 int get_general_shm_id();
 int get_ship_shm_id();
 int get_cargo_shm_id();
 pid_t get_ship_pid(int ship_id);
 struct coordinates get_ship_coords(int ship_id);
 double get_constant(int const_num);
+int get_cargo_life_duration(int id_cargo);
 
 /* Setters */
+void set_port_pid(int port_id, pid_t port_pid);
+void set_port_coords(int port_id, struct coordinates coords);
+
 void set_ship_pid(int ship_id, pid_t ship_pid);
 void set_ship_coords(int ship_id, struct coordinates coords);
 void delete_all_shm();

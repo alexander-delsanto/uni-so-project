@@ -10,6 +10,8 @@
 #define SHM_DATA_SHIPS_KEY 0x3fff
 #define SHM_DATA_CARGO_KEY 0x4fff
 
+#define SEM_START_KEY 0x10fff
+
 
 struct data_general{
 	double so_lato;
@@ -18,6 +20,8 @@ struct data_general{
 	int so_porti, so_banchine, so_fill, so_loadspeed;
 	int so_merci, so_size, so_min_vita, so_max_vita;
 	int so_storm_duration, so_swell_duration, so_maelstrom;
+
+	int current_day;
 };
 
 struct coordinates{
@@ -34,11 +38,11 @@ struct data_ship{
 	pid_t pid;
 	struct coordinates coord;
 };
-
 struct data_cargo{
 	int weight;		/* in [1, SO_SIZE] */
 	int time_of_life; 	/* in [SO_MIN_VITA, SO_MAX_VITA] */
 };
+
 
 
 #endif

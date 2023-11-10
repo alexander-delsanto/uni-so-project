@@ -1,8 +1,8 @@
 # Simulation constants
 10.560 # SO_LATO
-1 # SO_DAYS
+10 # SO_DAYS
 
-2 # SO_NAVI
+5 # SO_NAVI
 3 # SO_SPEED
 4 # SO_CAPACITY
 
