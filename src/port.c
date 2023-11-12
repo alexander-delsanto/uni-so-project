@@ -20,6 +20,7 @@ typedef struct settings {
 	pid_t master;
 	pid_t pid;
 	coord_t coordinates;
+	cargo_t *cargo;
 } settings_t;
 
 void generate_coordinates(settings_t *settings);
@@ -103,7 +104,9 @@ void generate_docks(settings_t *settings)
 
 void generate_cargo(settings_t *settings)
 {
-	/* TODO */
+	settings->cargo = cargo_generate(SO_MERCI, SO_FILL);
+	cargo_generate_goodies(settings->cargo, SO_SIZE, SO_MIN_VITA,
+			       SO_MAX_VITA);
 }
 
 void signal_handler(int signal)
@@ -113,7 +116,6 @@ void signal_handler(int signal)
 		dprintf(2, "master.c: Segmentation fault. Closing all.\n");
 		break;
 	case SIGDAY:
-		cargo_remove_expired();
 		send_report();
 		break;
 	}
