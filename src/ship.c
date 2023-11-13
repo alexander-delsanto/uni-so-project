@@ -3,9 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
-#include "header/shared_memory.h"
-#include "../lib/shm.h"
 #include "header/ipc_utils.h"
+#include "header/shared_memory.h"
 #include "header/utils.h"
 
 cargo_hold *ship_cargo;
@@ -39,6 +38,9 @@ int main(int argc, char *argv[])
 	_this_id = atoi(argv[1]);
 	attach_process_to_shm(); /* Still segmentation fault here */
 	/*ship_cargo = calloc(SO_MERCI, sizeof(*ship_cargo));*/
+
+	set_ship_is_moving(_this_id, TRUE);
+	set_ship_is_dead(_this_id, FALSE);
 
 	/*init_location();*/
 
@@ -119,14 +121,13 @@ void signal_handler(int signal)
 		/* TODO */
 		break;
 	case SIGSTORM:
-		dprintf(1, "Received SIGSTORM signal.\n");
+		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", _this_id);
 		/* TODO */
 		break;
 	case SIGMAELSTROM:
-		dprintf(1, "Received SIGMAELSTROM signal.\n");
-		/* TODO */
+		dprintf(1, "Ship %d: Received SIGMAELSTROM signal.\n", _this_id);
+		set_ship_is_dead(_this_id, TRUE);
 		close_all();
-		break;
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");
 		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n", _this_id);
@@ -137,6 +138,6 @@ void signal_handler(int signal)
 
 void close_all()
 {
+	detach_all_shm();
 	exit(0);
-	/* TODO */
 }
