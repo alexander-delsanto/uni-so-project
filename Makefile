@@ -20,12 +20,15 @@ REQUIRED_O=$(patsubst src/%.c, $(BIN)/%.o, $(REQUIRED))
 
 
 # Main
-all: master ship# $(BINARIES_OUT)
+all: master ship weather# $(BINARIES_OUT)
 
 master: | $(BIN)
 	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@
 
 ship: | $(BIN)
+	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
+
+weather: | $(BIN)
 	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/ipc_utils.c $(SRC)/utils.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
 
 $(BIN):
