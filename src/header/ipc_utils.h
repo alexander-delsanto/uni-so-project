@@ -39,6 +39,9 @@ void set_port_coords(int port_id, struct coordinates coords);
 
 void set_ship_pid(int ship_id, pid_t ship_pid);
 void set_ship_coords(int ship_id, struct coordinates coords);
+void set_ship_is_moving(int ship_id, bool_t state);
+void set_ship_is_dead(int ship_id, bool_t state);
+void detach_all_shm();
 void delete_all_shm();
 
 /*

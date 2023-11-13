@@ -1,6 +1,8 @@
 #define _GNU_SOURCE
 
 #include <string.h>
+#include "../lib/shm.h"
+#include "../lib/semaphore.h"
 #include "header/ipc_utils.h"
 
 /* Data structures */
@@ -64,6 +66,8 @@ int get_cargo_shm_id(){return id_shm_cargo;}
 
 pid_t get_ship_pid(int ship_id){return ships[ship_id].pid;}
 struct coordinates get_ship_coords(int ship_id){return ships[ship_id].coord;}
+bool_t get_ship_is_moving(int ship_id){return ships[ship_id].is_moving;}
+bool_t get_ship_is_dead(int ship_id){return ships[ship_id].is_dead;}
 
 /* Cargo getters */
 int get_cargo_life_duration(int id_cargo) {return cargo[id_cargo].time_of_life;}
@@ -102,6 +106,23 @@ double get_constant(int const_num)
 
 void start_simulation(){sem_setval(id_sem_start, 0, 0);}
 void new_day(){general->current_day++;}
+
+bool_t check_if_all_dead() {
+	int i;
+	for (i = 0; i < SO_NAVI; i++) {
+		if (get_ship_is_dead(i) == FALSE)
+			return FALSE;
+	}
+	return TRUE;
+}
+
+void detach_all_shm()
+{
+	shm_detach(general);
+	shm_detach(ships);
+	shm_detach(ports);
+	shm_detach(cargo);
+}
 
 void delete_all_shm()
 {
