@@ -75,6 +75,8 @@ void set_port_coords(int port_id, struct coordinates coords){ports[port_id].coor
 
 void set_ship_pid(int ship_id, pid_t ship_pid){ships[ship_id].pid = ship_pid;}
 void set_ship_coords(int ship_id, struct coordinates coords){ships[ship_id].coord = coords;}
+void set_ship_is_moving(int ship_id, bool_t state){ships[ship_id].is_moving = state;}
+void set_ship_is_dead(int ship_id, bool_t state){ships[ship_id].is_dead = state;}
 
 double get_constant(int const_num)
 {

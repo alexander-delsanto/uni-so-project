@@ -79,6 +79,8 @@ void init_location()
 	coords.x = RANDOM_DOUBLE(0, SO_LATO);
 	coords.y = RANDOM_DOUBLE(0, SO_LATO);
 	set_ship_coords(_this_id, coords);
+	set_ship_is_moving(_this_id, FALSE);
+	set_ship_is_dead(_this_id, FALSE);
 }
 
 /**
@@ -88,6 +90,7 @@ void move(struct coordinates dest)
 {
         double distance;
 	double time_required;
+	set_ship_is_moving(_this_id, TRUE);
         /* calculate distance between actual position and destination */
         distance = GET_DISTANCE(dest);
 	/* calculate time required to arrive (in days) */
@@ -95,6 +98,7 @@ void move(struct coordinates dest)
 	convert_and_sleep(time_required);
         /* set new location */
 	set_ship_coords(_this_id, dest);
+	set_ship_is_moving(_this_id, FALSE);
 }
 
 void find_new_destination(int *port_id, struct coordinates *coords)
