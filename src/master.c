@@ -159,6 +159,12 @@ void signal_handler(int signal)
 			close_all();
 		}
 
+
+		if (check_if_all_dead()) {
+			dprintf(1, "All ships are dead. Terminating...\n");
+			close_all();
+		}
+
 		send_signal_to_children(SIGDAY);
 
 		alarm(1);
