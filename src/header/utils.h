@@ -3,6 +3,8 @@
 
 #include <signal.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 /* Custom signals */
@@ -58,7 +60,7 @@ void remove_cargo(cargo_hold *cargo, int quantity, int expiration_date);
 #define RANDOM_DOUBLE(min, max)\
 	(rand() / (double)RAND_MAX * (max - min) + (min))
 
-#define HOURS_IN_DAY 24
+#define HOURS_IN_DAY 24.0
 #define NANOSECONDS_IN_SECOND 1000000000 /* constant for conversion to nanoseconds */
 
 #endif

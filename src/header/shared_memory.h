@@ -37,6 +37,9 @@ struct data_port{
 struct data_ship{
 	pid_t pid;
 	struct coordinates coord;
+
+	bool_t is_moving;
+	bool_t is_dead;
 };
 struct data_cargo{
 	int weight;		/* in [1, SO_SIZE] */

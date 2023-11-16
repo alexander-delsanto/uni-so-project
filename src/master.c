@@ -65,7 +65,7 @@ void create_children() {
 		set_ship_pid(i, run_process("./ship", i));
 	}
 	/* Running weather */
-	/* run_process("./weather", 0);*/
+	run_process("./weather", 0);
 }
 
 pid_t run_process(char *name, int index)
@@ -156,6 +156,12 @@ void signal_handler(int signal)
 
 		if (get_current_day() == SO_DAYS + 1) {
 			dprintf(1, "Reached last day of simulation. Terminating...\n");
+			close_all();
+		}
+
+
+		if (check_if_all_dead()) {
+			dprintf(1, "All ships are dead. Terminating...\n");
 			close_all();
 		}
 

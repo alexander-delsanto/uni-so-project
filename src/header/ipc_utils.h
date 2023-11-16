@@ -19,6 +19,7 @@ void attach_process_to_shm();
 
 void start_simulation();
 void new_day();
+bool_t check_if_all_dead();
 
 /* Getters */
 int get_current_day();
@@ -27,6 +28,8 @@ int get_ship_shm_id();
 int get_cargo_shm_id();
 pid_t get_ship_pid(int ship_id);
 struct coordinates get_ship_coords(int ship_id);
+bool_t get_ship_is_moving(int ship_id);
+bool_t get_ship_is_dead(int ship_id);
 double get_constant(int const_num);
 int get_cargo_life_duration(int id_cargo);
 
@@ -36,6 +39,9 @@ void set_port_coords(int port_id, struct coordinates coords);
 
 void set_ship_pid(int ship_id, pid_t ship_pid);
 void set_ship_coords(int ship_id, struct coordinates coords);
+void set_ship_is_moving(int ship_id, bool_t state);
+void set_ship_is_dead(int ship_id, bool_t state);
+void detach_all_shm();
 void delete_all_shm();
 
 /*

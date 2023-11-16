@@ -3,9 +3,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
-#include "header/shared_memory.h"
-#include "../lib/shm.h"
 #include "header/ipc_utils.h"
+#include "header/shared_memory.h"
 #include "header/utils.h"
 
 cargo_hold *ship_cargo;
@@ -39,6 +38,9 @@ int main(int argc, char *argv[])
 	_this_id = atoi(argv[1]);
 	attach_process_to_shm(); /* Still segmentation fault here */
 	/*ship_cargo = calloc(SO_MERCI, sizeof(*ship_cargo));*/
+
+	set_ship_is_moving(_this_id, TRUE);
+	set_ship_is_dead(_this_id, FALSE);
 
 	/*init_location();*/
 
@@ -79,6 +81,8 @@ void init_location()
 	coords.x = RANDOM_DOUBLE(0, SO_LATO);
 	coords.y = RANDOM_DOUBLE(0, SO_LATO);
 	set_ship_coords(_this_id, coords);
+	set_ship_is_moving(_this_id, FALSE);
+	set_ship_is_dead(_this_id, FALSE);
 }
 
 /**
@@ -88,6 +92,7 @@ void move(struct coordinates dest)
 {
         double distance;
 	double time_required;
+	set_ship_is_moving(_this_id, TRUE);
         /* calculate distance between actual position and destination */
         distance = GET_DISTANCE(dest);
 	/* calculate time required to arrive (in days) */
@@ -95,6 +100,7 @@ void move(struct coordinates dest)
 	convert_and_sleep(time_required);
         /* set new location */
 	set_ship_coords(_this_id, dest);
+	set_ship_is_moving(_this_id, FALSE);
 }
 
 void find_new_destination(int *port_id, struct coordinates *coords)
@@ -115,14 +121,13 @@ void signal_handler(int signal)
 		/* TODO */
 		break;
 	case SIGSTORM:
-		dprintf(1, "Received SIGSTORM signal.\n");
+		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", _this_id);
 		/* TODO */
 		break;
 	case SIGMAELSTROM:
-		dprintf(1, "Received SIGMAELSTROM signal.\n");
-		/* TODO */
+		dprintf(1, "Ship %d: Received SIGMAELSTROM signal.\n", _this_id);
+		set_ship_is_dead(_this_id, TRUE);
 		close_all();
-		break;
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");
 		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n", _this_id);
@@ -133,6 +138,6 @@ void signal_handler(int signal)
 
 void close_all()
 {
+	detach_all_shm();
 	exit(0);
-	/* TODO */
 }
