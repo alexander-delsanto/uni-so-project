@@ -99,7 +99,7 @@ void move(struct coordinates destination_port)
 	time_required = distance / SO_SPEED;
 	convert_and_sleep(time_required);
         /* set new location */
-	set_ship_coords(_this_id, dest);
+	set_ship_coords(_this_id, destination_port);
 	set_ship_is_moving(_this_id, FALSE);
 }
 

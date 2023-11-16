@@ -15,11 +15,11 @@ void initialize_shm(struct data_general *data);
 /**
  * @brief Initializes and attaches ship, port and cargo shared memory structures.
  */
-void attach_process_to_shm();
+void attach_process_to_shm(void);
 
-void start_simulation();
-void new_day();
-bool_t check_if_all_dead();
+void start_simulation(void);
+void new_day(void);
+bool_t check_if_all_dead(void);
 
 /* Getters */
 int get_current_day(void);
