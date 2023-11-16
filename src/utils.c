@@ -91,6 +91,17 @@ void delete_node(struct cargo_node *prev, struct cargo_node *curr){
 	free(curr);
 }
 
+int get_cargo_quantity(cargo_hold *cargo)
+{
+	struct cargo_node *curr;
+	int res = 0;
+
+	for (curr = cargo->head; curr != NULL; curr = curr->next) {
+		res += curr->quantity;
+	}
+	return res;
+}
+
 void convert_and_sleep(double time_required)
 {
 	struct timespec sleep_time;

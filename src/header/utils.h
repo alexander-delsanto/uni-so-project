@@ -49,6 +49,13 @@ void insert_cargo(cargo_hold *cargo, int quantity, int expiration_date);
 void remove_cargo(cargo_hold *cargo, int quantity, int expiration_date);
 
 /**
+ *
+ * @param cargo the cargo hold containing the list of cargo to be counted
+ * @return the cargo quantity of the type of cargo_hold
+ */
+int get_cargo_quantity(cargo_hold *cargo);
+
+/**
  * @return a random integer between min and max (included).
  */
 #define RANDOM_INTEGER(min, max)\
