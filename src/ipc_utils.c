@@ -36,6 +36,10 @@ void initialize_shm(struct data_general *data)
 	ships = shm_attach(id_shm_ship);
 	ports = shm_attach(id_shm_port);
 	cargo = shm_attach(id_shm_cargo);
+
+	bzero(ships, sizeof(*ships));
+	bzero(ports, sizeof(*ports));
+	bzero(cargo, sizeof(*cargo));
 }
 
 void attach_process_to_shm(void)
