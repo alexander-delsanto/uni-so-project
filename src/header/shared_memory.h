@@ -52,6 +52,7 @@ struct data_ship{
 	bool_t dump_had_storm;
 	bool_t dump_had_maelstrom;
 };
+
 struct data_cargo{
 	int weight;		/* in [1, SO_SIZE] */
 	int time_of_life; 	/* in [SO_MIN_VITA, SO_MAX_VITA] */
