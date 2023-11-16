@@ -32,6 +32,14 @@ struct coordinates{
 struct data_port{
 	pid_t pid;
 	struct coordinates coord;
+	int num_docks;
+
+	int dump_cargo_available;
+	int dump_cargo_shipped;
+	int dump_cargo_received;
+	int dump_used_docks;
+	int dump_ships_arrived;
+	bool_t dump_had_swell;
 };
 
 struct data_ship{
@@ -40,6 +48,9 @@ struct data_ship{
 
 	bool_t is_moving;
 	bool_t is_dead;
+
+	bool_t dump_had_storm;
+	bool_t dump_had_maelstrom;
 };
 struct data_cargo{
 	int weight;		/* in [1, SO_SIZE] */
