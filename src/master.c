@@ -14,14 +14,14 @@ pid_t master_pid;
 pid_t *children_pid = NULL;
 int children_num = 0;
 
-void create_children();
+void create_children(void);
 pid_t run_process(char *name, int index);
 struct data_general read_constants_from_file(char *path);
 void send_signal_to_children(int signal);
 void signal_handler(int signal);
-void close_all();
+void close_all(void);
 
-int main()
+int main(int argc, char *argv[])
 {
 	struct sigaction sa;
 	sigset_t mask;
@@ -53,7 +53,7 @@ int main()
 	}
 }
 
-void create_children() {
+void create_children(void) {
 	int i;
 	children_pid = calloc(SO_NAVI + SO_PORTI + 1, sizeof(*children_pid));
 	/* Running ports */
@@ -172,7 +172,7 @@ void signal_handler(int signal)
 	}
 }
 
-void close_all()
+void close_all(void)
 {
 	send_signal_to_children(SIGKILL);
 	while (wait(NULL) > 0);

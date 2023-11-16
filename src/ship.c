@@ -14,11 +14,11 @@ int _this_id;
 #define GET_DISTANCE(dest)\
 	(sqrt(pow(dest.x - get_ship_coords(_this_id).x, 2) + pow(dest.y - get_ship_coords(_this_id).y, 2)))
 
-void init_location();
-void move(struct coordinates destination_coords);
+void init_location(void);
+void move(struct coordinates destination_port);
 void signal_handler(int signal);
-void close_all();
-void loop();
+void close_all(void);
+void loop(void);
 void find_new_destination(int *port_id, struct coordinates *coords);
 void trade(int id_port);
 
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void loop() {
+void loop(void) {
     int id_dest_port;
     struct coordinates destination_coords;
     while(1) {
@@ -73,7 +73,7 @@ void loop() {
 /**
  * @brief initializes ship's location.
  */
-void init_location()
+void init_location(void)
 {
     	struct coordinates coords;
         /* generate a random location on the map */
@@ -88,7 +88,7 @@ void init_location()
 /**
  * @brief simulates the movement of the ship and updates the location.
  */
-void move(struct coordinates dest)
+void move(struct coordinates destination_port)
 {
         double distance;
 	double time_required;
@@ -136,7 +136,7 @@ void signal_handler(int signal)
 	}
 }
 
-void close_all()
+void close_all(void)
 {
 	detach_all_shm();
 	exit(0);

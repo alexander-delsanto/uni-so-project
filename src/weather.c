@@ -5,11 +5,11 @@
 #include "header/shared_memory.h"
 #include "header/ipc_utils.h"
 
-void send_storm_signal();
-void send_swell_signal();
+void send_storm_signal(void);
+void send_swell_signal(void);
 void start_timer(double timer_interval);
 void signal_handler(int signal);
-void close_all();
+void close_all(void);
 
 int main(int argc, char *argv[])
 {
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
 }
 
-void send_storm_signal()
+void send_storm_signal(void)
 {
 	int i, target_ship = RANDOM_INTEGER(0, (SO_NAVI - 1));
 
@@ -54,7 +54,7 @@ void send_storm_signal()
 	}
 }
 
-void send_maelstrom_signal()
+void send_maelstrom_signal(void)
 {
 	int i, target_ship = RANDOM_INTEGER(0, (SO_NAVI - 1));
 	for (i = 0; i < SO_NAVI; i++) {
@@ -66,7 +66,7 @@ void send_maelstrom_signal()
 	}
 }
 
-void send_swell_signal()
+void send_swell_signal(void)
 {
 	int target_port = RANDOM_INTEGER(0, (SO_PORTI - 1));
 	kill(target_port, SIGSTORM);
@@ -105,7 +105,7 @@ void signal_handler(int signal)
 	}
 }
 
-void close_all()
+void close_all(void)
 {
 	detach_all_shm();
 	exit(0);

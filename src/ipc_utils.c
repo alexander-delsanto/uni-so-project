@@ -38,7 +38,7 @@ void initialize_shm(struct data_general *data)
 	cargo = shm_attach(id_shm_cargo);
 }
 
-void attach_process_to_shm()
+void attach_process_to_shm(void)
 {
 	id_sem_start = sem_create(SEM_START_KEY, 1);
 	sem_execute_semop(id_sem_start, 0, 0, 0);
@@ -58,11 +58,11 @@ void attach_process_to_shm()
 }
 
 /* Getters */
-int get_current_day(){return general->current_day;}
+int get_current_day(void){return general->current_day;}
 
-int get_general_shm_id(){return id_shm_general;}
-int get_ship_shm_id(){return id_shm_ship;}
-int get_cargo_shm_id(){return id_shm_cargo;}
+int get_general_shm_id(void){return id_shm_general;}
+int get_ship_shm_id(void){return id_shm_ship;}
+int get_cargo_shm_id(void){return id_shm_cargo;}
 
 pid_t get_ship_pid(int ship_id){return ships[ship_id].pid;}
 struct coordinates get_ship_coords(int ship_id){return ships[ship_id].coord;}
@@ -104,10 +104,10 @@ double get_constant(int const_num)
 	}
 }
 
-void start_simulation(){sem_setval(id_sem_start, 0, 0);}
-void new_day(){general->current_day++;}
+void start_simulation(void){sem_setval(id_sem_start, 0, 0);}
+void new_day(void){general->current_day++;}
 
-bool_t check_if_all_dead() {
+bool_t check_if_all_dead(void) {
 	int i;
 	for (i = 0; i < SO_NAVI; i++) {
 		if (get_ship_is_dead(i) == FALSE)
@@ -116,7 +116,7 @@ bool_t check_if_all_dead() {
 	return TRUE;
 }
 
-void detach_all_shm()
+void detach_all_shm(void)
 {
 	shm_detach(general);
 	shm_detach(ships);
@@ -124,7 +124,7 @@ void detach_all_shm()
 	shm_detach(cargo);
 }
 
-void delete_all_shm()
+void delete_all_shm(void)
 {
 	shm_delete(id_shm_general);
 	shm_delete(id_shm_ship);
