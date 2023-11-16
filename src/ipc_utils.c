@@ -48,13 +48,13 @@ void attach_process_to_shm(void)
 	sem_execute_semop(id_sem_start, 0, 0, 0);
 
 	/* Attaching to general for simulation constants */
-	id_shm_general = shm_create(SHM_DATA_GENERAL_KEY, sizeof(*general));
+	id_shm_general = shm_create(SHM_DATA_GENERAL_KEY, 0);
 	general = shm_attach(id_shm_general);
 
 	/* Attaching to other segments */
-	id_shm_ship = shm_create(SHM_DATA_SHIPS_KEY, (sizeof(*ships) * general->so_navi));
-	id_shm_port = shm_create(SHM_DATA_PORTS_KEY, (sizeof(*ports) * general->so_porti));
-	id_shm_cargo = shm_create(SHM_DATA_CARGO_KEY, (sizeof(*cargo) * general->so_merci));
+	id_shm_ship = shm_create(SHM_DATA_SHIPS_KEY, 0);
+	id_shm_port = shm_create(SHM_DATA_PORTS_KEY, 0);
+	id_shm_cargo = shm_create(SHM_DATA_CARGO_KEY, 0);
 
 	ships = shm_attach(id_shm_ship);
 	ports = shm_attach(id_shm_port);
