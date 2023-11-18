@@ -14,14 +14,14 @@ pid_t master_pid;
 pid_t *children_pid = NULL;
 int children_num = 0;
 
-void create_children();
+void create_children(void);
 pid_t run_process(char *name, int index);
 struct data_general read_constants_from_file(char *path);
 void send_signal_to_children(int signal);
 void signal_handler(int signal);
-void close_all();
+void close_all(void);
 
-int main()
+int main(int argc, char *argv[])
 {
 	struct sigaction sa;
 	sigset_t mask;
@@ -48,33 +48,31 @@ int main()
 
 	alarm(1);
 
-	while (1) {
+	while(1) {
 		pause();
 	}
 }
 
-void create_children()
-{
+void create_children() {
 	int i;
 	children_pid = calloc(SO_NAVI + SO_PORTI + 1, sizeof(*children_pid));
 	/* Running ports */
-	for (i = 0; i < SO_PORTI; i++) {
+/*	for (i = 0; i < SO_PORTI; i++) {
 		set_port_pid(i, run_process("./port", i));
-	}
+	}*/
 	/* Running ships */
 	for (i = 0; i < SO_NAVI; i++) {
 		set_ship_pid(i, run_process("./ship", i));
 	}
-
 	/* Running weather */
-	/* run_process("./weather", 0);*/
+	run_process("./weather", 0);
 }
 
 pid_t run_process(char *name, int index)
 {
 	pid_t process_pid;
 	char *args[3], buf[10];
-	if ((process_pid = fork()) == -1) {
+	if((process_pid = fork()) == -1) {
 		dprintf(2, "master.c: Error in fork.\n");
 		close_all();
 	} else if (process_pid == 0) {
@@ -102,30 +100,29 @@ struct data_general read_constants_from_file(char *path)
 	struct data_general read_data;
 
 	file = fopen(path, "r");
-	if (file == NULL)
+	if(file == NULL)
 		close_all();
-	while ((n_char = fscanf(file, "%lf", &value)) != EOF) {
-		if (n_char != 0) {
-			if (counter >= NUM_CONST) {
+	while((n_char = fscanf(file, "%lf", &value)) != EOF){
+		if(n_char != 0) {
+			if(counter >= NUM_CONST) {
 				fclose(file);
 				close_all();
-			}
-			if (value <= 0) {
+			}if (value <= 0) {
 				fclose(file);
 				close_all();
 			}
 			if (counter <= 0) {
 				read_data.so_lato = value;
 			} else {
-				(&read_data.so_days)[counter - 1] = (int)value;
+				(&read_data.so_days)[counter - 1] = (int) value;
 			}
 			counter++;
 		}
 
 		fscanf(file, "%*[ \t]");
-		if ((c = fgetc(file)) == '#') {
+		if((c = fgetc(file)) == '#') {
 			fscanf(file, "%*[^\n]");
-		} else if (!(c >= '0' && c <= '9')) {
+		}else if(!(c >= '0' && c <= '9')) {
 			fclose(file);
 			close_all();
 		}
@@ -137,7 +134,7 @@ struct data_general read_constants_from_file(char *path)
 void send_signal_to_children(int signal)
 {
 	int i;
-	if (children_pid != NULL) {
+	if(children_pid != NULL) {
 		for (i = 0; i < children_num; i++) {
 			kill(children_pid[i], signal);
 		}
@@ -146,7 +143,7 @@ void send_signal_to_children(int signal)
 
 void signal_handler(int signal)
 {
-	switch (signal) {
+	switch (signal){
 	case SIGSEGV:
 		dprintf(2, "master.c: Segmentation fault. Closing all.\n");
 		close_all();
@@ -158,8 +155,7 @@ void signal_handler(int signal)
 		dprintf(1, "\n");
 
 		if (get_current_day() == SO_DAYS + 1) {
-			dprintf(1,
-				"Reached last day of simulation. Terminating...\n");
+			dprintf(1, "Reached last day of simulation. Terminating...\n");
 			close_all();
 		}
 
@@ -170,11 +166,10 @@ void signal_handler(int signal)
 	}
 }
 
-void close_all()
+void close_all(void)
 {
 	send_signal_to_children(SIGKILL);
-	while (wait(NULL) > 0)
-		;
+	while (wait(NULL) > 0);
 
 	free(children_pid);
 	delete_all_shm();

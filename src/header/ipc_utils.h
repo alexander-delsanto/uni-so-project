@@ -15,18 +15,21 @@ void initialize_shm(struct data_general *data);
 /**
  * @brief Initializes and attaches ship, port and cargo shared memory structures.
  */
-void attach_process_to_shm();
+void attach_process_to_shm(void);
 
-void start_simulation();
-void new_day();
+void start_simulation(void);
+void new_day(void);
+bool_t check_if_all_dead(void);
 
 /* Getters */
-int get_current_day();
-int get_general_shm_id();
-int get_ship_shm_id();
-int get_cargo_shm_id();
+int get_current_day(void);
+int get_general_shm_id(void);
+int get_ship_shm_id(void);
+int get_cargo_shm_id(void);
 pid_t get_ship_pid(int ship_id);
 struct coordinates get_ship_coords(int ship_id);
+bool_t get_ship_is_moving(int ship_id);
+bool_t get_ship_is_dead(int ship_id);
 double get_constant(int const_num);
 int get_cargo_life_duration(int id_cargo);
 
@@ -36,7 +39,10 @@ void set_port_coords(int port_id, struct coordinates coords);
 
 void set_ship_pid(int ship_id, pid_t ship_pid);
 void set_ship_coords(int ship_id, struct coordinates coords);
-void delete_all_shm();
+void set_ship_is_moving(int ship_id, bool_t state);
+void set_ship_is_dead(int ship_id, bool_t state);
+void detach_all_shm(void);
+void delete_all_shm(void);
 
 /*
  * Macros used to get simulation constants from shared memory.

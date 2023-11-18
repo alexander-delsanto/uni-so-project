@@ -11,64 +11,38 @@ struct cargo_node {
 	struct cargo_node *next;
 };
 
-struct cargo_node *push_cargo_node(struct cargo_node *next);
 void delete_node(struct cargo_node *prev, struct cargo_node *curr);
-
 
 void insert_cargo(cargo_hold *cargo, int quantity, int expiration_date)
 {
-	struct cargo_node *curr = cargo->head;
-	struct cargo_node *temp;
-	bool_t done = FALSE;
-	if (curr == NULL) {
-		curr = push_cargo_node(NULL);
-		curr->quantity = quantity;
-		curr->expiration_date = expiration_date;
-	} else if (curr->next == NULL) {
-		if(expiration_date == curr->expiration_date) {
-			curr->quantity += quantity;
-		}
-		else if(expiration_date > curr->expiration_date){
-			curr->next = push_cargo_node(NULL);
-			curr->quantity = quantity;
-			curr->expiration_date = expiration_date;
-		}
-		else{
-			temp = curr;
-			curr = push_cargo_node(temp);
-			curr->quantity = quantity;
-			curr->expiration_date = expiration_date;
-		}
-	} else {
-		while(curr != NULL && !done) {
-			if(expiration_date == curr->expiration_date) {
-				curr->quantity += quantity;
-				done = TRUE;
-			}
-			else if(expiration_date > curr->expiration_date){
-				curr = curr->next;
-			}
-			else{
-				temp = curr;
-				curr = push_cargo_node(temp);
-				curr->quantity = quantity;
-				curr->expiration_date = expiration_date;
-				done = TRUE;
-			}
-		}
+	struct cargo_node *prev, *tmp, *curr;
 
+	if(cargo == NULL) {
+		dprintf(2, "utils.c: insert_cargo: cargo list is NULL\n");
+		return;
 	}
 
-}
+	prev = NULL;
+	curr = cargo->head;
+	while (1) {
+		/* If list is empty or expiration date is lower than current element */
+		if (curr == NULL || curr->expiration_date > expiration_date) {
+			tmp = malloc(sizeof(*curr));
+			tmp->quantity = quantity;
+			tmp->expiration_date = expiration_date;
+			tmp->next = curr;
 
-struct cargo_node *push_cargo_node(struct cargo_node *next)
-{
-	struct cargo_node *new_node;
-	new_node = malloc(sizeof(*next));
-	new_node->next = next;
-	return new_node;
+			if (prev != NULL)
+				prev->next = tmp;
+			break;
+		} else if (curr->expiration_date == expiration_date) {
+			curr->quantity += quantity;
+			break;
+		}
+		prev = curr;
+		curr = curr->next;
+	}
 }
-
 
 void remove_cargo(cargo_hold *cargo, int quantity, int expiration_date)
 {
@@ -115,6 +89,17 @@ void delete_node(struct cargo_node *prev, struct cargo_node *curr){
 	if(prev != NULL)
 		prev->next = curr->next;
 	free(curr);
+}
+
+int get_cargo_quantity(cargo_hold *cargo)
+{
+	struct cargo_node *curr;
+	int res = 0;
+
+	for (curr = cargo->head; curr != NULL; curr = curr->next) {
+		res += curr->quantity;
+	}
+	return res;
 }
 
 void convert_and_sleep(double time_required)
