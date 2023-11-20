@@ -3,7 +3,6 @@
 
 #include "shm_config.h"
 #include "cargo.h"
-#include "shm_port.h"
 
 typedef struct expired expired_t;
 

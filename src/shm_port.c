@@ -82,7 +82,7 @@ void port_shm_set_docks(shm_port_t *p, int id, int n)
 void port_shm_generate_cargo(shm_port_t *p, int id, shm_config_t *c)
 {
 	int *cargo_exp;
-	//cargo_exp = cargo_generate(c, p->cargo);
+	/*cargo_exp = cargo_generate(c, p->cargo);*/
 }
 
 void port_shm_detach(shm_port_t *p)
@@ -142,6 +142,11 @@ void port_shm_send_signal_to_all_ports(shm_port_t *p, shm_config_t *c,
 void port_shm_send_signal_to_port(shm_port_t *p, int id, int signal)
 {
 	kill(p[id].pid, signal);
+}
+
+struct coord port_shm_get_coords(shm_port_t *p, int id)
+{
+	return p[id].coord;
 }
 
 /* TODO: funzioni di distruzione della roba */

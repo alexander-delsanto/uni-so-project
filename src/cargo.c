@@ -5,6 +5,7 @@
 #include "include/shm_config.h"
 #include "include/cargo.h"
 #include "include/utils.h"
+#include "include/types.h"
 
 struct cargo {
 	int *offer;

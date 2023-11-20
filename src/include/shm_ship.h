@@ -18,8 +18,10 @@ void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_config_t *c,
 void ship_shm_send_signal_to_ship(shm_ship_t *s, int id, int signal);
 
 void ship_shm_set_pid(shm_ship_t *s, int id, pid_t pid);
-void ship_shm_set_coordinates(shm_ship_t *s, int id, struct coord coord);
+void ship_shm_set_coords(shm_ship_t *s, int id, struct coord coords);
 void ship_shm_set_dead(shm_ship_t *s, int id);
 void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value);
+
+struct coord ship_shm_get_coords(shm_ship_t *s, int id);
 
 #endif

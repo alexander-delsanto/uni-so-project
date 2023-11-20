@@ -8,4 +8,7 @@
 	(random() / (double)RAND_MAX * (max - min) + (min))
 
 #define RANDOM_BOOL() ((bool_t)random() % 2)
+
+void convert_and_sleep(double time_required);
+
 #endif

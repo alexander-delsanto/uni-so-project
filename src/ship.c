@@ -15,17 +15,17 @@
 #include "include/utils.h"
 
 #define GET_DISTANCE(dest)\
-	(sqrt(pow(dest.x - get_ship_coords(_this_id).x, 2) + pow(dest.y - get_ship_coords(_this_id).y, 2)))
+	(sqrt(pow(dest.x - ship_shm_get_coords(state.ship, state.id).x, 2) + pow(dest.y - ship_shm_get_coords(state.ship, state.id).y, 2)))
 
 void signal_handler(int signal);
-struct sigaction *signal_handler_init(void);
 
 void init_location(void);
-void move(struct coordinates destination_port);
+void pick_first_destination_port();
+void move(struct coord destination_port);
 
 void close_all(void);
 void loop(void);
-void find_new_destination(int *port_id, struct coordinates *coords);
+void find_new_destination(int *port_id, struct coord *coords);
 void trade(int id_port);
 
 struct state {
@@ -39,27 +39,7 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
-	struct sigaction *sa;
-
-	sa = signal_handler_init();
-
-	state.id = (int)strtol(argv[1], NULL, 10);
-	state.config = config_shm_attach();
-	state.port = port_shm_attach(state.config);
-	state.ship = ship_shm_attach(state.config);
-	init_location();
-
-	while (1) {
-		sleep(1);
-	}
-
-	return EXIT_SUCCESS;
-}
-
-struct sigaction *signal_handler_init(void)
-{
-	static struct sigaction sa;
-
+	struct sigaction sa;
 	sigset_t mask;
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = &signal_handler;
@@ -69,18 +49,30 @@ struct sigaction *signal_handler_init(void)
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGSEGV, &sa, NULL);
 
+	state.id = (int)strtol(argv[1], NULL, 10);
+	state.config = config_shm_attach();
+	state.port = port_shm_attach(state.config);
+	state.ship = ship_shm_attach(state.config);
+	srand(time(NULL) * getpid());
+	init_location();
+
 	sigemptyset(&mask);
 	sa.sa_mask = mask;
 	sigaction(SIGDAY, &sa, NULL);
 	sigaction(SIGSTORM, &sa, NULL);
 	sigaction(SIGMAELSTROM, &sa, NULL);
 
-	return &sa;
+	pick_first_destination_port();
+	while (1) {
+		sleep(1);
+	}
+
+	return EXIT_SUCCESS;
 }
 
 void loop(void) {
 	int id_dest_port;
-	struct coordinates destination_coords;
+	struct coord destination_coords;
 	while (1) {
 		find_new_destination(&id_dest_port, &destination_coords);
 		move(destination_coords);
@@ -95,33 +87,39 @@ void init_location(void)
 {
 	struct coord coords;
 	/* generate a random location on the map */
-	srand(time(NULL) * getpid());
 	coords.x = RANDOM_DOUBLE(0, get_lato(state.config));
 	coords.y = RANDOM_DOUBLE(0, get_lato(state.config));
 
-	ship_shm_set_coordinates(state.ship, state.id, coords);
+	ship_shm_set_coords(state.ship, state.id, coords);
 	ship_shm_set_is_moving(state.ship, state.id, TRUE);
+}
+
+void pick_first_destination_port()
+{
+	struct coord dest;
+	dest = port_shm_get_coords(state.port, RANDOM_INTEGER(0, get_porti(state.config) - 1));
+	move(dest);
 }
 
 /**
  * @brief simulates the movement of the ship and updates the location.
  */
-void move(struct coordinates destination_port)
+void move(struct coord destination_port)
 {
 	double distance;
 	double time_required;
-	set_ship_is_moving(_this_id, TRUE);
+	ship_shm_set_is_moving(state.ship, state.id, TRUE);
 	/* calculate distance between actual position and destination */
-	distance = GET_DISTANCE(dest);
+	distance = GET_DISTANCE(destination_port);
 	/* calculate time required to arrive (in days) */
-	time_required = distance / SO_SPEED;
+	time_required = distance / get_speed(state.config);
 	convert_and_sleep(time_required);
 	/* set new location */
-	set_ship_coords(_this_id, destination_port);
-	set_ship_is_moving(_this_id, FALSE);
+	ship_shm_set_coords(state.ship, state.id, destination_port);
+	ship_shm_set_is_moving(state.ship, state.id, FALSE);
 }
 
-void find_new_destination(int *port_id, struct coordinates *coords)
+void find_new_destination(int *port_id, struct coord *coords)
 {
 	/* TODO */
 }

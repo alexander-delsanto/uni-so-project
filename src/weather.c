@@ -13,7 +13,7 @@
 #include "include/shm_ship.h"
 
 void signal_handler(int signal);
-struct sigaction *signal_handler_init(void);
+void signal_handler_init(void);
 
 void send_storm_signal(void);
 void send_swell_signal(void);
@@ -33,9 +33,7 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
-	struct sigaction *sa;
-
-	sa = signal_handler_init();
+	signal_handler_init();
 
 	state.config = config_shm_attach();
 	state.ports = port_shm_attach(state.config);
@@ -49,25 +47,17 @@ int main(int argc, char *argv[])
 	}
 }
 
-struct sigaction *signal_handler_init(void)
+void signal_handler_init(void)
 {
-	static struct sigaction sa;
-	sigset_t mask;
+	struct sigaction sa;
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = &signal_handler;
 
 	/* Signal handler initialization */
-	sigfillset(&mask);
-	sa.sa_mask = mask;
 	sigaction(SIGINT, &sa, NULL);
 	sigaction(SIGSEGV, &sa, NULL);
-
-	sigemptyset(&mask);
-	sa.sa_mask = mask;
 	sigaction(SIGDAY, &sa, NULL);
 	sigaction(SIGALRM, &sa, NULL);
-
-	return &sa;
 }
 
 void signal_handler(int signal)
@@ -82,8 +72,6 @@ void signal_handler(int signal)
 		break;
 	case SIGSEGV:
 		dprintf(2, "weather.c: Segmentation fault. Closing.\n");
-		close_all();
-		break;
 	case SIGINT:
 		close_all();
 		break;

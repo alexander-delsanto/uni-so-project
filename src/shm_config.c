@@ -242,3 +242,12 @@ int get_config_shm_id(shm_config_t *c)
 {
 	return c->config_shm_id;
 }
+
+void config_shm_detach(shm_config_t *c)
+{
+	shm_detach(c);
+}
+void config_shm_delete(int id)
+{
+	shm_delete(id);
+}

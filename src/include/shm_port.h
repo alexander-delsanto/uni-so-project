@@ -25,6 +25,8 @@ void port_shm_set_docks(shm_port_t *p, int id, int n);
 void port_shm_generate_cargo(shm_port_t *p, int id, shm_config_t *c);
 void port_shm_remove_expired(shm_port_t *p, expired_t *exp, shm_config_t *c);
 
+struct coord port_shm_get_coords(shm_port_t *p, int id);
+
 int port_shm_get_random_swell(shm_port_t *p, shm_config_t *c);
 
 #endif

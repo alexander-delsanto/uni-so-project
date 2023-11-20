@@ -37,29 +37,32 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
-	shm_port_t *ports;
-	shm_ship_t *ships;
-
 	pid_t pid;
 	struct sigaction *sa;
 
 	pid = getpid();
 
 	state.running = TRUE;
+	dprintf(1, "ciao1\n");
+
 	state.config = read_from_path("../constants.txt");
+	dprintf(1, "ciao2\n");
 	if (state.config == NULL) {
 		exit(1);
 	}
 
 	state.ports = port_initialize(state.config);
-	if (ports == NULL) {
+	if (state.ports == NULL) {
 		exit(1);
 	}
+	dprintf(1, "ciao3\n");
 
 	state.ships = ship_initialize(state.config);
-	if (ships == NULL) {
+	if (state.ships == NULL) {
 		exit(1);
 	}
+	dprintf(1, "ciao4\n");
+
 
 	sa = signal_handler_init();
 	/*run_ports(state.config, &state);

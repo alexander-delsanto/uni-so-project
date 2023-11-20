@@ -17,6 +17,7 @@ struct shm_ship {
 
 	bool_t is_dead;
 	bool_t is_moving;
+	struct coord coords;
 
 	int dump_cargo_available;
 	int dump_cargo_shipped;
@@ -32,9 +33,10 @@ shm_ship_t *ship_initialize(shm_config_t *c)
 	int i;
 	int n_ships, id;
 
-	n_ships = get_porti(c);
+	n_ships = get_navi(c);
 	id = shm_create(SHM_DATA_SHIPS_KEY, (sizeof(shm_ship_t) * n_ships));
 	if (id == -1) {
+		dprintf(1, "ciao\n");
 		return NULL;
 	}
 	for (i = 0; i < n_ships; i++) {
@@ -43,9 +45,6 @@ shm_ship_t *ship_initialize(shm_config_t *c)
 	}
 
 	ships = shm_attach(id);
-	tmp_ships = calloc(n_ships, sizeof(shm_ship_t));
-	memcpy(ships, tmp_ships, sizeof(shm_ship_t) * n_ships);
-
 	set_ship_shm_id(c, id);
 
 	return ships;
@@ -90,7 +89,7 @@ int ship_shm_get_random_maelstrom(shm_ship_t *s, shm_config_t *c)
 	int i, n_ships, id = -1;
 	bool_t dead;
 
-	n_ships = get_porti(c);
+	n_ships = get_navi(c);
 
 	while (id == -1) {
 		for (i = 0; i < n_ships; i++, dead = RANDOM_BOOL()) {
@@ -109,6 +108,23 @@ void ship_shm_set_pid(shm_ship_t *s, int id, pid_t pid)
 	s[id].pid = pid;
 }
 
+void ship_shm_set_coords(shm_ship_t *s, int id, struct coord coords)
+{
+	s[id].coords = coords;
+}
+
+void ship_shm_set_dead(shm_ship_t *s, int id)
+{
+	s[id].is_dead = TRUE;
+}
+
+
+void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value)
+{
+	s[id].is_moving = value;
+}
+
+
 void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_config_t *c,
 				       int signal)
 {
@@ -125,4 +141,14 @@ void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_config_t *c,
 void ship_shm_send_signal_to_ship(shm_ship_t *s, int id, int signal)
 {
 	kill(s[id].pid, signal);
+}
+
+struct coord ship_shm_get_coords(shm_ship_t *s, int id)
+{
+	return s[id].coords;
+}
+
+void ship_shm_detach(shm_ship_t *c)
+{
+	shm_detach(c);
 }

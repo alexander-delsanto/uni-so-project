@@ -44,7 +44,6 @@ int main(int argc, char *argv[])
 	state.id = (int)strtol(argv[1], NULL, 10);
 	state.pid = getpid();
 	state.master = getppid();
-	dprintf(1, "Port %d: Received SIGDAY signal. Current day:\n", state.id);
 
 	state.config = config_shm_attach();
 	if (state.config == NULL) {
