@@ -1,100 +1,80 @@
+#define _GNU_SOURCE
+
 #include <stdlib.h>
-#include <time.h>
-#include <unistd.h>
 
-#include "header/cargo.h"
-#include "header/utils.h"
-
-struct goods {
-	int quantity;
-	int expire;
-};
+#include "include/shm_config.h"
+#include "include/cargo.h"
+#include "include/utils.h"
 
 struct cargo {
-	int size;
-	int fill;
+	int *offer;
 	int *demand;
-	goods_t *offer;
 };
 
-cargo_t *cargo_generate(int ids, int fill)
+cargo_t *cargo_initialize(shm_config_t *c)
 {
 	cargo_t *cargo;
 
-	cargo = malloc(sizeof(cargo_t) * ids);
+	cargo = malloc(sizeof(cargo_t));
 	if (cargo == NULL) {
 		return NULL;
 	}
 
-	cargo->size = ids;
-	/*
-	 * TODO: il fill viene settato dal porto, la cui somma totale è SO_FILL
-	 * Penso che il master debba occuparsi di generare questi numeri e comunicarlo al porto
-	 */
-	cargo->fill = fill;
-	cargo->demand = calloc(cargo->size, sizeof(int));
-	if (cargo->demand == NULL) {
+	cargo->offer = calloc(get_merci(c), sizeof(int));
+	if (cargo->offer == NULL) {
+		free(cargo);
 		return NULL;
 	}
-	cargo->offer = malloc(sizeof(goods_t) * cargo->size);
-	if (cargo->offer == NULL) {
+	cargo->demand = calloc(get_merci(c), sizeof(int));
+	if (cargo->demand == NULL) {
+		free(cargo->demand);
+		free(cargo);
 		return NULL;
 	}
 
 	return cargo;
 }
 
-void cargo_generate_goodies(cargo_t *cargo, int size, int life_min,
-			    int life_max)
+void cargo_generate(shm_config_t *c, cargo_t *cargo)
 {
-	int i, r, tmp;
+	/* TODO rivedere algoritmo
+	 * TODO ritornare array di scadenze tipizzato
+	 */
+	int i, r, tmp, size;
 	int cur_fill;
 
-	cur_fill = cargo->fill;
+	bool_t pick, offer;
 
-	srand(time(NULL));
-	for (i = 0; i < cargo->size; i++) {
-		r = rand() % 2;
-		if (r == 1) {
-			tmp = RANDOM_INTEGER(1, size);
-			cargo->offer[i].quantity = tmp;
-			cargo->offer[i].expire =
-				RANDOM_INTEGER(life_min, life_max);
-			cur_fill -= tmp;
-		} else {
-			cargo->offer[i].quantity = 0;
-			cargo->offer[i].expire = 0;
-			cargo->demand[i] = 100;
-			cur_fill -= 100;
-		}
-	}
-}
+	cur_fill = get_fill(c) / get_days(c);
+	size = get_size(c);
 
-void cargo_update_expire(cargo_t *cargo)
-{
-	int i;
+	while (cur_fill > 0) {
+		for (i = 0; i < get_size(c); i++) {
+			if (cargo->demand[i] > 0) {
+				continue;
+			}
 
-	if (cargo == NULL) {
-		return;
-	}
-
-	for (i = 0; i < cargo->size; i++) {
-		if (cargo->offer[i].quantity > 0) {
-			cargo->offer[i].expire--;
-			if (cargo->offer[i].expire <= 0) {
-				cargo->offer[i].quantity = 0;
+			pick = RANDOM_BOOL();
+			offer = RANDOM_BOOL();
+			if (pick == TRUE && offer == TRUE) {
+				tmp = RANDOM_INTEGER(1, size);
+				cargo->offer[i] = tmp;
+				cargo->demand[i] = 0;
+				/*cargo->offer[i].expire =
+				RANDOM_INTEGER(life_min, life_max);*/
+				cur_fill -= tmp;
+			} else if (pick == TRUE && offer == FALSE) {
+				tmp = RANDOM_INTEGER(1, size);
+				cargo->offer[i] = 0;
+				cargo->demand[i] = tmp;
+				cur_fill -= tmp;
+			} else {
 			}
 		}
 	}
 }
 
-void cargo_delete(cargo_t *cargo)
+size_t cargo_get_size(shm_config_t *c)
 {
-	if (cargo == NULL) {
-		return;
-	}
-
-	free(cargo->demand);
-	free(cargo->offer);
-	free(cargo);
+	return (sizeof(int) * get_merci(c) * 2) + sizeof(cargo_t);
 }

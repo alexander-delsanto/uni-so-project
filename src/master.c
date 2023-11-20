@@ -1,35 +1,87 @@
 #define _GNU_SOURCE
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
-#include <sys/wait.h>
-#include "header/ipc_utils.h"
-#include "header/utils.h"
-#include "header/shared_memory.h"
+#include <sys/types.h>
 
-#define NUM_CONST 16
+#include "include/const.h"
+#include "include/shm_config.h"
+#include "include/shm_port.h"
+#include "include/shm_ship.h"
 
-pid_t master_pid;
-pid_t *children_pid = NULL;
-int children_num = 0;
+struct state {
+	shm_config_t *config;
+	shm_port_t *ports;
+	shm_ship_t *ships;
+	pid_t weather;
 
-void create_children(void);
-pid_t run_process(char *name, int index);
-struct data_general read_constants_from_file(char *path);
-void send_signal_to_children(int signal);
+	bool_t running;
+};
+
 void signal_handler(int signal);
+struct sigaction *signal_handler_init(void);
+
+void run_ports(struct state *s);
+void run_ships(struct state *s);
+void run_weather(struct state *s);
+
+pid_t run_process(char *name, int index);
+
 void close_all(void);
+
+int day = 0;
+struct state state;
 
 int main(int argc, char *argv[])
 {
-	struct sigaction sa;
+	shm_port_t *ports;
+	shm_ship_t *ships;
+
+	pid_t pid;
+	struct sigaction *sa;
+
+	pid = getpid();
+
+	state.running = TRUE;
+	state.config = read_from_path("../constants.txt");
+	if (state.config == NULL) {
+		exit(1);
+	}
+
+	state.ports = port_initialize(state.config);
+	if (ports == NULL) {
+		exit(1);
+	}
+
+	state.ships = ship_initialize(state.config);
+	if (ships == NULL) {
+		exit(1);
+	}
+
+	sa = signal_handler_init();
+	/*run_ports(state.config, &state);
+	run_ships(config, &state);
+	run_weather(config, &state);*/
+
+	alarm(1);
+
+	while (state.running == TRUE) {
+		pause();
+	}
+
+	close_all();
+
+	return EXIT_SUCCESS;
+}
+
+struct sigaction *signal_handler_init(void)
+{
+	static struct sigaction sa;
 	sigset_t mask;
-	struct data_general read_data;
 
-	master_pid = getpid();
-
-	/* Signal handler initialization */
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = signal_handler;
 
@@ -40,41 +92,49 @@ int main(int argc, char *argv[])
 	sigaction(SIGTERM, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
 
-	read_data = read_constants_from_file("../constants.txt");
+	return &sa;
+}
 
-	initialize_shm(&read_data);
-	create_children();
-	start_simulation();
+void run_ports(struct state *s)
+{
+	int i;
+	int n_port;
+	pid_t pid;
 
-	alarm(1);
-
-	while(1) {
-		pause();
+	n_port = get_porti(s->config);
+	for (i = 0; i < n_port; i++) {
+		run_process("./port", i);
+		port_shm_set_pid(state.ports, i, pid);
 	}
 }
 
-void create_children() {
+void run_ships(struct state *s)
+{
 	int i;
-	children_pid = calloc(SO_NAVI + SO_PORTI + 1, sizeof(*children_pid));
-	/* Running ports */
-/*	for (i = 0; i < SO_PORTI; i++) {
-		set_port_pid(i, run_process("./port", i));
-	}*/
-	/* Running ships */
-	for (i = 0; i < SO_NAVI; i++) {
-		set_ship_pid(i, run_process("./ship", i));
+	int n_ship;
+	pid_t pid;
+
+	for (i = 0; i < n_ship; i++) {
+		run_process("./ship", i);
+		ship_shm_set_pid(state.ships, i, pid);
 	}
-	/* Running weather */
-	run_process("./weather", 0);
+}
+
+void run_weather(struct state *s)
+{
+	pid_t pid;
+
+	pid = run_process("./weather", 1);
+
+	state.weather = pid;
 }
 
 pid_t run_process(char *name, int index)
 {
 	pid_t process_pid;
 	char *args[3], buf[10];
-	if((process_pid = fork()) == -1) {
+	if ((process_pid = fork()) == -1) {
 		dprintf(2, "master.c: Error in fork.\n");
-		close_all();
 	} else if (process_pid == 0) {
 		sprintf(buf, "%d", index);
 		args[0] = name;
@@ -86,92 +146,48 @@ pid_t run_process(char *name, int index)
 		}
 	}
 
-	children_pid[children_num] = process_pid;
-	children_num++;
 	return process_pid;
-}
-
-struct data_general read_constants_from_file(char *path)
-{
-	FILE *file;
-	char c;
-	int n_char, counter = 0;
-	double value;
-	struct data_general read_data;
-
-	file = fopen(path, "r");
-	if(file == NULL)
-		close_all();
-	while((n_char = fscanf(file, "%lf", &value)) != EOF){
-		if(n_char != 0) {
-			if(counter >= NUM_CONST) {
-				fclose(file);
-				close_all();
-			}if (value <= 0) {
-				fclose(file);
-				close_all();
-			}
-			if (counter <= 0) {
-				read_data.so_lato = value;
-			} else {
-				(&read_data.so_days)[counter - 1] = (int) value;
-			}
-			counter++;
-		}
-
-		fscanf(file, "%*[ \t]");
-		if((c = fgetc(file)) == '#') {
-			fscanf(file, "%*[^\n]");
-		}else if(!(c >= '0' && c <= '9')) {
-			fclose(file);
-			close_all();
-		}
-	}
-	fclose(file);
-	return read_data;
-}
-
-void send_signal_to_children(int signal)
-{
-	int i;
-	if(children_pid != NULL) {
-		for (i = 0; i < children_num; i++) {
-			kill(children_pid[i], signal);
-		}
-	}
 }
 
 void signal_handler(int signal)
 {
-	switch (signal){
+	switch (signal) {
 	case SIGSEGV:
 		dprintf(2, "master.c: Segmentation fault. Closing all.\n");
-		close_all();
 	case SIGTERM:
 	case SIGINT:
-		close_all();
 	case SIGALRM:
-		new_day();
-		dprintf(1, "\n");
-
-		if (get_current_day() == SO_DAYS + 1) {
-			dprintf(1, "Reached last day of simulation. Terminating...\n");
-			close_all();
+		dprintf(1, "porco cane: %d\n", day);
+		if (day >= 5) {
+			port_shm_send_signal_to_all_ports(
+				state.ports, state.config, SIGKILL);
+			ship_shm_send_signal_to_all_ships(
+				state.ships, state.config, SIGKILL);
+			kill(state.weather, SIGKILL);
+			state.running = FALSE;
 		}
-
-		send_signal_to_children(SIGDAY);
+		day++;
+		port_shm_send_signal_to_all_ports(state.ports, state.config,
+						  SIGDAY);
+		ship_shm_send_signal_to_all_ships(state.ships, state.config,
+						  SIGDAY);
 
 		alarm(1);
+		break;
+	default:
 		break;
 	}
 }
 
 void close_all(void)
 {
-	send_signal_to_children(SIGKILL);
-	while (wait(NULL) > 0);
+	int conf_shm_id;
 
-	free(children_pid);
-	delete_all_shm();
-	exit(0);
+	port_shm_detach(state.ports);
+	port_shm_delete(state.config);
+	ship_shm_detach(state.ships);
+	ship_shm_delete(state.config);
+	conf_shm_id = get_config_shm_id(state.config);
+	config_shm_detach(state.config);
+	config_shm_delete(conf_shm_id);
 }

@@ -2,76 +2,77 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <strings.h>
 #include <unistd.h>
-#include <sys/wait.h>
+#include <signal.h>
 
 #include "../lib/semaphore.h"
 
-#include "header/cargo.h"
-#include "header/utils.h"
-#include "header/ipc_utils.h"
-#include "header/types.h"
+#include "include/const.h"
+#include "include/shm_config.h"
+#include "include/types.h"
+#include "include/utils.h"
+#include "include/shm_port.h"
+#include "include/expired.h"
 
-typedef struct settings {
+struct state {
 	int id;
 	int sem_id;
 	pid_t master;
 	pid_t pid;
-	coord_t coordinates;
-	cargo_t *cargo;
-} settings_t;
-
-void generate_coordinates(settings_t *settings);
-void put_coordinates_shm(settings_t *settings);
-void generate_docks(settings_t *settings);
-void generate_cargo(settings_t *settings);
+	shm_config_t *config;
+	shm_port_t *port;
+	expired_t *exp;
+	bool_t running;
+};
 
 void signal_handler(int signal);
+struct sigaction *signal_handler_init(void);
 
-void send_report(void);
+void generate_coordinates(void);
+void generate_docks(void);
 
-void close_all(settings_t settings);
+void close_all(void);
+
+struct state state;
 
 int main(int argc, char *argv[])
 {
-	settings_t settings;
+	struct sigaction *sa;
 
-	struct sigaction sa;
-	sigset_t mask;
+	state.running = TRUE;
+	state.id = (int)strtol(argv[1], NULL, 10);
+	state.pid = getpid();
+	state.master = getppid();
+	dprintf(1, "Port %d: Received SIGDAY signal. Current day:\n", state.id);
 
-	bzero(&sa, sizeof(sa));
-	sa.sa_handler = &signal_handler;
-	/* Signal handler initialization */
-	sigfillset(&mask);
-	sa.sa_mask = mask;
-	sigaction(SIGALRM, &sa, NULL);
+	state.config = config_shm_attach();
+	if (state.config == NULL) {
+		close_all();
+		exit(1);
+	}
+	state.port = port_shm_attach(state.config);
+	state.exp = expired_init(state.config);
+	generate_coordinates();
+	generate_docks();
+	sa = signal_handler_init();
 
-	attach_process_to_shm();
+	while (state.running == TRUE) {
+	}
 
-	settings.id = atoi(argv[2]);
-	settings.pid = getpid();
-	settings.master = getppid();
-	generate_coordinates(&settings);
-	generate_docks(&settings);
-	generate_cargo(&settings);
-
-	put_coordinates_shm(&settings);
-
-	close_all(settings);
+	close_all();
 
 	return EXIT_SUCCESS;
 }
 
-void generate_coordinates(settings_t *settings)
+void generate_coordinates(void)
 {
-	coord_t coordinates;
+	struct coord coordinates;
 	double max;
 
-	max = SO_LATO;
+	max = get_lato(state.config);
 
-	switch (settings->id) {
+	switch (state.id) {
 	case 0:
 		coordinates.x = 0;
 		coordinates.y = 0;
@@ -94,35 +95,67 @@ void generate_coordinates(settings_t *settings)
 		break;
 	}
 
-	settings->coordinates = coordinates;
+	port_shm_set_coordinates(state.port, state.id, coordinates);
 }
 
-void generate_docks(settings_t *settings)
+void generate_docks(void)
 {
-	settings->sem_id = sem_create(100, RANDOM_INTEGER(1, SO_BANCHINE));
+	int n;
+
+	n = RANDOM_INTEGER(1, get_banchine(state.config));
+
+	state.sem_id = sem_create(100, n);
+
+	port_shm_set_docks(state.port, state.id, n);
 }
 
-void generate_cargo(settings_t *settings)
+struct sigaction *signal_handler_init(void)
 {
-	settings->cargo = cargo_generate(SO_MERCI, SO_FILL);
-	cargo_generate_goodies(settings->cargo, SO_SIZE, SO_MIN_VITA,
-			       SO_MAX_VITA);
+	static struct sigaction sa;
+	sigset_t mask;
+
+	bzero(&sa, sizeof(sa));
+	sa.sa_handler = signal_handler;
+
+	sigfillset(&mask);
+	sa.sa_mask = mask;
+	sigaction(SIGDAY, &sa, NULL);
+	sigaction(SIGINT, &sa, NULL);
+
+	return &sa;
 }
 
 void signal_handler(int signal)
 {
 	switch (signal) {
-	case SIGSEGV:
-		dprintf(2, "master.c: Segmentation fault. Closing all.\n");
-		break;
 	case SIGDAY:
-		send_report();
+		dprintf(1, "Port %d: Received SIGDAY signal. Current day: %d\n",
+			state.id, get_current_day(state.config));
+		expired_new_day(state.exp, state.config);
+		port_shm_remove_expired(state.port, state.exp, state.config);
+		port_shm_generate_cargo(state.port, state.id, state.config);
+		break;
+	case SIGSWELL:
+		dprintf(1,
+			"Port %d: Received SIGSWELL signal. Current day: %d\n",
+			state.id, get_current_day(state.config));
+		/* TODO */
+		break;
+	case SIGSEGV:
+		dprintf(1, "Received SIGSEGV signal.\n");
+		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n",
+			state.id);
+		break;
+	case SIGINT:
+		state.running = FALSE;
+	default:
 		break;
 	}
 }
 
-void close_all(settings_t settings)
+void close_all(void)
 {
-	/* TODO */
-	sem_delete(settings.sem_id);
+	sem_delete(state.sem_id);
+	port_shm_detach(state.port);
+	config_shm_detach(state.config);
 }
