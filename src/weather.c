@@ -8,7 +8,7 @@
 #include <sys/time.h>
 
 #include "include/const.h"
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
 
@@ -24,7 +24,7 @@ void send_maelstrom_signal(void);
 void close_all(void);
 
 struct state {
-	shm_config_t *config;
+	shm_general_t *general;
 	shm_port_t *ports;
 	shm_ship_t *ships;
 };
@@ -35,12 +35,12 @@ int main(int argc, char *argv[])
 {
 	signal_handler_init();
 
-	state.config = config_shm_attach();
-	state.ports = port_shm_attach(state.config);
-	state.ships = ship_shm_attach(state.config);
+	state.general = general_shm_attach();
+	state.ports = port_shm_attach(state.general);
+	state.ships = ship_shm_attach(state.general);
 
 	srand(getpid() * time(NULL));
-	start_timer(get_maelstrom(state.config) / 24.0);
+	start_timer(get_maelstrom(state.general) / 24.0);
 
 	while (1) {
 		pause();
@@ -84,7 +84,7 @@ void send_storm_signal(void)
 {
 	int id;
 
-	id = ship_shm_get_random_kill(state.ships, state.config);
+	id = ship_shm_get_random_kill(state.ships, state.general);
 	ship_shm_send_signal_to_ship(state.ships, id, SIGSTORM);
 }
 
@@ -92,7 +92,7 @@ void send_maelstrom_signal(void)
 {
 	int id;
 
-	id = ship_shm_get_random_maelstrom(state.ships, state.config);
+	id = ship_shm_get_random_maelstrom(state.ships, state.general);
 	ship_shm_send_signal_to_ship(state.ships, id, SIGMAELSTROM);
 }
 
@@ -100,7 +100,7 @@ void send_swell_signal(void)
 {
 	int id;
 
-	id = port_shm_get_random_swell(state.ports, state.config);
+	id = port_shm_get_random_swell(state.ports, state.general);
 	port_shm_send_signal_to_port(state.ports, id, SIGSWELL);
 }
 
@@ -124,5 +124,5 @@ void close_all(void)
 {
 	port_shm_detach(state.ports);
 	ship_shm_detach(state.ships);
-	config_shm_detach(state.config);
+	general_shm_detach(state.general);
 }

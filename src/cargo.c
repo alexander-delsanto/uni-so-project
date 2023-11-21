@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 #include "include/cargo.h"
 #include "include/utils.h"
 #include "include/types.h"
@@ -12,7 +12,7 @@ struct cargo {
 	int *demand;
 };
 
-cargo_t *cargo_initialize(shm_config_t *c)
+cargo_t *cargo_initialize(shm_general_t *c)
 {
 	cargo_t *cargo;
 
@@ -36,7 +36,7 @@ cargo_t *cargo_initialize(shm_config_t *c)
 	return cargo;
 }
 
-void cargo_generate(shm_config_t *c, cargo_t *cargo)
+void cargo_generate(shm_general_t *c, cargo_t *cargo)
 {
 	/* TODO rivedere algoritmo
 	 * TODO ritornare array di scadenze tipizzato
@@ -75,7 +75,7 @@ void cargo_generate(shm_config_t *c, cargo_t *cargo)
 	}
 }
 
-size_t cargo_get_size(shm_config_t *c)
+size_t cargo_get_size(shm_general_t *c)
 {
 	return (sizeof(int) * get_merci(c) * 2) + sizeof(cargo_t);
 }

@@ -7,7 +7,7 @@
 #include "../lib/shm.h"
 
 #include "include/const.h"
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 #include "include/types.h"
 #include "include/shm_ship.h"
 #include "include/utils.h"
@@ -27,7 +27,7 @@ struct shm_ship {
 	bool_t dump_had_swell;
 };
 
-shm_ship_t *ship_initialize(shm_config_t *c)
+shm_ship_t *ship_initialize(shm_general_t *c)
 {
 	shm_ship_t *ships, *tmp_ships;
 	int i;
@@ -50,7 +50,7 @@ shm_ship_t *ship_initialize(shm_config_t *c)
 	return ships;
 }
 
-shm_ship_t *ship_shm_attach(shm_config_t *c)
+shm_ship_t *ship_shm_attach(shm_general_t *c)
 {
 	shm_ship_t *ships;
 
@@ -59,12 +59,12 @@ shm_ship_t *ship_shm_attach(shm_config_t *c)
 	return ships;
 }
 
-void ship_shm_delete(shm_config_t *c)
+void ship_shm_delete(shm_general_t *c)
 {
 	shm_delete(get_ship_shm_id(c));
 }
 
-int ship_shm_get_random_kill(shm_ship_t *s, shm_config_t *c)
+int ship_shm_get_random_kill(shm_ship_t *s, shm_general_t *c)
 {
 	int i, n_ships, id = -1;
 	bool_t dead;
@@ -84,7 +84,7 @@ int ship_shm_get_random_kill(shm_ship_t *s, shm_config_t *c)
 	return id;
 }
 
-int ship_shm_get_random_maelstrom(shm_ship_t *s, shm_config_t *c)
+int ship_shm_get_random_maelstrom(shm_ship_t *s, shm_general_t *c)
 {
 	int i, n_ships, id = -1;
 	bool_t dead;
@@ -125,7 +125,7 @@ void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value)
 }
 
 
-void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_config_t *c,
+void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *c,
 				       int signal)
 {
 	int i;

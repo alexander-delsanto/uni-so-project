@@ -9,7 +9,7 @@
 #include <signal.h>
 
 #include "include/const.h"
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
 #include "include/utils.h"
@@ -30,7 +30,7 @@ void trade(int id_port);
 
 struct state {
 	int id;
-	shm_config_t *config;
+	shm_general_t *general;
 	shm_port_t *port;
 	shm_ship_t *ship;
 };
@@ -50,9 +50,9 @@ int main(int argc, char *argv[])
 	sigaction(SIGSEGV, &sa, NULL);
 
 	state.id = (int)strtol(argv[1], NULL, 10);
-	state.config = config_shm_attach();
-	state.port = port_shm_attach(state.config);
-	state.ship = ship_shm_attach(state.config);
+	state.general = general_shm_attach();
+	state.port = port_shm_attach(state.general);
+	state.ship = ship_shm_attach(state.general);
 	srand(time(NULL) * getpid());
 	init_location();
 
@@ -87,8 +87,8 @@ void init_location(void)
 {
 	struct coord coords;
 	/* generate a random location on the map */
-	coords.x = RANDOM_DOUBLE(0, get_lato(state.config));
-	coords.y = RANDOM_DOUBLE(0, get_lato(state.config));
+	coords.x = RANDOM_DOUBLE(0, get_lato(state.general));
+	coords.y = RANDOM_DOUBLE(0, get_lato(state.general));
 
 	ship_shm_set_coords(state.ship, state.id, coords);
 	ship_shm_set_is_moving(state.ship, state.id, TRUE);
@@ -97,7 +97,7 @@ void init_location(void)
 void pick_first_destination_port()
 {
 	struct coord dest;
-	dest = port_shm_get_coords(state.port, RANDOM_INTEGER(0, get_porti(state.config) - 1));
+	dest = port_shm_get_coords(state.port, RANDOM_INTEGER(0, get_porti(state.general) - 1));
 	move(dest);
 }
 
@@ -112,7 +112,7 @@ void move(struct coord destination_port)
 	/* calculate distance between actual position and destination */
 	distance = GET_DISTANCE(destination_port);
 	/* calculate time required to arrive (in days) */
-	time_required = distance / get_speed(state.config);
+	time_required = distance / get_speed(state.general);
 	convert_and_sleep(time_required);
 	/* set new location */
 	ship_shm_set_coords(state.ship, state.id, destination_port);
@@ -134,7 +134,7 @@ void signal_handler(int signal)
 	switch (signal) {
 	case SIGDAY:
 		dprintf(1, "Ship %d: Received SIGDAY signal. Current day: %d\n",
-			state.id, get_current_day(state.config));
+			state.id, get_current_day(state.general));
 		/* TODO */
 		break;
 	case SIGSTORM:
@@ -159,6 +159,6 @@ void close_all(void)
 {
 	port_shm_detach(state.port);
 	ship_shm_detach(state.ship);
-	config_shm_detach(state.config);
+	general_shm_detach(state.general);
 	exit(0);
 }

@@ -8,12 +8,12 @@
 #include <sys/types.h>
 
 #include "include/const.h"
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
 
 struct state {
-	shm_config_t *config;
+	shm_general_t *general;
 	shm_port_t *ports;
 	shm_ship_t *ships;
 	pid_t weather;
@@ -45,19 +45,19 @@ int main(int argc, char *argv[])
 	state.running = TRUE;
 	dprintf(1, "ciao1\n");
 
-	state.config = read_from_path("../constants.txt");
+	state.general = read_from_path("../constants.txt");
 	dprintf(1, "ciao2\n");
-	if (state.config == NULL) {
+	if (state.general == NULL) {
 		exit(1);
 	}
 
-	state.ports = port_initialize(state.config);
+	state.ports = port_initialize(state.general);
 	if (state.ports == NULL) {
 		exit(1);
 	}
 	dprintf(1, "ciao3\n");
 
-	state.ships = ship_initialize(state.config);
+	state.ships = ship_initialize(state.general);
 	if (state.ships == NULL) {
 		exit(1);
 	}
@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
 
 
 	sa = signal_handler_init();
-	/*run_ports(state.config, &state);
-	run_ships(config, &state);
-	run_weather(config, &state);*/
+	/*run_ports(state.general, &state);
+	run_ships(general, &state);
+	run_weather(general, &state);*/
 
 	alarm(1);
 
@@ -104,7 +104,7 @@ void run_ports(struct state *s)
 	int n_port;
 	pid_t pid;
 
-	n_port = get_porti(s->config);
+	n_port = get_porti(s->general);
 	for (i = 0; i < n_port; i++) {
 		run_process("./port", i);
 		port_shm_set_pid(state.ports, i, pid);
@@ -163,16 +163,16 @@ void signal_handler(int signal)
 		dprintf(1, "porco cane: %d\n", day);
 		if (day >= 5) {
 			port_shm_send_signal_to_all_ports(
-				state.ports, state.config, SIGKILL);
+				state.ports, state.general, SIGKILL);
 			ship_shm_send_signal_to_all_ships(
-				state.ships, state.config, SIGKILL);
+				state.ships, state.general, SIGKILL);
 			kill(state.weather, SIGKILL);
 			state.running = FALSE;
 		}
 		day++;
-		port_shm_send_signal_to_all_ports(state.ports, state.config,
+		port_shm_send_signal_to_all_ports(state.ports, state.general,
 						  SIGDAY);
-		ship_shm_send_signal_to_all_ships(state.ships, state.config,
+		ship_shm_send_signal_to_all_ships(state.ships, state.general,
 						  SIGDAY);
 
 		alarm(1);
@@ -187,10 +187,10 @@ void close_all(void)
 	int conf_shm_id;
 
 	port_shm_detach(state.ports);
-	port_shm_delete(state.config);
+	port_shm_delete(state.general);
 	ship_shm_detach(state.ships);
-	ship_shm_delete(state.config);
-	conf_shm_id = get_config_shm_id(state.config);
-	config_shm_detach(state.config);
-	config_shm_delete(conf_shm_id);
+	ship_shm_delete(state.general);
+	conf_shm_id = get_general_shm_id(state.general);
+	general_shm_detach(state.general);
+	general_shm_delete(conf_shm_id);
 }

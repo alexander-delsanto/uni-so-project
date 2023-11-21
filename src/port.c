@@ -9,7 +9,7 @@
 #include "../lib/semaphore.h"
 
 #include "include/const.h"
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 #include "include/types.h"
 #include "include/utils.h"
 #include "include/shm_port.h"
@@ -20,7 +20,7 @@ struct state {
 	int sem_id;
 	pid_t master;
 	pid_t pid;
-	shm_config_t *config;
+	shm_general_t *general;
 	shm_port_t *port;
 	expired_t *exp;
 	bool_t running;
@@ -45,13 +45,13 @@ int main(int argc, char *argv[])
 	state.pid = getpid();
 	state.master = getppid();
 
-	state.config = config_shm_attach();
-	if (state.config == NULL) {
+	state.general = general_shm_attach();
+	if (state.general == NULL) {
 		close_all();
 		exit(1);
 	}
-	state.port = port_shm_attach(state.config);
-	state.exp = expired_init(state.config);
+	state.port = port_shm_attach(state.general);
+	state.exp = expired_init(state.general);
 	generate_coordinates();
 	generate_docks();
 	sa = signal_handler_init();
@@ -69,7 +69,7 @@ void generate_coordinates(void)
 	struct coord coordinates;
 	double max;
 
-	max = get_lato(state.config);
+	max = get_lato(state.general);
 
 	switch (state.id) {
 	case 0:
@@ -101,7 +101,7 @@ void generate_docks(void)
 {
 	int n;
 
-	n = RANDOM_INTEGER(1, get_banchine(state.config));
+	n = RANDOM_INTEGER(1, get_banchine(state.general));
 
 	state.sem_id = sem_create(100, n);
 
@@ -129,15 +129,15 @@ void signal_handler(int signal)
 	switch (signal) {
 	case SIGDAY:
 		dprintf(1, "Port %d: Received SIGDAY signal. Current day: %d\n",
-			state.id, get_current_day(state.config));
-		expired_new_day(state.exp, state.config);
-		port_shm_remove_expired(state.port, state.exp, state.config);
-		port_shm_generate_cargo(state.port, state.id, state.config);
+			state.id, get_current_day(state.general));
+		expired_new_day(state.exp, state.general);
+		port_shm_remove_expired(state.port, state.exp, state.general);
+		port_shm_generate_cargo(state.port, state.id, state.general);
 		break;
 	case SIGSWELL:
 		dprintf(1,
 			"Port %d: Received SIGSWELL signal. Current day: %d\n",
-			state.id, get_current_day(state.config));
+			state.id, get_current_day(state.general));
 		/* TODO */
 		break;
 	case SIGSEGV:
@@ -156,5 +156,5 @@ void close_all(void)
 {
 	sem_delete(state.sem_id);
 	port_shm_detach(state.port);
-	config_shm_detach(state.config);
+	general_shm_detach(state.general);
 }

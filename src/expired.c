@@ -1,4 +1,4 @@
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 #include "include/expired.h"
 
 struct expired_data {
@@ -11,7 +11,7 @@ struct expired {
 	struct expired_data *head;
 };
 
-expired_t *expired_init(shm_config_t *c)
+expired_t *expired_init(shm_general_t *c)
 {
 	expired_t *exp;
 	int i;

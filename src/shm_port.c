@@ -8,7 +8,7 @@
 #include "../lib/semaphore.h"
 
 #include "include/const.h"
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 #include "include/types.h"
 #include "include/cargo.h"
 #include "include/shm_port.h"
@@ -32,7 +32,7 @@ struct shm_port {
 	bool_t dump_had_swell;*/
 };
 
-shm_port_t *port_initialize(shm_config_t *c)
+shm_port_t *port_initialize(shm_general_t *c)
 {
 	shm_port_t *ports, *tmp_ports;
 	int i;
@@ -63,7 +63,7 @@ shm_port_t *port_initialize(shm_config_t *c)
 	return ports;
 }
 
-shm_port_t *port_shm_attach(shm_config_t *c)
+shm_port_t *port_shm_attach(shm_general_t *c)
 {
 	shm_port_t *ports;
 
@@ -79,7 +79,7 @@ void port_shm_set_docks(shm_port_t *p, int id, int n)
 	sem_execute_semop(p->sem_id, id, 1, 0);
 }
 
-void port_shm_generate_cargo(shm_port_t *p, int id, shm_config_t *c)
+void port_shm_generate_cargo(shm_port_t *p, int id, shm_general_t *c)
 {
 	int *cargo_exp;
 	/*cargo_exp = cargo_generate(c, p->cargo);*/
@@ -90,7 +90,7 @@ void port_shm_detach(shm_port_t *p)
 	shm_detach(p);
 }
 
-void port_shm_delete(shm_config_t *c)
+void port_shm_delete(shm_general_t *c)
 {
 	shm_delete(get_port_shm_id(c));
 }
@@ -102,7 +102,7 @@ void port_shm_set_coordinates(shm_port_t *p, int id, struct coord coord)
 	sem_execute_semop(p->sem_id, id, 1, 0);
 }
 
-int port_shm_get_random_swell(shm_port_t *s, shm_config_t *c)
+int port_shm_get_random_swell(shm_port_t *s, shm_general_t *c)
 {
 	int i, n_ships, id = -1;
 	bool_t swell;
@@ -128,7 +128,7 @@ void port_shm_set_pid(shm_port_t *p, int id, pid_t pid)
 	sem_execute_semop(p->sem_id, id, 1, 0);
 }
 
-void port_shm_send_signal_to_all_ports(shm_port_t *p, shm_config_t *c,
+void port_shm_send_signal_to_all_ports(shm_port_t *p, shm_general_t *c,
 				       int signal)
 {
 	int i;
