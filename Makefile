@@ -23,13 +23,13 @@ REQUIRED_O=$(patsubst src/%.c, $(BIN)/%.o, $(REQUIRED))
 all: master ship weather# $(BINARIES_OUT)
 
 master: | $(BIN)
-	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_config.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@
+	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_general.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@
 
 ship: | $(BIN)
-	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_config.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
+	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_general.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
 
 weather: | $(BIN)
-	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_config.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
+	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_general.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
 
 $(BIN):
 	@mkdir -p $@
