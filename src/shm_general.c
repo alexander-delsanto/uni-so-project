@@ -6,11 +6,11 @@
 #include "../lib/shm.h"
 
 #include "include/const.h"
-#include "include/shm_config.h"
+#include "include/shm_general.h"
 
 #define NUM_CONST 16
 
-struct shm_config {
+struct shm_general {
 	double so_lato;
 	int so_days;
 	int so_navi, so_speed, so_capacity;
@@ -20,21 +20,21 @@ struct shm_config {
 
 	int current_day;
 
-	int config_shm_id, pid_shm_id, ship_shm_id, port_shm_id;
+	int general_shm_id, pid_shm_id, ship_shm_id, port_shm_id;
 };
 
-shm_config_t *copy_to_shm(shm_config_t *c);
+shm_general_t *copy_to_shm(shm_general_t *c);
 
-shm_config_t *read_from_path(char *path)
+shm_general_t *read_from_path(char *path)
 {
 	FILE *file;
 	char c;
 	char buffer[100];
 	int n_char, counter = 0;
 	double value;
-	shm_config_t *data;
+	shm_general_t *data;
 
-	data = (shm_config_t *)malloc(sizeof(shm_config_t));
+	data = (shm_general_t *)malloc(sizeof(shm_general_t));
 	if (data == NULL) {
 		return NULL;
 	}
@@ -80,27 +80,27 @@ shm_config_t *read_from_path(char *path)
 	return copy_to_shm(data);
 }
 
-shm_config_t *copy_to_shm(shm_config_t *c)
+shm_general_t *copy_to_shm(shm_general_t *c)
 {
 	int shm_id;
-	shm_config_t *data;
+	shm_general_t *data;
 
-	shm_id = shm_create(SHM_DATA_GENERAL_KEY, sizeof(shm_config_t));
+	shm_id = shm_create(SHM_DATA_GENERAL_KEY, sizeof(shm_general_t));
 	if (shm_id == -1) {
 		return NULL;
 	}
 
-	c->config_shm_id = shm_id;
+	c->general_shm_id = shm_id;
 	data = shm_attach(shm_id);
-	memcpy(data, c, sizeof(shm_config_t));
+	memcpy(data, c, sizeof(shm_general_t));
 }
 
-shm_config_t *config_shm_attach(void)
+shm_general_t *general_shm_attach(void)
 {
 	int shm_id;
-	shm_config_t *data;
+	shm_general_t *data;
 
-	shm_id = shm_create(SHM_DATA_GENERAL_KEY, sizeof(shm_config_t));
+	shm_id = shm_create(SHM_DATA_GENERAL_KEY, sizeof(shm_general_t));
 	if (shm_id == -1) {
 		return NULL;
 	}
@@ -109,22 +109,22 @@ shm_config_t *config_shm_attach(void)
 	return data;
 }
 
-void set_port_shm_id(shm_config_t *c, int id)
+void set_port_shm_id(shm_general_t *c, int id)
 {
 	c->port_shm_id = id;
 }
 
-void set_ship_shm_id(shm_config_t *c, int id)
+void set_ship_shm_id(shm_general_t *c, int id)
 {
 	c->ship_shm_id = id;
 }
 
-void set_pid_shm_id(shm_config_t *c, int id)
+void set_pid_shm_id(shm_general_t *c, int id)
 {
 	c->pid_shm_id = id;
 }
 
-int get_port_shm_id(shm_config_t *c)
+int get_port_shm_id(shm_general_t *c)
 {
 	if (c == NULL) {
 		return -1;
@@ -132,7 +132,7 @@ int get_port_shm_id(shm_config_t *c)
 	return c->port_shm_id;
 }
 
-int get_ship_shm_id(shm_config_t *c)
+int get_ship_shm_id(shm_general_t *c)
 {
 	if (c == NULL) {
 		return -1;
@@ -140,7 +140,7 @@ int get_ship_shm_id(shm_config_t *c)
 	return c->ship_shm_id;
 }
 
-int get_pid_shm_id(shm_config_t *c)
+int get_pid_shm_id(shm_general_t *c)
 {
 	if (c == NULL) {
 		return -1;
@@ -148,106 +148,106 @@ int get_pid_shm_id(shm_config_t *c)
 	return c->pid_shm_id;
 }
 
-double get_lato(shm_config_t *c)
+double get_lato(shm_general_t *c)
 {
 	return c->so_lato;
 }
 
-int get_days(shm_config_t *c)
+int get_days(shm_general_t *c)
 {
 	return c->so_days;
 }
 
-int get_navi(shm_config_t *c)
+int get_navi(shm_general_t *c)
 {
 	return c->so_navi;
 }
 
-int get_speed(shm_config_t *c)
+int get_speed(shm_general_t *c)
 {
 	return c->so_speed;
 }
 
-int get_capacity(shm_config_t *c)
+int get_capacity(shm_general_t *c)
 {
 	return c->so_capacity;
 }
 
-int get_porti(shm_config_t *c)
+int get_porti(shm_general_t *c)
 {
 	return c->so_porti;
 }
 
-int get_banchine(shm_config_t *c)
+int get_banchine(shm_general_t *c)
 {
 	return c->so_banchine;
 }
 
-int get_fill(shm_config_t *c)
+int get_fill(shm_general_t *c)
 {
 	return c->so_fill;
 }
 
-int get_load_speed(shm_config_t *c)
+int get_load_speed(shm_general_t *c)
 {
 	return c->so_loadspeed;
 }
 
-int get_merci(shm_config_t *c)
+int get_merci(shm_general_t *c)
 {
 	return c->so_merci;
 }
 
-int get_size(shm_config_t *c)
+int get_size(shm_general_t *c)
 {
 	return c->so_size;
 }
 
-int get_min_vita(shm_config_t *c)
+int get_min_vita(shm_general_t *c)
 {
 	return c->so_min_vita;
 }
 
-int get_max_vita(shm_config_t *c)
+int get_max_vita(shm_general_t *c)
 {
 	return c->so_max_vita;
 }
 
-int get_storm_duration(shm_config_t *c)
+int get_storm_duration(shm_general_t *c)
 {
 	return c->so_storm_duration;
 }
 
-int get_swell_duration(shm_config_t *c)
+int get_swell_duration(shm_general_t *c)
 {
 	return c->so_swell_duration;
 }
 
-int get_maelstrom(shm_config_t *c)
+int get_maelstrom(shm_general_t *c)
 {
 	return c->so_maelstrom;
 }
 
-int get_current_day(shm_config_t *c)
+int get_current_day(shm_general_t *c)
 {
 	return c->current_day;
 }
 
-void increase_day(shm_config_t *c)
+void increase_day(shm_general_t *c)
 {
 	c->current_day++;
 }
 
-int get_config_shm_id(shm_config_t *c)
+int get_general_shm_id(shm_general_t *c)
 {
-	return c->config_shm_id;
+	return c->general_shm_id;
 }
 
-void config_shm_detach(shm_config_t *c)
+void general_shm_detach(shm_general_t *c)
 {
 	shm_detach(c);
 }
-void config_shm_delete(int id)
+void general_shm_delete(int id)
 {
 	shm_delete(id);
 }
