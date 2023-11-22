@@ -34,9 +34,8 @@ void remove_comment(char *str) {
 shm_general_t *read_from_path(char *path, shm_general_t **g)
 {
 	FILE *file;
-	char c;
 	char buffer[100];
-	int n_char, counter = 0;
+	int counter = 0;
 	double value;
 	shm_general_t *data = *g;
 
@@ -47,33 +46,30 @@ shm_general_t *read_from_path(char *path, shm_general_t **g)
 		return NULL;
 	}
 
-	/* TODO: usare fgets e sscanf */
-	while ((n_char = fscanf(file, "%lf", &value)) != EOF) {
-		if (n_char != 0) {
-			if (counter >= NUM_CONST) {
-				fclose(file);
-				return NULL;
-			}
-			if (value <= 0) {
-				fclose(file);
-				return NULL;
-			}
-			if (counter <= 0) {
-				data->so_lato = value;
-			} else {
-				(&data->so_days)[counter - 1] = (int)value;
-			}
-			counter++;
+	while(fgets(buffer, sizeof(buffer), file) != NULL) {
+		remove_comment(buffer);
+		if (buffer[0] == '\n' || buffer[0] == '\0') {
+			continue;
 		}
 
-		fscanf(file, "%*[ \t]");
-		/* TODO: rimuovere fgetc */
-		if ((c = fgetc(file)) == '#') {
-			fscanf(file, "%*[^\n]");
-		} else if (!(c >= '0' && c <= '9')) {
+		if(sscanf(buffer, "%lf", &value) != 1) {
 			fclose(file);
 			return NULL;
 		}
+		if(counter >= NUM_CONST) {
+			fclose(file);
+			return NULL;
+		}
+		if(value <= 0) {
+			fclose(file);
+			return NULL;
+		}
+		if(counter <= 0) {
+			data->so_lato = value;
+		} else {
+			(&data->so_days)[counter - 1] = (int)value;
+		}
+		counter++;
 	}
 
 	data->current_day = 0;
