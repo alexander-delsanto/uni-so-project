@@ -7,6 +7,8 @@
 #include <time.h>
 #include <sys/time.h>
 
+#include "include/utils.h"
+#include "include/sem.h"
 #include "include/const.h"
 #include "include/shm_general.h"
 #include "include/shm_port.h"
@@ -35,11 +37,14 @@ int main(int argc, char *argv[])
 {
 	signal_handler_init();
 
-	state.general = general_shm_attach();
+	general_shm_attach(&state.general);
 	state.ports = port_shm_attach(state.general);
 	state.ships = ship_shm_attach(state.general);
 
 	srand(getpid() * time(NULL));
+
+	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
+
 	start_timer(get_maelstrom(state.general) / 24.0);
 
 	while (1) {
@@ -82,26 +87,39 @@ void signal_handler(int signal)
 
 void send_storm_signal(void)
 {
-	int id;
+	int i, n_ships, target_ship;
+	n_ships = get_navi(state.general);
+	target_ship = RANDOM_INTEGER(0, n_ships - 1);
 
-	id = ship_shm_get_random_kill(state.ships, state.general);
-	ship_shm_send_signal_to_ship(state.ships, id, SIGSTORM);
+	for (i = 0; i < n_ships; i++) {
+		if (!ship_shm_get_dead(state.ships, target_ship) &&
+		    ship_shm_get_is_moving(state.ships, target_ship)) {
+			ship_shm_send_signal_to_ship(state.ships, target_ship, SIGSTORM);
+			return;
+		}
+		target_ship = (target_ship + 1) % n_ships;
+	}
 }
 
 void send_maelstrom_signal(void)
 {
-	int id;
+	int i, n_ships, target_ship;
+	n_ships = get_navi(state.general);
+	target_ship = RANDOM_INTEGER(0, n_ships - 1);
 
-	id = ship_shm_get_random_maelstrom(state.ships, state.general);
-	ship_shm_send_signal_to_ship(state.ships, id, SIGMAELSTROM);
+	for (i = 0; i < n_ships; i++) {
+		if (!ship_shm_get_dead(state.ships, target_ship)) {
+			ship_shm_send_signal_to_ship(state.ships, target_ship, SIGMAELSTROM);
+			return;
+		}
+		target_ship = (target_ship + 1) % n_ships;
+	}
 }
 
 void send_swell_signal(void)
 {
-	int id;
-
-	id = port_shm_get_random_swell(state.ports, state.general);
-	port_shm_send_signal_to_port(state.ports, id, SIGSWELL);
+	int target_port = RANDOM_INTEGER(0, (get_porti(state.general) - 1));
+	port_shm_send_signal_to_port(state.ports, target_port, SIGSWELL);
 }
 
 void start_timer(double timer_interval)
@@ -125,4 +143,6 @@ void close_all(void)
 	port_shm_detach(state.ports);
 	ship_shm_detach(state.ships);
 	general_shm_detach(state.general);
+
+	exit(EXIT_SUCCESS);
 }

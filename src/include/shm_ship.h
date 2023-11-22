@@ -10,8 +10,9 @@ shm_ship_t *ship_shm_attach(shm_general_t *c);
 void ship_shm_detach(shm_ship_t *c);
 void ship_shm_delete(shm_general_t *c);
 
-int ship_shm_get_random_kill(shm_ship_t *s, shm_general_t *c);
-int ship_shm_get_random_maelstrom(shm_ship_t *s, shm_general_t *c);
+pid_t ship_shm_get_pid(shm_ship_t *s, int id);
+bool_t ship_shm_get_dead(shm_ship_t *s, int id);
+bool_t ship_shm_get_is_moving(shm_ship_t *s, int id);
 
 void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *c,
 				       int signal);

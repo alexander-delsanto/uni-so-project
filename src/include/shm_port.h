@@ -9,7 +9,7 @@
 
 typedef struct shm_port shm_port_t;
 
-shm_port_t *port_initialize(shm_general_t *c);
+shm_port_t *port_initialize(shm_general_t *g);
 
 shm_port_t *port_shm_attach(shm_general_t *c);
 void port_shm_detach(shm_port_t *p);
@@ -27,6 +27,6 @@ void port_shm_remove_expired(shm_port_t *p, expired_t *exp, shm_general_t *c);
 
 struct coord port_shm_get_coords(shm_port_t *p, int id);
 
-int port_shm_get_random_swell(shm_port_t *p, shm_general_t *c);
+pid_t port_shm_get_pid(shm_port_t *p, int id);
 
 #endif

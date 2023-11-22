@@ -3,8 +3,9 @@
 
 typedef struct shm_general shm_general_t;
 
-shm_general_t *read_from_path(char *path);
-shm_general_t *general_shm_attach(void);
+shm_general_t *read_from_path(char *path, shm_general_t **g);
+void general_shm_attach(shm_general_t **g);
+/*shm_general_t *general_shm_attach(void);*/
 void general_shm_detach(shm_general_t *c);
 void general_shm_delete(int id);
 

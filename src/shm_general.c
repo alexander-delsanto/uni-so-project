@@ -8,8 +8,6 @@
 #include "include/const.h"
 #include "include/shm_general.h"
 
-#define NUM_CONST 16
-
 struct shm_general {
 	double so_lato;
 	int so_days;
@@ -23,21 +21,26 @@ struct shm_general {
 	int general_shm_id, pid_shm_id, ship_shm_id, port_shm_id;
 };
 
-shm_general_t *copy_to_shm(shm_general_t *c);
+static void set_general_shm_id(shm_general_t *g);
+void remove_comment(char *str);
 
-shm_general_t *read_from_path(char *path)
+void remove_comment(char *str) {
+	char *comment_start = strchr(str, '#');
+	if (comment_start != NULL) {
+		*comment_start = '\0';
+	}
+}
+
+shm_general_t *read_from_path(char *path, shm_general_t **g)
 {
 	FILE *file;
 	char c;
 	char buffer[100];
 	int n_char, counter = 0;
 	double value;
-	shm_general_t *data;
+	shm_general_t *data = *g;
 
-	data = (shm_general_t *)malloc(sizeof(shm_general_t));
-	if (data == NULL) {
-		return NULL;
-	}
+	general_shm_attach(&data);
 
 	file = fopen(path, "r");
 	if (file == NULL) {
@@ -74,39 +77,26 @@ shm_general_t *read_from_path(char *path)
 	}
 
 	data->current_day = 0;
-
 	fclose(file);
 
-	return copy_to_shm(data);
-}
-
-shm_general_t *copy_to_shm(shm_general_t *c)
-{
-	int shm_id;
-	shm_general_t *data;
-
-	shm_id = shm_create(SHM_DATA_GENERAL_KEY, sizeof(shm_general_t));
-	if (shm_id == -1) {
-		return NULL;
-	}
-
-	c->general_shm_id = shm_id;
-	data = shm_attach(shm_id);
-	memcpy(data, c, sizeof(shm_general_t));
-}
-
-shm_general_t *general_shm_attach(void)
-{
-	int shm_id;
-	shm_general_t *data;
-
-	shm_id = shm_create(SHM_DATA_GENERAL_KEY, sizeof(shm_general_t));
-	if (shm_id == -1) {
-		return NULL;
-	}
-	data = shm_attach(shm_id);
-
+	set_general_shm_id(data);
 	return data;
+}
+
+static void set_general_shm_id(shm_general_t *g)
+{
+	g->general_shm_id = shm_create(SHM_DATA_GENERAL_KEY, 0);
+}
+
+void general_shm_attach(shm_general_t **g)
+{
+	int shm_id;
+
+	shm_id = shm_create(SHM_DATA_GENERAL_KEY, sizeof(shm_general_t));
+	if (shm_id == -1) {
+		dprintf(1, "do something\n");
+	}
+	*g = shm_attach(shm_id);
 }
 
 void set_port_shm_id(shm_general_t *c, int id)

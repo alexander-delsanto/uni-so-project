@@ -16,12 +16,9 @@ expired_t *expired_init(shm_general_t *c)
 	expired_t *exp;
 	int i;
 
-	exp = malloc(sizeof(expired_t) * get_merci(c));
+	exp = calloc(get_merci(c), sizeof(expired_t));
 	if (exp == NULL) {
 		return NULL;
-	}
-	for (i = 0; i < get_merci(c); i++) {
-		exp[i].head = NULL;
 	}
 
 	return exp;

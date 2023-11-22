@@ -9,6 +9,7 @@
 #include <signal.h>
 
 #include "include/const.h"
+#include "include/sem.h"
 #include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
@@ -20,7 +21,7 @@
 void signal_handler(int signal);
 
 void init_location(void);
-void pick_first_destination_port();
+void pick_first_destination_port(void);
 void move(struct coord destination_port);
 
 void close_all(void);
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
 	sigaction(SIGSEGV, &sa, NULL);
 
 	state.id = (int)strtol(argv[1], NULL, 10);
-	state.general = general_shm_attach();
+	general_shm_attach(&state.general);
 	state.port = port_shm_attach(state.general);
 	state.ship = ship_shm_attach(state.general);
 	srand(time(NULL) * getpid());
@@ -62,12 +63,14 @@ int main(int argc, char *argv[])
 	sigaction(SIGSTORM, &sa, NULL);
 	sigaction(SIGMAELSTROM, &sa, NULL);
 
+	sem_execute_semop(get_sem_port_init_id(), 0, 0, 0);
+	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
+
 	pick_first_destination_port();
+
 	while (1) {
 		sleep(1);
 	}
-
-	return EXIT_SUCCESS;
 }
 
 void loop(void) {
@@ -94,7 +97,7 @@ void init_location(void)
 	ship_shm_set_is_moving(state.ship, state.id, TRUE);
 }
 
-void pick_first_destination_port()
+void pick_first_destination_port(void)
 {
 	struct coord dest;
 	dest = port_shm_get_coords(state.port, RANDOM_INTEGER(0, get_porti(state.general) - 1));
@@ -108,6 +111,7 @@ void move(struct coord destination_port)
 {
 	double distance;
 	double time_required;
+/*	dprintf(1, "ship %d: before x: %lf y: %lf\n", state.id, ship_shm_get_coords(state.ship, state.id).x, ship_shm_get_coords(state.ship, state.id).y);*/
 	ship_shm_set_is_moving(state.ship, state.id, TRUE);
 	/* calculate distance between actual position and destination */
 	distance = GET_DISTANCE(destination_port);
@@ -116,6 +120,7 @@ void move(struct coord destination_port)
 	convert_and_sleep(time_required);
 	/* set new location */
 	ship_shm_set_coords(state.ship, state.id, destination_port);
+/*	dprintf(1, "ship %d: after x: %lf y: %lf\n", state.id, ship_shm_get_coords(state.ship, state.id).x, ship_shm_get_coords(state.ship, state.id).y);*/
 	ship_shm_set_is_moving(state.ship, state.id, FALSE);
 }
 
@@ -133,9 +138,9 @@ void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGDAY:
-		dprintf(1, "Ship %d: Received SIGDAY signal. Current day: %d\n",
+/*		dprintf(1, "Ship %d: Received SIGDAY signal. Current day: %d\n",
 			state.id, get_current_day(state.general));
-		/* TODO */
+		*//* TODO */
 		break;
 	case SIGSTORM:
 		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", state.id);
@@ -151,6 +156,7 @@ void signal_handler(int signal)
 		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n",
 			state.id);
 	case SIGINT:
+		dprintf(1, "ship %d: received SIGINT\n", state.id);
 		close_all();
 	}
 }

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <stdio.h>
 
 #include "../lib/shm.h"
 
@@ -29,31 +30,26 @@ struct shm_ship {
 
 shm_ship_t *ship_initialize(shm_general_t *c)
 {
-	shm_ship_t *ships, *tmp_ships;
-	int i;
+	shm_ship_t *ships;
 	int n_ships, id;
+	size_t size = sizeof(shm_ship_t) * n_ships;
 
 	n_ships = get_navi(c);
-	id = shm_create(SHM_DATA_SHIPS_KEY, (sizeof(shm_ship_t) * n_ships));
+	id = shm_create(SHM_DATA_SHIPS_KEY, size);
 	if (id == -1) {
 		dprintf(1, "ciao\n");
 		return NULL;
 	}
-	for (i = 0; i < n_ships; i++) {
-		ships[i].is_dead = FALSE;
-		ships[i].is_moving = FALSE;
-	}
 
 	ships = shm_attach(id);
+	bzero(ships, size);
 	set_ship_shm_id(c, id);
-
 	return ships;
 }
 
 shm_ship_t *ship_shm_attach(shm_general_t *c)
 {
 	shm_ship_t *ships;
-
 	ships = shm_attach(get_ship_shm_id(c));
 
 	return ships;
@@ -62,26 +58,6 @@ shm_ship_t *ship_shm_attach(shm_general_t *c)
 void ship_shm_delete(shm_general_t *c)
 {
 	shm_delete(get_ship_shm_id(c));
-}
-
-int ship_shm_get_random_kill(shm_ship_t *s, shm_general_t *c)
-{
-	int i, n_ships, id = -1;
-	bool_t dead;
-
-	n_ships = get_navi(c);
-
-	while (id == -1) {
-		for (i = 0; i < n_ships; i++, dead = RANDOM_BOOL()) {
-			if (s[i].is_dead == FALSE && s[i].is_moving == TRUE &&
-			    dead == TRUE) {
-				id = i;
-				break;
-			}
-		}
-	}
-
-	return id;
 }
 
 int ship_shm_get_random_maelstrom(shm_ship_t *s, shm_general_t *c)
@@ -101,6 +77,21 @@ int ship_shm_get_random_maelstrom(shm_ship_t *s, shm_general_t *c)
 	}
 
 	return id;
+}
+
+pid_t ship_shm_get_pid(shm_ship_t *s, int id)
+{
+	return s[id].pid;
+}
+
+bool_t ship_shm_get_dead(shm_ship_t *s, int id)
+{
+	return s[id].is_dead;
+}
+
+bool_t ship_shm_get_is_moving(shm_ship_t *s, int id)
+{
+	return s[id].is_moving;
 }
 
 void ship_shm_set_pid(shm_ship_t *s, int id, pid_t pid)
@@ -129,7 +120,7 @@ void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *c,
 				       int signal)
 {
 	int i;
-	int n_ships;
+	int n_ships = get_navi(c);
 
 	for (i = 0; i < n_ships; i++) {
 		if (s[i].is_dead == FALSE) {

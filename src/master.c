@@ -11,18 +11,17 @@
 #include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
+#include "include/sem.h"
 
 struct state {
 	shm_general_t *general;
 	shm_port_t *ports;
 	shm_ship_t *ships;
 	pid_t weather;
-
-	bool_t running;
 };
 
 void signal_handler(int signal);
-struct sigaction *signal_handler_init(void);
+void signal_handler_init(void);
 
 void run_ports(struct state *s);
 void run_ships(struct state *s);
@@ -32,21 +31,15 @@ pid_t run_process(char *name, int index);
 
 void close_all(void);
 
-int day = 0;
 struct state state;
 
 int main(int argc, char *argv[])
 {
-	pid_t pid;
-	struct sigaction *sa;
+	int id_sem_start;
 
-	pid = getpid();
+	signal_handler_init();
 
-	state.running = TRUE;
-	dprintf(1, "ciao1\n");
-
-	state.general = read_from_path("../constants.txt");
-	dprintf(1, "ciao2\n");
+	state.general = read_from_path("../constants.txt", &state.general);
 	if (state.general == NULL) {
 		exit(1);
 	}
@@ -55,32 +48,31 @@ int main(int argc, char *argv[])
 	if (state.ports == NULL) {
 		exit(1);
 	}
-	dprintf(1, "ciao3\n");
 
 	state.ships = ship_initialize(state.general);
 	if (state.ships == NULL) {
 		exit(1);
 	}
-	dprintf(1, "ciao4\n");
 
+	id_sem_start = get_sem_start_id();
+	sem_setval(id_sem_start, 0, 1);
 
-	sa = signal_handler_init();
-	/*run_ports(state.general, &state);
-	run_ships(general, &state);
-	run_weather(general, &state);*/
+	run_ports(&state);
+	run_ships(&state);
+	run_weather(&state);
+
+	sem_execute_semop(get_sem_port_init_id(), 0, 0, 0);
+	sem_execute_semop(id_sem_start, 0, -1, 0);
+
 
 	alarm(1);
 
-	while (state.running == TRUE) {
+	while (1) {
 		pause();
 	}
-
-	close_all();
-
-	return EXIT_SUCCESS;
 }
 
-struct sigaction *signal_handler_init(void)
+void signal_handler_init(void)
 {
 	static struct sigaction sa;
 	sigset_t mask;
@@ -94,19 +86,21 @@ struct sigaction *signal_handler_init(void)
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
-
-	return &sa;
 }
 
 void run_ports(struct state *s)
 {
-	int i;
+	int i, sem_id;
 	int n_port;
 	pid_t pid;
 
 	n_port = get_porti(s->general);
+
+	sem_id = get_sem_port_init_id();
+	sem_setval(sem_id, 0, n_port);
+
 	for (i = 0; i < n_port; i++) {
-		run_process("./port", i);
+		pid = run_process("./port", i);
 		port_shm_set_pid(state.ports, i, pid);
 	}
 }
@@ -114,11 +108,11 @@ void run_ports(struct state *s)
 void run_ships(struct state *s)
 {
 	int i;
-	int n_ship;
+	int n_ship = get_navi(s->general);
 	pid_t pid;
 
 	for (i = 0; i < n_ship; i++) {
-		run_process("./ship", i);
+		pid = run_process("./ship", i);
 		ship_shm_set_pid(state.ships, i, pid);
 	}
 }
@@ -138,6 +132,7 @@ pid_t run_process(char *name, int index)
 	char *args[3], buf[10];
 	if ((process_pid = fork()) == -1) {
 		dprintf(2, "master.c: Error in fork.\n");
+		close_all();
 	} else if (process_pid == 0) {
 		sprintf(buf, "%d", index);
 		args[0] = name;
@@ -145,7 +140,7 @@ pid_t run_process(char *name, int index)
 		args[2] = NULL;
 		if (execve(name, args, NULL) == -1) {
 			perror("execve");
-			exit(EXIT_SUCCESS);
+			exit(EXIT_FAILURE);
 		}
 	}
 
@@ -159,21 +154,19 @@ void signal_handler(int signal)
 		dprintf(2, "master.c: Segmentation fault. Closing all.\n");
 	case SIGTERM:
 	case SIGINT:
+		close_all();
 	case SIGALRM:
-		dprintf(1, "porco cane: %d\n", day);
-		if (day >= 5) {
-			port_shm_send_signal_to_all_ports(
-				state.ports, state.general, SIGKILL);
-			ship_shm_send_signal_to_all_ships(
-				state.ships, state.general, SIGKILL);
-			kill(state.weather, SIGKILL);
-			state.running = FALSE;
+		increase_day(state.general);
+		if (get_current_day(state.general) == get_days(state.general) + 1) {
+			dprintf(1,
+				"Reached last day of simulation. Terminating...\n");
+			close_all();
 		}
-		day++;
-		port_shm_send_signal_to_all_ports(state.ports, state.general,
-						  SIGDAY);
-		ship_shm_send_signal_to_all_ships(state.ships, state.general,
-						  SIGDAY);
+		port_shm_send_signal_to_all_ports(
+			state.ports, state.general, SIGDAY);
+		ship_shm_send_signal_to_all_ships(
+			state.ships, state.general, SIGDAY);
+		kill(state.weather, SIGDAY);
 
 		alarm(1);
 		break;
@@ -184,13 +177,18 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
-	int conf_shm_id;
-
-	port_shm_detach(state.ports);
+	ship_shm_send_signal_to_all_ships(state.ships, state.general, SIGINT);
+	port_shm_send_signal_to_all_ports(state.ports, state.general, SIGINT);
+	kill(state.weather, SIGINT);
 	port_shm_delete(state.general);
-	ship_shm_detach(state.ships);
 	ship_shm_delete(state.general);
-	conf_shm_id = get_general_shm_id(state.general);
-	general_shm_detach(state.general);
-	general_shm_delete(conf_shm_id);
+
+	sem_delete(sem_create(SEM_PORT_KEY, get_porti(state.general)));
+	sem_delete(sem_create(SEM_START_KEY, 1));
+	sem_delete(sem_create(SEM_PORTS_INITIALIZED_KEY, 1));
+
+	general_shm_delete(get_general_shm_id(state.general));
+
+	exit(EXIT_SUCCESS);
+
 }

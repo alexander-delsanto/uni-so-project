@@ -1,11 +1,8 @@
 #define _GNU_SOURCE
 
-#include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 
 #include "include/utils.h"
-
-
 
 void convert_and_sleep(double time_required)
 {

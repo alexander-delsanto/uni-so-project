@@ -6,6 +6,7 @@
 #define SHM_DATA_SHIPS_KEY 0x3fff
 #define SHM_DATA_CARGO_KEY 0x4fff
 
+#define SEM_PORTS_INITIALIZED_KEY 0x00fff
 #define SEM_START_KEY 0x10fff
 #define SEM_PORT_KEY 0x11fff
 
@@ -13,5 +14,7 @@
 #define SIGSWELL SIGUSR2
 #define SIGSTORM SIGUSR2
 #define SIGMAELSTROM SIGTERM
+
+#define NUM_CONST 16
 
 #endif

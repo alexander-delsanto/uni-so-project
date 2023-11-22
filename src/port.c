@@ -5,10 +5,10 @@
 #include <strings.h>
 #include <unistd.h>
 #include <signal.h>
-
-#include "../lib/semaphore.h"
+#include <time.h>
 
 #include "include/const.h"
+#include "include/sem.h"
 #include "include/shm_general.h"
 #include "include/types.h"
 #include "include/utils.h"
@@ -18,16 +18,14 @@
 struct state {
 	int id;
 	int sem_id;
-	pid_t master;
 	pid_t pid;
 	shm_general_t *general;
 	shm_port_t *port;
 	expired_t *exp;
-	bool_t running;
 };
 
 void signal_handler(int signal);
-struct sigaction *signal_handler_init(void);
+void signal_handler_init(void);
 
 void generate_coordinates(void);
 void generate_docks(void);
@@ -38,30 +36,27 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
-	struct sigaction *sa;
+	signal_handler_init();
 
-	state.running = TRUE;
 	state.id = (int)strtol(argv[1], NULL, 10);
 	state.pid = getpid();
-	state.master = getppid();
 
-	state.general = general_shm_attach();
+	general_shm_attach(&state.general);
 	if (state.general == NULL) {
 		close_all();
 		exit(1);
 	}
 	state.port = port_shm_attach(state.general);
 	state.exp = expired_init(state.general);
+	srand(time(NULL) * getpid());
 	generate_coordinates();
-	generate_docks();
-	sa = signal_handler_init();
+/*	generate_docks();*/
 
-	while (state.running == TRUE) {
+	sem_execute_semop(get_sem_port_init_id(), 0, -1, 0);
+	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
+
+	while (1) {
 	}
-
-	close_all();
-
-	return EXIT_SUCCESS;
 }
 
 void generate_coordinates(void)
@@ -90,7 +85,7 @@ void generate_coordinates(void)
 		break;
 	default:
 		coordinates.x = RANDOM_DOUBLE(0, max);
-		coordinates.x = RANDOM_DOUBLE(0, max);
+		coordinates.y = RANDOM_DOUBLE(0, max);
 		break;
 	}
 
@@ -108,7 +103,7 @@ void generate_docks(void)
 	port_shm_set_docks(state.port, state.id, n);
 }
 
-struct sigaction *signal_handler_init(void)
+void signal_handler_init(void)
 {
 	static struct sigaction sa;
 	sigset_t mask;
@@ -116,37 +111,36 @@ struct sigaction *signal_handler_init(void)
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = signal_handler;
 
-	sigfillset(&mask);
-	sa.sa_mask = mask;
-	sigaction(SIGDAY, &sa, NULL);
+	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
 
-	return &sa;
+	sigaction(SIGDAY, &sa, NULL);
+	sigaction(SIGSWELL, &sa, NULL);
+
 }
 
 void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGDAY:
-		dprintf(1, "Port %d: Received SIGDAY signal. Current day: %d\n",
+/*		dprintf(1, "Port %d: Received SIGDAY signal. Current day: %d\n",
 			state.id, get_current_day(state.general));
-		expired_new_day(state.exp, state.general);
+		*//*expired_new_day(state.exp, state.general);
 		port_shm_remove_expired(state.port, state.exp, state.general);
-		port_shm_generate_cargo(state.port, state.id, state.general);
+		port_shm_generate_cargo(state.port, state.id, state.general);*/
 		break;
 	case SIGSWELL:
 		dprintf(1,
-			"Port %d: Received SIGSWELL signal. Current day: %d\n",
-			state.id, get_current_day(state.general));
+			"Port %d: Received SIGSWELL signal.\n", state.id);
 		/* TODO */
 		break;
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");
 		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n",
 			state.id);
-		break;
 	case SIGINT:
-		state.running = FALSE;
+		dprintf(1, "port %d: received SIGINT\n", state.id);
+		close_all();
 	default:
 		break;
 	}
@@ -154,7 +148,7 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
-	sem_delete(state.sem_id);
 	port_shm_detach(state.port);
 	general_shm_detach(state.general);
+	exit(EXIT_SUCCESS);
 }
