@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "include/list.h"
+#include "include/cargo_list.h"
 
 struct node {
 	int quantity;
@@ -15,11 +15,11 @@ struct o_list {
 
 static struct node *create_node(int quantity, int expire);
 
-o_list_t *OrderedList(void)
+o_list_t *cargo_list_create(void)
 {
 	o_list_t *list;
 
-	list = malloc(sizeof(o_list_t));
+	list = calloc(1, sizeof(o_list_t));
 	if (list == NULL) {
 		return NULL;
 	}
@@ -28,7 +28,7 @@ o_list_t *OrderedList(void)
 	return list;
 }
 
-void add(o_list_t *list, int quantity, int expire)
+void cargo_list_add(o_list_t *list, int quantity, int expire)
 {
 	struct node *node, *prev, *cur;
 
@@ -63,7 +63,7 @@ void add(o_list_t *list, int quantity, int expire)
 	}
 }
 
-int remove_expired(o_list_t *list, int expire_day)
+int cargo_list_remove_expired(o_list_t *list, int expire_day)
 {
 	struct node *tmp;
 	int qt;
@@ -88,7 +88,7 @@ int remove_expired(o_list_t *list, int expire_day)
 	return qt;
 }
 
-o_list_t *pop_needed(o_list_t *list, int quantity)
+o_list_t *cargo_list_pop_needed(o_list_t *list, int quantity)
 {
 	o_list_t *output;
 
@@ -103,7 +103,7 @@ o_list_t *pop_needed(o_list_t *list, int quantity)
 		return NULL;
 	}
 
-	output = OrderedList();
+	output = cargo_list_create();
 	if (output == NULL) {
 		return NULL;
 	}
@@ -112,13 +112,13 @@ o_list_t *pop_needed(o_list_t *list, int quantity)
 
 	while (list->head->next != NULL || cnt > 0) {
 		if (list->head->quantity <= cnt) {
-			add(output, list->head->quantity, list->head->expire);
+			cargo_list_add(output, list->head->quantity, list->head->expire);
 			cnt -= list->head->quantity;
 			tmp = list->head;
 			list->head = list->head->next;
 			free(tmp);
 		} else {
-			add(output, cnt, list->head->expire);
+			cargo_list_add(output, cnt, list->head->expire);
 			list->head->quantity -= cnt;
 			break;
 		}
@@ -127,7 +127,7 @@ o_list_t *pop_needed(o_list_t *list, int quantity)
 	return output;
 }
 
-void delete_list(o_list_t *list)
+void cargo_list_delete(o_list_t *list)
 {
 	struct node *cur, *tmp;
 
@@ -142,7 +142,7 @@ void delete_list(o_list_t *list)
 	free(list);
 }
 
-void print_all(o_list_t *list)
+void cargo_list_print_all(o_list_t *list)
 {
 	struct node *cur;
 

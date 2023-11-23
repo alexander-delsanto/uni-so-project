@@ -1,35 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../src/include/list.h"
+#include "../src/include/cargo_list.h"
 
 int main(int argc, char *argv[])
 {
 	o_list_t *list, *out;
 
-	list = OrderedList();
+	list = cargo_list_create();
 
-	add(list, 5, 10);
-	add(list, 5, 2);
-	add(list, 6, 2);
-	add(list, 6, 4);
+	cargo_list_add(list, 5, 10);
+	cargo_list_add(list, 5, 2);
+	cargo_list_add(list, 6, 2);
+	cargo_list_add(list, 6, 4);
 
 	printf("All:\n");
-	print_all(list);
+	cargo_list_print_all(list);
 
 	printf("Remove expired:\n");
-	remove_expired(list, 2);
-	print_all(list);
+	cargo_list_remove_expired(list, 2);
+	cargo_list_print_all(list);
 
 	printf("After popss:\n");
-	out = pop_needed(list, 8);
-	print_all(list);
+	out = cargo_list_pop_needed(list, 8);
+	cargo_list_print_all(list);
 
 	printf("Popped:\n");
-	print_all(out);
+	cargo_list_print_all(out);
 
-	delete_list(out);
-	delete_list(list);
+	cargo_list_delete(out);
+	cargo_list_delete(list);
 
 	return EXIT_SUCCESS;
 }
