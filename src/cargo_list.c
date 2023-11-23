@@ -30,23 +30,23 @@ o_list_t *cargo_list_create(void)
 
 void cargo_list_add(o_list_t *list, int quantity, int expire)
 {
-	struct node *node, *prev, *cur;
+	struct node *node, *prev, *curr;
 
 	if (list == NULL) {
 		return;
 	}
 
 	prev = NULL;
-	cur = list->head;
+	curr = list->head;
 
 	while (1) {
-		/* If list is empty or expiration date is lower than current element */
-		if (cur == NULL || cur->expire > expire) {
+		/* If list is empty or expiration date is lower than currrent element */
+		if (curr == NULL || curr->expire > expire) {
 			node = create_node(quantity, expire);
 			if (node == NULL) {
 				return;
 			}
-			node->next = cur;
+			node->next = curr;
 			if (prev != NULL) {
 				prev->next = node;
 			} else {
@@ -54,12 +54,12 @@ void cargo_list_add(o_list_t *list, int quantity, int expire)
 			}
 
 			break;
-		} else if (cur->expire == expire) {
-			cur->quantity += quantity;
+		} else if (curr->expire == expire) {
+			curr->quantity += quantity;
 			break;
 		}
-		prev = cur;
-		cur = cur->next;
+		prev = curr;
+		curr = curr->next;
 	}
 }
 
@@ -129,13 +129,13 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, int quantity)
 
 void cargo_list_delete(o_list_t *list)
 {
-	struct node *cur, *tmp;
+	struct node *curr, *tmp;
 
-	cur = list->head;
+	curr = list->head;
 
-	while (cur != NULL) {
-		tmp = cur;
-		cur = cur->next;
+	while (curr != NULL) {
+		tmp = curr;
+		curr = curr->next;
 		free(tmp);
 	}
 
@@ -144,13 +144,13 @@ void cargo_list_delete(o_list_t *list)
 
 void cargo_list_print_all(o_list_t *list)
 {
-	struct node *cur;
+	struct node *curr;
 
-	cur = list->head;
+	curr = list->head;
 
-	while (cur != NULL) {
-		printf("%d %d\n", cur->quantity, cur->expire);
-		cur = cur->next;
+	while (curr != NULL) {
+		printf("%d %d\n", curr->quantity, curr->expire);
+		curr = curr->next;
 	}
 }
 
