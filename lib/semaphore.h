@@ -17,6 +17,14 @@
 */
 int sem_create(key_t sem_key, int nsems);
 
+/**
+ * @brief Get the id of an existing semaphore associated with the given key.
+ *
+ * @param key the key of an existing semaphore set.
+ * @return the id of the semaphore set.
+ */
+int sem_get_id(key_t key);
+
 /** @brief Sets the initial value of a semaphore in the array.
 *
 * @param sem_id the id of the semaphore array.

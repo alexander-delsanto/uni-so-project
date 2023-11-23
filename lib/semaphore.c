@@ -14,7 +14,7 @@ int sem_create(key_t sem_key, int nsems)
 		return -1;
 	}
 
-	if (( res = semget(sem_key, nsems, 0660 | IPC_CREAT)) < 0) {
+	if (( res = semget(sem_key, nsems, 0660 | IPC_CREAT | IPC_EXCL)) < 0) {
 		dprintf(2, "semaphore.c - sem_create: Failed to create semaphore array.\n");
 	}
 	return res;
