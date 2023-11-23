@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	id_sem_start = get_sem_start_id();
+	id_sem_start = sem_create(SEM_START_KEY, 1);
 	sem_setval(id_sem_start, 0, 1);
 
 	run_ports(&state);
@@ -96,7 +96,7 @@ void run_ports(struct state *s)
 
 	n_port = get_porti(s->general);
 
-	sem_id = get_sem_port_init_id();
+	sem_id = sem_create(SEM_PORTS_INITIALIZED_KEY, n_port);
 	sem_setval(sem_id, 0, n_port);
 
 	for (i = 0; i < n_port; i++) {
@@ -183,9 +183,9 @@ void close_all(void)
 	port_shm_delete(state.general);
 	ship_shm_delete(state.general);
 
-	sem_delete(sem_create(SEM_PORT_KEY, get_porti(state.general)));
-	sem_delete(sem_create(SEM_START_KEY, 1));
-	sem_delete(sem_create(SEM_PORTS_INITIALIZED_KEY, 1));
+	sem_delete(get_sem_start_id());
+	sem_delete(get_sem_port_init_id());
+	sem_delete(get_sem_port_id());
 
 	general_shm_delete(get_general_shm_id(state.general));
 

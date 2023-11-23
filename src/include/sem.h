@@ -6,5 +6,6 @@
 
 int get_sem_start_id(void);
 int get_sem_port_init_id(void);
+int get_sem_port_id(void);
 
 #endif

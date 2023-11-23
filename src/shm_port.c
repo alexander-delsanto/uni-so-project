@@ -51,9 +51,6 @@ shm_port_t *port_initialize(shm_general_t *g)
 	set_port_shm_id(g, shm_id);
 
 	ports->sem_id = sem_create(SEM_PORT_KEY, n_ports);
-	for (i = 0; i < n_ports; i++) {
-		sem_setval(ports->sem_id, i, 1);
-	}
 
 	return ports;
 }
