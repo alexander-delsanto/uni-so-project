@@ -156,18 +156,17 @@ void signal_handler(int signal)
 	case SIGINT:
 		close_all();
 	case SIGALRM:
-		increase_day(state.general);
-		if (get_current_day(state.general) == get_days(state.general) + 1) {
+		if (get_current_day(state.general) + 1 == get_days(state.general) + 1) {
 			dprintf(1,
 				"Reached last day of simulation. Terminating...\n");
 			close_all();
 		}
+		increase_day(state.general);
 		port_shm_send_signal_to_all_ports(
 			state.ports, state.general, SIGDAY);
 		ship_shm_send_signal_to_all_ships(
 			state.ships, state.general, SIGDAY);
 		kill(state.weather, SIGDAY);
-
 		alarm(1);
 		break;
 	default:

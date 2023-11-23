@@ -34,14 +34,18 @@ struct state {
 	shm_general_t *general;
 	shm_port_t *port;
 	shm_ship_t *ship;
+
+	int current_day;
 };
 
 struct state state;
 
 int main(int argc, char *argv[])
 {
+	int day;
 	struct sigaction sa;
 	sigset_t mask;
+	bzero(&state, sizeof (struct state));
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = &signal_handler;
 
@@ -69,7 +73,12 @@ int main(int argc, char *argv[])
 	pick_first_destination_port();
 
 	while (1) {
-		sleep(1);
+		day = get_current_day(state.general);
+		if (state.current_day < day) {
+			/* TODO: new day operations */
+			dprintf(1, "ship %d: day %d to day %d.\n", state.id, state.current_day, day);
+			state.current_day = day;
+		}
 	}
 }
 
@@ -77,6 +86,7 @@ void loop(void) {
 	int id_dest_port;
 	struct coord destination_coords;
 	while (1) {
+
 		find_new_destination(&id_dest_port, &destination_coords);
 		move(destination_coords);
 		trade(id_dest_port);
@@ -138,9 +148,6 @@ void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGDAY:
-/*		dprintf(1, "Ship %d: Received SIGDAY signal. Current day: %d\n",
-			state.id, get_current_day(state.general));
-		*//* TODO */
 		break;
 	case SIGSTORM:
 		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", state.id);

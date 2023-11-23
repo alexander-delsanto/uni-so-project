@@ -22,6 +22,8 @@ struct state {
 	shm_general_t *general;
 	shm_port_t *port;
 	expired_t *exp;
+
+	int current_day;
 };
 
 void signal_handler(int signal);
@@ -36,6 +38,8 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
+	int day;
+	bzero(&state, sizeof(struct state));
 	signal_handler_init();
 
 	state.id = (int)strtol(argv[1], NULL, 10);
@@ -56,6 +60,13 @@ int main(int argc, char *argv[])
 	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
 
 	while (1) {
+		day = get_current_day(state.general);
+		if (state.current_day < day) {
+			/* TODO: new day operations */
+			dprintf(1, "port %d: day %d to day %d.\n", state.id, state.current_day, day);
+			state.current_day = day;
+
+		}
 	}
 }
 
@@ -123,11 +134,6 @@ void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGDAY:
-/*		dprintf(1, "Port %d: Received SIGDAY signal. Current day: %d\n",
-			state.id, get_current_day(state.general));
-		*//*expired_new_day(state.exp, state.general);
-		port_shm_remove_expired(state.port, state.exp, state.general);
-		port_shm_generate_cargo(state.port, state.id, state.general);*/
 		break;
 	case SIGSWELL:
 		dprintf(1,"Port %d: Received SIGSWELL signal. Sleeping for %lf seconds...\n",
