@@ -130,9 +130,10 @@ void signal_handler(int signal)
 		port_shm_generate_cargo(state.port, state.id, state.general);*/
 		break;
 	case SIGSWELL:
-		dprintf(1,
-			"Port %d: Received SIGSWELL signal.\n", state.id);
-		/* TODO */
+		dprintf(1,"Port %d: Received SIGSWELL signal. Sleeping for %lf seconds...\n",
+			state.id, get_swell_duration(state.general) / 24.0);
+		convert_and_sleep(get_swell_duration(state.general) / 24.0);
+		dprintf(1, "port %d woke up.\n", state.id);
 		break;
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");

@@ -144,7 +144,7 @@ void signal_handler(int signal)
 		break;
 	case SIGSTORM:
 		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", state.id);
-		/* TODO */
+		convert_and_sleep(get_storm_duration(state.general) / 24.0);
 		break;
 	case SIGMAELSTROM:
 		dprintf(1, "Ship %d: Received SIGMAELSTROM signal.\n",
