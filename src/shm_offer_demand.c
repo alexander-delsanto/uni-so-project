@@ -60,7 +60,7 @@ shm_demand_t *demand_shm_init(shm_general_t *c)
 	return demand;
 }
 
-void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d,
+void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, int id,
 			       shm_general_t *c)
 {
 	int random_quantity, random_id;
@@ -75,15 +75,15 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d,
 		random_quantity = RANDOM_INTEGER(1, size) % current_fill;
 
 		if (d->data[random_id] > 0) {
-			d->data[random_id] += random_quantity;
+			d[id].data[random_id] += random_quantity;
 		} else if (o->data[random_id] > 0) {
-			o->data[random_id] += random_quantity;
+			o[id].data[random_id] += random_quantity;
 
 		} else {
 			if (RANDOM_BOOL() == TRUE) {
-				o->data[random_id] = random_quantity;
+				o[id].data[random_id] = random_quantity;
 			} else {
-				d->data[random_id] = random_quantity;
+				d[id].data[random_id] = random_quantity;
 			}
 		}
 
@@ -91,37 +91,37 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d,
 	}
 }
 
-void offer_shm_set(shm_offer_t *o, int id, int quantity)
+void offer_shm_add(shm_offer_t *o, int id, int type, int quantity)
 {
 	if (o == NULL) {
 		return;
 	}
 
-	o->data[id] += quantity;
+	o[id].data[type] += quantity;
 }
 
-void demand_shm_set(shm_demand_t *d, int id, int quantity)
+void demand_shm_set(shm_demand_t *d, int id, int type, int quantity)
 {
 	if (d == NULL) {
 		return;
 	}
 
-	d->data[id] += quantity;
+	d[id].data[type] += quantity;
 }
-void offer_shm_remove(shm_offer_t *o, int id, int quantity)
+void offer_shm_remove(shm_offer_t *o, int id, int type, int quantity)
 {
 	if (o == NULL) {
 		return;
 	}
 
-	o->data[id] -= quantity;
+	o[id].data[type] -= quantity;
 }
 
-void demand_shm_remove(shm_demand_t *d, int id, int quantity)
+void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity)
 {
 	if (d == NULL) {
 		return;
 	}
 
-	d->data[id] -= quantity;
+	d[id].data[type] -= quantity;
 }
