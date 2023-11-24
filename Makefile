@@ -1,60 +1,50 @@
-# Code directories and main file name
+# Compiler and flags
 .PHONY: recompile
-_MAIN=master
-SRC=src
-LIB=lib
-BIN=bin
-BINARIES=$(_MAIN) port ship weather
-
-# Compiling setup
 CC=gcc
-CFLAGS=-g -O0 -std=c89 -Wpedantic
+CFLAGS=-g -O0 -std=c89 -Wpedantic -lm
 CCOMPILE=$(CC) $(CFLAGS)
 
-# Files lists
-BINARIES_SRC=$(addprefix $(SRC)/, $(addsuffix .c, $(BINARIES)))
-BINARIES_OUT=$(addprefix $(BIN)/, $(BINARIES))
-CFILES=$(wildcard $(SRC)/*.c)
-REQUIRED=$(filter-out $(BINARIES_SRC), $(CFILES))
-REQUIRED_O=$(patsubst src/%.c, $(BIN)/%.o, $(REQUIRED))
+# Directories
+TARGET=master
+SRC_DIR=src
+LIB_DIR=lib
+BIN_DIR=bin
 
+# Binaries and sources
+BINARIES = $(TARGET) port ship weather
+BINARIES_C=$(addprefix $(SRC_DIR)/, $(addsuffix .c, $(BINARIES)))
 
-# Main
-all: master ship port weather# $(BINARIES_OUT)
+# Other modules
+CFILES=$(filter-out $(addprefix $(SRC_DIR)/, $(addsuffix .c, $(BINARIES))), $(wildcard $(SRC_DIR)/*.c))
+LIBFILES=$(wildcard $(LIB_DIR)/*.c)
 
-master: | $(BIN)
-	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_general.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/sem.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@
+all: $(BINARIES)
 
-ship: | $(BIN)
-	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_general.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/sem.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
-
-port: | $(BIN)
-	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_general.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/sem.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
-
-weather: | $(BIN)
-	@$(CCOMPILE) $(SRC)/$@.c $(SRC)/shm_general.c $(SRC)/shm_port.c $(SRC)/cargo.c $(SRC)/sem.c $(SRC)/expired.c $(SRC)/utils.c $(SRC)/shm_ship.c $(LIB)/shm.c $(LIB)/semaphore.c -o $(BIN)/$@ -lm
-
-$(BIN):
+$(BIN_DIR):
 	@mkdir -p $@
 
-$(BIN)/%.o: $(SRC)/%.c
-	$(CCOMPILE) -c $^ -o $@
-
-$(BIN)/%: $(SRC)/%.c $(REQUIRED_O) | $(BIN)
-	$(CCOMPILE) $(REQUIRED_O) $< -o $@
-
-
-#$(BIN)/%.o: src/lib/%.c | $(BIN)
-#	$(CCOMPILE) -c $^ -o $@
-
-list:
-	@echo Found souce files: $(CFILES)
-	@echo Object files: $(REQUIRED_O)
-	@echo $(BINARIES_SRC)
-	@echo $(BINARIES_OUT)
-	@echo $(REQUIRED)
+$(BINARIES): $(BINARIES_C) | $(BIN_DIR)
+	@$(CCOMPILE) $(SRC_DIR)/$@.c $(CFILES) $(LIBFILES) -o $(BIN_DIR)/$@
 
 # General use
 recompile: clean all
+
 clean:
-	@$(RM) -r $(BIN) && ipcrm -a
+	@$(RM) -r $(BIN_DIR) && ipcrm -a
+
+run: all
+	cd bin && ./$(TARGET)
+
+run-and-log: all
+	cd bin && ./$(TARGET) | tee ../output.log
+
+# Tools
+list:
+	@echo Found souce files: $(CFILES)
+	@echo
+	@echo Found library files: $(LIBFILES)
+	@echo
+	@echo Found binary c files: $(BINARIES_C)
+
+count:
+	@wc -l $(BINARIES_C) $(CFILES) $(SRC_DIR)/include/*.h $(LIB_DIR)/* Makefile
