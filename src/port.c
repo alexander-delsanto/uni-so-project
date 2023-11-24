@@ -13,7 +13,6 @@
 #include "include/types.h"
 #include "include/utils.h"
 #include "include/shm_port.h"
-#include "include/expired.h"
 
 struct state {
 	int id;
@@ -21,7 +20,6 @@ struct state {
 	pid_t pid;
 	shm_general_t *general;
 	shm_port_t *port;
-	expired_t *exp;
 
 	int current_day;
 };
@@ -51,7 +49,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	state.port = port_shm_attach(state.general);
-	state.exp = expired_init(state.general);
 	srand(time(NULL) * getpid());
 	generate_coordinates();
 /*	generate_docks();*/
@@ -136,7 +133,7 @@ void signal_handler(int signal)
 	case SIGDAY:
 		break;
 	case SIGSWELL:
-		dprintf(1,"Port %d: Received SIGSWELL signal. Sleeping for %lf seconds...\n",
+		dprintf(1,"Port %d: Received SIGSWELL signal. Sleeping for %f seconds...\n",
 			state.id, get_swell_duration(state.general) / 24.0);
 		convert_and_sleep(get_swell_duration(state.general) / 24.0);
 		dprintf(1, "port %d woke up.\n", state.id);

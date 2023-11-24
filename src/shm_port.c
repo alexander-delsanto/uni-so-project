@@ -19,8 +19,6 @@ struct shm_port {
 
 	key_t sem_id;
 
-	//cargo_t *cargo;
-
 	bool_t had_swell;
 	int dump_cargo_available;
 	int dump_cargo_shipped;

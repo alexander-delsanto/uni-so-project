@@ -5,7 +5,6 @@
 
 #include "shm_general.h"
 #include "types.h"
-/*#include "expired.h"*/
 
 typedef struct shm_port shm_port_t;
 
@@ -70,15 +69,6 @@ void port_shm_set_coordinates(shm_port_t *p, int id, struct coord coord);
  * @param n Number of docks to set.
  */
 void port_shm_set_docks(shm_port_t *p, int id, int n);
-/**
- * @brief Generates cargo data for a specific port based on the general shared memory structure.
- * @param p Pointer to the array of port data in shared memory.
- * @param id Identifier of the port.
- * @param c Pointer to the general shared memory structure.
- */
-void port_shm_generate_cargo(shm_port_t *p, int id, shm_general_t *c);
-/*TODO comment*/
-void port_shm_remove_expired(shm_port_t *p, expired_t *exp, shm_general_t *c);
 
 /**
  * @brief Gets the coordinates of a specific port in the shared memory structure.
