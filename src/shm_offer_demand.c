@@ -9,6 +9,7 @@
 #include "include/utils.h"
 #include "include/shm_general.h"
 #include "include/shm_offer_demand.h"
+#include "include/cargo_list.h"
 
 struct shm_offer {
 	int *data;
@@ -60,15 +61,21 @@ shm_demand_t *demand_shm_init(shm_general_t *c)
 	return demand;
 }
 
-void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, int id,
-			       shm_general_t *c)
+void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
+			       int id, shm_general_t *c)
 {
-	int random_quantity, random_id;
-	int n_merci, size, current_fill;
+	int random_quantity, random_id, random_exp;
+	int n_merci, min_life, max_life, size, current_fill;
+
+	if (o == NULL || d == NULL || l == NULL || c == NULL) {
+		return;
+	}
 
 	current_fill = get_fill(c) / get_days(c);
 	size = get_size(c);
 	n_merci = get_merci(c);
+	min_life = get_min_vita(c);
+	max_life = get_max_vita(c);
 
 	while (current_fill > 0) {
 		random_id = RANDOM_INTEGER(1, n_merci);
@@ -76,12 +83,18 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, int id,
 
 		if (d->data[random_id] > 0) {
 			d[id].data[random_id] += random_quantity;
+			/* TODO bogus! ora come ora non sto usando gli array ma l'istanza singola */
+			random_exp = RANDOM_INTEGER(min_life, max_life);
+			cargo_list_add(l, random_quantity, random_exp);
 		} else if (o->data[random_id] > 0) {
 			o[id].data[random_id] += random_quantity;
 
 		} else {
 			if (RANDOM_BOOL() == TRUE) {
 				o[id].data[random_id] = random_quantity;
+				/* TODO bogus! ora come ora non sto usando gli array ma l'istanza singola */
+				random_exp = RANDOM_INTEGER(min_life, max_life);
+				cargo_list_add(l, random_quantity, random_exp);
 			} else {
 				d[id].data[random_id] = random_quantity;
 			}

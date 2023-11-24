@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "shm_general.h"
+#include "cargo_list.h"
 #include "types.h"
 
 typedef struct shm_offer shm_offer_t;
@@ -29,8 +30,8 @@ shm_demand_t *demand_shm_init(shm_general_t *c);
  * @param id the id of the entity offering or demanding
  * @param c pointer to general SHM
  */
-void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, int id,
-			       shm_general_t *c);
+void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
+			       int id, shm_general_t *c);
 
 /**
  * @brief Adds a specified quantity to the offer data in shared memory.

@@ -7,6 +7,7 @@ typedef struct o_list o_list_t;
  * @brief creates a list of cargoes of the same type.
  * @return a pointer to o_list_t
  */
+/* TODO gestire come array o singole liste?? */
 o_list_t *cargo_list_create(void);
 
 /**
