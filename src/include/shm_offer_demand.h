@@ -27,6 +27,7 @@ shm_demand_t *demand_shm_init(shm_general_t *c);
  * @brief TODO: generates random offers and demands
  * @param o pointer to the array of offers
  * @param d pointer to the array of demands
+ * @param l pointer to the array of expires
  * @param id the id of the entity offering or demanding
  * @param c pointer to general SHM
  */
