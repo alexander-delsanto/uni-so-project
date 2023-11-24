@@ -35,7 +35,7 @@ shm_offer_t *offer_shm_init(shm_general_t *c)
 
 	offer = shm_attach(shm_id);
 	bzero(offer, size);
-	//set_port_shm_id(g, shm_id); set offer_demand shm_id
+	set_offer_shm_id(c, shm_id);
 
 	return offer;
 }
@@ -56,7 +56,7 @@ shm_demand_t *demand_shm_init(shm_general_t *c)
 
 	demand = shm_attach(shm_id);
 	bzero(demand, size);
-	//set_port_shm_id(g, shm_id); set offer_demand shm_id
+	set_demand_shm_id(c, shm_id);
 
 	return demand;
 }
@@ -78,16 +78,16 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 	max_life = get_max_vita(c);
 
 	while (current_fill > 0) {
-		random_id = RANDOM_INTEGER(1, n_merci);
+		random_id = RANDOM_INTEGER(0, n_merci - 1);
 		random_quantity = RANDOM_INTEGER(1, size) % current_fill;
 
 		if (d->data[random_id] > 0) {
 			d[id].data[random_id] += random_quantity;
+		} else if (o->data[random_id] > 0) {
+			o[id].data[random_id] += random_quantity;
 			/* TODO bogus! ora come ora non sto usando gli array ma l'istanza singola */
 			random_exp = RANDOM_INTEGER(min_life, max_life);
 			cargo_list_add(l, random_quantity, random_exp);
-		} else if (o->data[random_id] > 0) {
-			o[id].data[random_id] += random_quantity;
 
 		} else {
 			if (RANDOM_BOOL() == TRUE) {
@@ -106,7 +106,7 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 
 void offer_shm_add(shm_offer_t *o, int id, int type, int quantity)
 {
-	if (o == NULL) {
+	if (o == NULL || quantity == 0) {
 		return;
 	}
 
@@ -115,7 +115,7 @@ void offer_shm_add(shm_offer_t *o, int id, int type, int quantity)
 
 void demand_shm_set(shm_demand_t *d, int id, int type, int quantity)
 {
-	if (d == NULL) {
+	if (d == NULL || quantity == 0) {
 		return;
 	}
 
@@ -123,7 +123,7 @@ void demand_shm_set(shm_demand_t *d, int id, int type, int quantity)
 }
 void offer_shm_remove(shm_offer_t *o, int id, int type, int quantity)
 {
-	if (o == NULL) {
+	if (o == NULL || quantity == 0) {
 		return;
 	}
 
@@ -132,7 +132,7 @@ void offer_shm_remove(shm_offer_t *o, int id, int type, int quantity)
 
 void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity)
 {
-	if (d == NULL) {
+	if (d == NULL || quantity == 0) {
 		return;
 	}
 

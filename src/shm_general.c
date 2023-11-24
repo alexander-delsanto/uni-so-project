@@ -18,7 +18,8 @@ struct shm_general {
 
 	int current_day;
 
-	int general_shm_id, pid_shm_id, ship_shm_id, port_shm_id;
+	int general_shm_id, pid_shm_id, ship_shm_id, port_shm_id, offer_shm_id,
+		demand_shm_id;
 };
 
 static void set_general_shm_id(shm_general_t *g);
@@ -236,4 +237,30 @@ void general_shm_detach(shm_general_t *c)
 void general_shm_delete(int id)
 {
 	shm_delete(id);
+}
+
+void set_offer_shm_id(shm_general_t *c, int id)
+{
+	c->offer_shm_id = id;
+}
+
+void set_demand_shm_id(shm_general_t *c, int id)
+{
+	c->demand_shm_id = id;
+}
+
+int get_offer_shm_id(shm_general_t *c)
+{
+	if (c == NULL) {
+		return -1;
+	}
+	return c->offer_shm_id;
+}
+
+int get_demand_shm_id(shm_general_t *c, int id)
+{
+	if (c == NULL) {
+		return -1;
+	}
+	return c->demand_shm_id;
 }
