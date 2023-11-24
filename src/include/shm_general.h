@@ -3,10 +3,28 @@
 
 typedef struct shm_general shm_general_t;
 
+/**
+ * @brief Reads configuration values from a file and updates the shared memory structure.
+ * @param path Path to the configuration file.
+ * @param g Pointer to the pointer of the general shared memory structure.
+ * @return Pointer to the updated general shared memory structure or NULL on failure.
+ */
 shm_general_t *read_from_path(char *path, shm_general_t **g);
+/**
+ * @brief Attaches the process to the shared memory segment for the general structure.
+ * @param g Pointer to the pointer of the general shared memory structure.
+ */
 void general_shm_attach(shm_general_t **g);
 /*shm_general_t *general_shm_attach(void);*/
+/**
+ * @brief Detaches the process from the shared memory segment for the general structure.
+ * @param c Pointer to the general shared memory structure.
+ */
 void general_shm_detach(shm_general_t *c);
+/**
+ * @brief Deletes the shared memory segment with the specified ID.
+ * @param id Shared memory ID to be deleted.
+ */
 void general_shm_delete(int id);
 
 void set_port_shm_id(shm_general_t *c, int id);
@@ -33,6 +51,10 @@ int get_swell_duration(shm_general_t *c);
 int get_maelstrom(shm_general_t *c);
 
 int get_current_day(shm_general_t *c);
+/**
+ * @brief Increases the current day counter in the shared memory structure.
+ * @param c Pointer to the general shared memory structure.
+ */
 void increase_day(shm_general_t *c);
 
 #endif
