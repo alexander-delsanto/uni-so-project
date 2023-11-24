@@ -14,7 +14,8 @@ typedef struct shm_demand shm_demand_t;
  * @param c pointer to general SHM
  * @return Pointer to the attached offer data structure or NULL on failure.
  */
-shm_offer_t *offer_shm_init(shm_general_t *c);
+shm_offer_t *offer_shm_ports_init(shm_general_t *c);
+shm_offer_t *offer_shm_ships_init(shm_general_t *c);
 
 /**
  * @brief Initializes and attaches shared memory for demand data.

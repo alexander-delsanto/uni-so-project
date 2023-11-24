@@ -19,7 +19,7 @@ struct shm_demand {
 	int *data;
 };
 
-shm_offer_t *offer_shm_init(shm_general_t *c)
+shm_offer_t *offer_shm_ports_init(shm_general_t *c)
 {
 	int shm_id;
 	size_t size;
@@ -28,7 +28,27 @@ shm_offer_t *offer_shm_init(shm_general_t *c)
 	size = (sizeof(shm_offer_t) + sizeof(int) * get_merci(c)) *
 	       get_porti(c);
 
-	shm_id = shm_create(SHM_DATA_OFFER_KEY, size);
+	shm_id = shm_create(SHM_DATA_PORT_OFFER_KEY, size);
+	if (shm_id == -1) {
+		return NULL;
+	}
+
+	offer = shm_attach(shm_id);
+	bzero(offer, size);
+	set_offer_shm_id(c, shm_id);
+
+	return offer;
+}
+
+shm_offer_t *offer_shm_ships_init(shm_general_t *c)
+{
+	int shm_id;
+	size_t size;
+	shm_offer_t *offer;
+
+	size = (sizeof(shm_offer_t) + sizeof(int) * get_merci(c)) * get_navi(c);
+
+	shm_id = shm_create(SHM_DATA_SHIP_OFFER_KEY, size);
 	if (shm_id == -1) {
 		return NULL;
 	}
