@@ -23,9 +23,9 @@ struct state {
 void signal_handler(int signal);
 void signal_handler_init(void);
 
-void run_ports(struct state *s);
-void run_ships(struct state *s);
-void run_weather(struct state *s);
+void run_ports(void);
+void run_ships(void);
+void run_weather(void);
 
 pid_t run_process(char *name, int index);
 
@@ -57,9 +57,9 @@ int main(int argc, char *argv[])
 	id_sem_start = sem_create(SEM_START_KEY, 1);
 	sem_setval(id_sem_start, 0, 1);
 
-	run_ports(&state);
-	run_ships(&state);
-	run_weather(&state);
+	run_ports();
+	run_ships();
+	run_weather();
 
 	sem_execute_semop(get_sem_port_init_id(), 0, 0, 0);
 	sem_execute_semop(id_sem_start, 0, -1, 0);
@@ -88,13 +88,13 @@ void signal_handler_init(void)
 	sigaction(SIGINT, &sa, NULL);
 }
 
-void run_ports(struct state *s)
+void run_ports(void)
 {
 	int i, sem_id;
 	int n_port;
 	pid_t pid;
 
-	n_port = get_porti(s->general);
+	n_port = get_porti(state.general);
 
 	sem_id = sem_create(SEM_PORTS_INITIALIZED_KEY, n_port);
 	sem_setval(sem_id, 0, n_port);
@@ -105,10 +105,10 @@ void run_ports(struct state *s)
 	}
 }
 
-void run_ships(struct state *s)
+void run_ships(void)
 {
 	int i;
-	int n_ship = get_navi(s->general);
+	int n_ship = get_navi(state.general);
 	pid_t pid;
 
 	for (i = 0; i < n_ship; i++) {
@@ -117,7 +117,7 @@ void run_ships(struct state *s)
 	}
 }
 
-void run_weather(struct state *s)
+void run_weather(void)
 {
 	pid_t pid;
 
