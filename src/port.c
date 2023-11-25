@@ -13,6 +13,8 @@
 #include "include/types.h"
 #include "include/utils.h"
 #include "include/shm_port.h"
+#include "include/shm_offer_demand.h"
+#include "include/cargo_list.h"
 
 struct state {
 	int id;
@@ -20,6 +22,10 @@ struct state {
 	pid_t pid;
 	shm_general_t *general;
 	shm_port_t *port;
+
+	shm_offer_t *offer;
+	shm_demand_t *demand;
+	o_list_t *cargo;
 
 	int current_day;
 };
@@ -49,20 +55,29 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	state.port = port_shm_attach(state.general);
+	state.offer = offer_shm_ports_init(state.general);
+	state.demand = demand_shm_init(state.general);
+
 	srand(time(NULL) * getpid());
 	generate_coordinates();
-/*	generate_docks();*/
+	generate_docks();
 
 	sem_execute_semop(get_sem_port_init_id(), 0, -1, 0);
 	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
 
 	while (1) {
+		offer_demand_shm_generate(state.offer, state.demand,
+					  state.cargo, state.id, state.general);
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
 			/* TODO: new day operations */
-			dprintf(1, "port %d: day %d to day %d.\n", state.id, state.current_day, day);
+			dprintf(1, "port %d: day %d to day %d.\n", state.id,
+				state.current_day, day);
 			state.current_day = day;
 
+			offer_demand_shm_generate(state.offer, state.demand,
+						  state.cargo, state.id,
+						  state.general);
 		}
 	}
 }
@@ -105,8 +120,8 @@ void generate_docks(void)
 	int n;
 
 	n = RANDOM_INTEGER(1, get_banchine(state.general));
-
-	state.sem_id = sem_create(100, n);
+	/* TODO: gen semaphore
+	state.sem_id = sem_create(100, n);*/
 
 	port_shm_set_docks(state.port, state.id, n);
 }
@@ -124,7 +139,6 @@ void signal_handler_init(void)
 
 	sigaction(SIGDAY, &sa, NULL);
 	sigaction(SIGSWELL, &sa, NULL);
-
 }
 
 void signal_handler(int signal)
@@ -133,7 +147,8 @@ void signal_handler(int signal)
 	case SIGDAY:
 		break;
 	case SIGSWELL:
-		dprintf(1,"Port %d: Received SIGSWELL signal. Sleeping for %f seconds...\n",
+		dprintf(1,
+			"Port %d: Received SIGSWELL signal. Sleeping for %f seconds...\n",
 			state.id, get_swell_duration(state.general) / 24.0);
 		convert_and_sleep(get_swell_duration(state.general) / 24.0);
 		dprintf(1, "port %d woke up.\n", state.id);

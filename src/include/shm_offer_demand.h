@@ -65,6 +65,7 @@ void offer_shm_remove(shm_offer_t *o, int id, int type, int quantity);
  * @param quantity quantity to be added to the demand data
  */
 void demand_shm_set(shm_demand_t *d, int id, int type, int quantity);
+
 /**
  * @brief Removes a specified quantity from the demand data in shared memory.
  * @param d Pointer to the array of demands in shared memory.
@@ -74,6 +75,13 @@ void demand_shm_set(shm_demand_t *d, int id, int type, int quantity);
  */
 void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity);
 
+/**
+ * @brief Removes a specified quantity from the demand data in shared memory.
+ * @param src Pointer to the array of source offers in shared memory.
+ * @param merge Pointer to local array of offers to be merged.
+ * @param c pointer to general SHM
+ * @param id Identifier of the entity for which the demand data is updated.
+ */
 void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
 		     int id);
 

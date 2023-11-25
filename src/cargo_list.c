@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "include/shm_general.h"
 #include "include/cargo_list.h"
 
 struct node {
@@ -15,29 +16,34 @@ struct o_list {
 
 static struct node *create_node(int quantity, int expire);
 
-o_list_t *cargo_list_create(void)
+o_list_t *cargo_list_create(shm_general_t *c)
 {
 	o_list_t *list;
+	int i, n_merci;
 
-	list = calloc(1, sizeof(o_list_t));
+	list = malloc(sizeof(struct o_list) * get_merci(c));
 	if (list == NULL) {
 		return NULL;
 	}
-	list->head = NULL;
+
+	for (i = 0; i < n_merci; i++) {
+		list[i].head = NULL;
+	}
 
 	return list;
 }
 
-void cargo_list_add(o_list_t *list, int quantity, int expire)
+void cargo_list_add(o_list_t *list, int type, int quantity, int expire)
 {
-	struct node *node, *prev, *curr;
+	struct node *node, *prev, *curr, *head;
 
 	if (list == NULL) {
 		return;
 	}
 
 	prev = NULL;
-	curr = list->head;
+	head = list[type].head;
+	curr = list[type].head;
 
 	while (1) {
 		/* If list is empty or expiration date is lower than currrent element */
@@ -50,7 +56,7 @@ void cargo_list_add(o_list_t *list, int quantity, int expire)
 			if (prev != NULL) {
 				prev->next = node;
 			} else {
-				list->head = node;
+				head = node;
 			}
 
 			break;
@@ -63,32 +69,35 @@ void cargo_list_add(o_list_t *list, int quantity, int expire)
 	}
 }
 
-int cargo_list_remove_expired(o_list_t *list, int expire_day)
+int *cargo_list_remove_expired(o_list_t *list, shm_general_t *c)
 {
 	struct node *tmp;
-	int qt;
+	int i, n_merci, expire_day, *qt;
 
 	if (list == NULL) {
-		return -1;
+		return NULL;
 	}
 
-	if (list->head == NULL) {
-		return 0;
-	}
+	n_merci = get_merci(c);
+	expire_day = get_current_day(c);
 
-	qt = 0;
+	qt = calloc(n_merci, sizeof(int));
 
-	if (list->head->expire == expire_day) {
-		qt = list->head->quantity;
-		tmp = list->head;
-		list->head = list->head->next;
-		free(tmp);
+	for (i = 0; i < n_merci; i++) {
+		if (list[i].head != NULL &&
+		    list[i].head->expire == expire_day) {
+			qt[i] = list[i].head->quantity;
+			tmp = list[i].head;
+			list[i].head = list[i].head->next;
+			free(tmp);
+		}
 	}
 
 	return qt;
 }
 
-o_list_t *cargo_list_pop_needed(o_list_t *list, int quantity)
+o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
+				int quantity)
 {
 	o_list_t *output;
 
@@ -103,23 +112,24 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, int quantity)
 		return NULL;
 	}
 
-	output = cargo_list_create();
+	output = cargo_list_create(c);
 	if (output == NULL) {
 		return NULL;
 	}
 
 	cnt = quantity;
 
-	while (list->head->next != NULL || cnt > 0) {
-		if (list->head->quantity <= cnt) {
-			cargo_list_add(output, list->head->quantity, list->head->expire);
-			cnt -= list->head->quantity;
-			tmp = list->head;
-			list->head = list->head->next;
+	while (list[id].head->next != NULL || cnt > 0) {
+		if (list[id].head->quantity <= cnt) {
+			cargo_list_add(output, id, list[id].head->quantity,
+				       list[id].head->expire);
+			cnt -= list[id].head->quantity;
+			tmp = list[id].head;
+			list[id].head = list[id].head->next;
 			free(tmp);
 		} else {
-			cargo_list_add(output, cnt, list->head->expire);
-			list->head->quantity -= cnt;
+			cargo_list_add(output, id, cnt, list[id].head->expire);
+			list[id].head->quantity -= cnt;
 			break;
 		}
 	}
@@ -127,30 +137,42 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, int quantity)
 	return output;
 }
 
-void cargo_list_delete(o_list_t *list)
+void cargo_list_delete(o_list_t *list, shm_general_t *c)
 {
 	struct node *curr, *tmp;
+	int i, n;
 
-	curr = list->head;
+	n = get_merci(c);
 
-	while (curr != NULL) {
-		tmp = curr;
-		curr = curr->next;
-		free(tmp);
+	for (i = 0; i < n; i++) {
+		curr = list[i].head;
+
+		while (curr != NULL) {
+			tmp = curr;
+			curr = curr->next;
+			free(tmp);
+		}
 	}
 
 	free(list);
 }
 
-void cargo_list_print_all(o_list_t *list)
+void cargo_list_print_all(o_list_t *list, shm_general_t *c)
 {
 	struct node *curr;
 
-	curr = list->head;
+	int i, n;
 
-	while (curr != NULL) {
-		printf("%d %d\n", curr->quantity, curr->expire);
-		curr = curr->next;
+	n = get_merci(c);
+
+	for (i = 0; i < n; i++) {
+		curr = list[i].head;
+		printf("Element of type %d:\n", i);
+		while (curr != NULL) {
+			printf("%d %d\n", curr->quantity, curr->expire);
+			curr = curr->next;
+		}
+		printf("\n");
 	}
 }
 

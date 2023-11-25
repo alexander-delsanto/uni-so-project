@@ -44,11 +44,7 @@ shm_offer_t *offer_shm_ports_init(shm_general_t *c)
 
 shm_offer_t *offer_shm_ports_get(shm_general_t *c)
 {
-	int shm_id;
-	size_t size;
 	shm_offer_t *offer;
-
-	size = sizeof(shm_offer_t) + sizeof(int) * get_merci(c);
 
 	offer = malloc(sizeof(shm_offer_t));
 	if (offer == NULL) {
@@ -128,16 +124,16 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 			d[id].data[random_id] += random_quantity;
 		} else if (o->data[random_id] > 0) {
 			o[id].data[random_id] += random_quantity;
-			/* TODO bogus! ora come ora non sto usando gli array ma l'istanza singola */
 			random_exp = RANDOM_INTEGER(min_life, max_life);
-			cargo_list_add(l, random_quantity, random_exp);
+			cargo_list_add(l, random_id, random_quantity,
+				       random_exp + get_current_day(c));
 
 		} else {
 			if (RANDOM_BOOL() == TRUE) {
 				o[id].data[random_id] = random_quantity;
-				/* TODO bogus! ora come ora non sto usando gli array ma l'istanza singola */
 				random_exp = RANDOM_INTEGER(min_life, max_life);
-				cargo_list_add(l, random_quantity, random_exp);
+				cargo_list_add(l, random_id, random_quantity,
+					       random_exp + get_current_day(c));
 			} else {
 				d[id].data[random_id] = random_quantity;
 			}
@@ -230,8 +226,8 @@ o_list_t **offer_shm_get_order_expires(shm_offer_t *o, shm_general_t *c)
 
 	output = malloc(sizeof(o_list_t *) * get_merci(c));
 	for (i = 0; i < get_merci(c); i++) {
-		output[i] = cargo_list_create();
-		cargo_list_pop_needed(output[i], o->data[i]);
+		output[i] = cargo_list_create(c);
+		cargo_list_pop_needed(output[i], c, i, o->data[i]);
 	}
 
 	return output;
