@@ -35,18 +35,17 @@ o_list_t *cargo_list_create(shm_general_t *c)
 
 void cargo_list_add(o_list_t *list, int type, int quantity, int expire)
 {
-	struct node *node, *prev, *curr, *head;
+	struct node *node, *prev, *curr;
 
 	if (list == NULL) {
 		return;
 	}
 
 	prev = NULL;
-	head = list[type].head;
 	curr = list[type].head;
 
 	while (1) {
-		/* If list is empty or expiration date is lower than currrent element */
+		/* If list is empty or expiration date is lower than current element */
 		if (curr == NULL || curr->expire > expire) {
 			node = create_node(quantity, expire);
 			if (node == NULL) {
@@ -56,7 +55,7 @@ void cargo_list_add(o_list_t *list, int type, int quantity, int expire)
 			if (prev != NULL) {
 				prev->next = node;
 			} else {
-				head = node;
+				list[type].head = node;
 			}
 
 			break;
@@ -155,6 +154,22 @@ void cargo_list_delete(o_list_t *list, shm_general_t *c)
 	}
 
 	free(list);
+}
+
+void cargo_list_merge(o_list_t *src, o_list_t *merge, shm_general_t *c)
+{
+	struct node *curr;
+	int i, n_merci;
+
+	n_merci = get_merci(c);
+
+	for (i = 0; i < n_merci; i++) {
+		curr = merge[i].head;
+		while (curr->next != NULL) {
+			cargo_list_add(src, i, curr->quantity, curr->expire);
+			curr = curr->next;
+		}
+	}
 }
 
 void cargo_list_print_all(o_list_t *list, shm_general_t *c)

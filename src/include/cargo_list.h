@@ -35,6 +35,7 @@ int *cargo_list_remove_expired(o_list_t *list, shm_general_t *c);
 o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
 				int quantity);
 
+void cargo_list_merge(o_list_t *src, o_list_t *merge, shm_general_t *c);
 /**
  * @brief deletes the list of cargoes.
  * @param list the list of cargoes
