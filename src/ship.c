@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 	general_shm_attach(&state.general);
 	state.port = port_shm_attach(state.general);
 	state.ship = ship_shm_attach(state.general);
-	state.offer = offer_shm_ports_init(state.general);
+	state.offer = offer_shm_ships_init(state.general);
 	state.cargo = cargo_list_create(state.general);
 
 	srand(time(NULL) * getpid());
