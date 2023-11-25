@@ -19,6 +19,8 @@ struct shm_demand {
 	int *data;
 };
 
+shm_offer_t *offer_shm_ports_get(shm_general_t *c);
+
 shm_offer_t *offer_shm_ports_init(shm_general_t *c)
 {
 	int shm_id;
@@ -36,6 +38,27 @@ shm_offer_t *offer_shm_ports_init(shm_general_t *c)
 	offer = shm_attach(shm_id);
 	bzero(offer, size);
 	set_offer_shm_id(c, shm_id);
+
+	return offer;
+}
+
+shm_offer_t *offer_shm_ports_get(shm_general_t *c)
+{
+	int shm_id;
+	size_t size;
+	shm_offer_t *offer;
+
+	size = sizeof(shm_offer_t) + sizeof(int) * get_merci(c);
+
+	offer = malloc(sizeof(shm_offer_t));
+	if (offer == NULL) {
+		return NULL;
+	}
+
+	offer->data = calloc(get_merci(c), sizeof(int));
+	if (offer->data == NULL) {
+		return NULL;
+	}
 
 	return offer;
 }
@@ -157,4 +180,89 @@ void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity)
 	}
 
 	d[id].data[type] -= quantity;
+}
+
+void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
+		     int id)
+{
+	int n, i;
+
+	n = get_merci(c);
+
+	for (i = 0; i < n; i++) {
+		src[id].data[i] += merge->data[i];
+	}
+}
+
+shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *c, int id,
+				 int capacity)
+{
+	int i, n_merci, cnt;
+	shm_offer_t *output;
+
+	cnt = 0;
+	n_merci = get_merci(c);
+	output = offer_shm_ports_get(c);
+
+	for (i = 0; i < n_merci || cnt == capacity; i++) {
+		if (o[id].data[i] == 0) {
+			continue;
+		}
+
+		if (o[id].data[i] <= capacity - cnt) {
+			output->data[i] = o[id].data[i];
+			cnt += o[id].data[i];
+			o[id].data[i] = 0;
+		} else {
+			output->data[i] = capacity - cnt;
+			o[id].data[i] -= capacity - cnt;
+			cnt = capacity;
+		}
+	}
+
+	return output;
+}
+
+o_list_t **offer_shm_get_order_expires(shm_offer_t *o, shm_general_t *c)
+{
+	o_list_t **output;
+	int i;
+
+	output = malloc(sizeof(o_list_t *) * get_merci(c));
+	for (i = 0; i < get_merci(c); i++) {
+		output[i] = cargo_list_create();
+		cargo_list_pop_needed(output[i], o->data[i]);
+	}
+
+	return output;
+}
+
+void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
+				  int id_port, shm_general_t *c)
+{
+	int i, n_merci;
+
+	shm_offer_t *ship;
+	shm_demand_t *port;
+
+	ship = &o[id_ship];
+	port = &d[id_port];
+
+	n_merci = get_merci(c);
+
+	for (i = 0; i < n_merci; i++) {
+		if (port->data[i] == 0) {
+			continue;
+		}
+
+		if (ship->data[i] >= port->data[i]) {
+			ship->data[i] -= port->data[i];
+			// TODO devo conservare dump
+			port->data[i] = 0;
+		} else {
+			port->data[i] -= ship->data[i];
+			// TODO devo conservare dump
+			ship->data[i] = 0;
+		}
+	}
 }

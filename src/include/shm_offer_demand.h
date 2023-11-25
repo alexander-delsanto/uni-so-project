@@ -74,4 +74,10 @@ void demand_shm_set(shm_demand_t *d, int id, int type, int quantity);
  */
 void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity);
 
+void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
+		     int id);
+
+void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
+				  int id_port, shm_general_t *c);
+
 #endif
