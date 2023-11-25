@@ -15,6 +15,7 @@ struct o_list {
 };
 
 static struct node *create_node(int quantity, int expire);
+void cargo_list_add_node(o_list_t *list, int type, struct node *node);
 
 o_list_t *cargo_list_create(shm_general_t *c)
 {
@@ -63,6 +64,38 @@ void cargo_list_add(o_list_t *list, int type, int quantity, int expire)
 			break;
 		} else if (curr->expire == expire) {
 			curr->quantity += quantity;
+			break;
+		}
+		prev = curr;
+		curr = curr->next;
+	}
+}
+
+void cargo_list_add_node(o_list_t *list, int type, struct node *node)
+{
+	struct node *prev, *curr;
+
+	if (list == NULL) {
+		return;
+	}
+
+	prev = NULL;
+	curr = list[type].head;
+
+	while (1) {
+		/* If list is empty or expiration date is lower than current element */
+		if (curr == NULL || curr->expire > node->expire) {
+			node->next = curr;
+			if (prev != NULL) {
+				prev->next = node;
+			} else {
+				list[type].head = node;
+			}
+
+			break;
+		} else if (curr->expire == node->expire) {
+			curr->quantity += node->quantity;
+			free(node);
 			break;
 		}
 		prev = curr;
@@ -122,14 +155,13 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
 
 	while (list[id].head->next != NULL || cnt > 0) {
 		if (list[id].head->quantity <= cnt) {
-			cargo_list_add(output, id, list[id].head->quantity,
-				       list[id].head->expire);
 			cnt -= list[id].head->quantity;
 			tmp = list[id].head;
+			cargo_list_add_node(output, id, tmp);
 			list[id].head = list[id].head->next;
-			free(tmp);
 		} else {
-			cargo_list_add(output, id, cnt, list[id].head->expire);
+			tmp = create_node(cnt, list[id].head->expire);
+			cargo_list_add_node(output, id, tmp);
 			list[id].head->quantity -= cnt;
 			break;
 		}
@@ -168,7 +200,7 @@ void cargo_list_merge(o_list_t *src, o_list_t *merge, shm_general_t *c)
 	for (i = 0; i < n_merci; i++) {
 		curr = merge[i].head;
 		while (curr->next != NULL) {
-			cargo_list_add(src, i, curr->quantity, curr->expire);
+			cargo_list_add_node(src, i, curr);
 			curr = curr->next;
 		}
 	}
