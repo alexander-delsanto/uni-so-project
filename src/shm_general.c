@@ -49,18 +49,16 @@ shm_general_t *read_from_path(char *path, shm_general_t **g)
 
 	while(fgets(buffer, sizeof(buffer), file) != NULL) {
 		remove_comment(buffer);
-		if (buffer[0] == '\n' || buffer[0] == '\0') {
+		if (buffer[0] == '\n' || buffer[0] == '\r' ||
+		    buffer[0] == '\0') {
 			continue;
 		}
 
-		if(sscanf(buffer, "%lf", &value) != 1) {
-			fclose(file);
-			return NULL;
-		}
 		if(counter >= NUM_CONST) {
 			fclose(file);
 			return NULL;
 		}
+		value = strtod(buffer, NULL);
 		if(value <= 0) {
 			fclose(file);
 			return NULL;

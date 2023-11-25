@@ -2,7 +2,7 @@
 .PHONY: recompile
 CC=gcc
 CFLAGS=-g -O0 -std=c89 -Wpedantic -lm
-CCOMPILE=$(CC) $(CFLAGS)
+CCOMPILE=$(CC)
 
 # Directories
 TARGET=master
@@ -24,7 +24,7 @@ $(BIN_DIR):
 	@mkdir -p $@
 
 $(BINARIES): $(BINARIES_C) | $(BIN_DIR)
-	@$(CCOMPILE) $(SRC_DIR)/$@.c $(CFILES) $(LIBFILES) -o $(BIN_DIR)/$@
+	@$(CCOMPILE) $(SRC_DIR)/$@.c $(CFILES) $(LIBFILES) -o $(BIN_DIR)/$@ $(CFLAGS)
 
 # General use
 recompile: clean all
