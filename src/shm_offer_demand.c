@@ -219,15 +219,17 @@ shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *c, int id,
 	return output;
 }
 
-o_list_t **offer_shm_get_order_expires(shm_offer_t *o, shm_general_t *c)
+o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
+				      shm_general_t *c)
 {
-	o_list_t **output;
+	o_list_t *output;
 	int i;
 
-	output = malloc(sizeof(o_list_t *) * get_merci(c));
+	output = cargo_list_create(c);
 	for (i = 0; i < get_merci(c); i++) {
-		output[i] = cargo_list_create(c);
-		cargo_list_pop_needed(output[i], c, i, o->data[i]);
+		cargo_list_merge(output,
+				 cargo_list_pop_needed(src, c, i, o->data[i]),
+				 c);
 	}
 
 	return output;
