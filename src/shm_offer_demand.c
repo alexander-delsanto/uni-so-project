@@ -257,11 +257,9 @@ void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
 
 		if (ship->data[i] >= port->data[i]) {
 			ship->data[i] -= port->data[i];
-			// TODO devo conservare dump
 			port->data[i] = 0;
 		} else {
 			port->data[i] -= ship->data[i];
-			// TODO devo conservare dump
 			ship->data[i] = 0;
 		}
 	}
