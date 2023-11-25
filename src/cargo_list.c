@@ -21,6 +21,8 @@ o_list_t *cargo_list_create(shm_general_t *c)
 	o_list_t *list;
 	int i, n_merci;
 
+	n_merci = get_merci(c);
+
 	list = malloc(sizeof(struct o_list) * get_merci(c));
 	if (list == NULL) {
 		return NULL;
