@@ -14,6 +14,8 @@
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
 #include "include/utils.h"
+#include "include/shm_offer_demand.h"
+#include "include/cargo_list.h"
 
 #define GET_DISTANCE(dest)\
 	(sqrt(pow(dest.x - ship_shm_get_coords(state.ship, state.id).x, 2) + pow(dest.y - ship_shm_get_coords(state.ship, state.id).y, 2)))
@@ -34,6 +36,9 @@ struct state {
 	shm_general_t *general;
 	shm_port_t *port;
 	shm_ship_t *ship;
+
+	shm_offer_t *offer;
+	o_list_t *cargo;
 
 	int current_day;
 };
@@ -58,6 +63,9 @@ int main(int argc, char *argv[])
 	general_shm_attach(&state.general);
 	state.port = port_shm_attach(state.general);
 	state.ship = ship_shm_attach(state.general);
+	state.offer = offer_shm_ports_init(state.general);
+	state.cargo = cargo_list_create(state.general);
+
 	srand(time(NULL) * getpid());
 	init_location();
 
@@ -141,7 +149,35 @@ void find_new_destination(int *port_id, struct coord *coords)
 
 void trade(int id_port)
 {
+	bool_t is_selling;
 	/* TODO */
+	is_selling = TRUE;
+
+	if (is_selling == TRUE) {
+		/*
+		 * Step:
+		 * genera offer da inviare al porto
+		 * genera relative scadenze
+		 *
+		 * invia offer e scadenze al porto
+		 * il porto farà il merge di offer e scadenze
+		 *
+		 * nave riparte
+		 */
+	} else {
+		/*
+		 * Step:
+		 * porto genera carico usando la offer
+		 * porto genera relative scadenze
+		 *
+		 * porto invia offer e scadenze a nave
+		 *
+		 * nave riceve offer e scadenze
+		 * nave fa merge di offer e scadenze
+		 *
+		 * nave riparte
+		 */
+	}
 }
 
 void signal_handler(int signal)

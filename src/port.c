@@ -165,6 +165,38 @@ void signal_handler(int signal)
 	}
 }
 
+void trade()
+{
+	bool_t is_selling;
+	/* TODO */
+	is_selling = TRUE;
+
+	if (is_selling == TRUE) {
+		/*
+		 * Step:
+		 * genera offer da inviare alla nave
+		 * genera relative scadenze
+		 *
+		 * invia offer e scadenze alla nave
+		 * la nave farà il merge di offer e scadenze
+		 *
+		 * nave viene sbloccata
+		 */
+	} else {
+		/*
+		 * Step:
+		 * nave genera carico da vendere usando la offer (e comparandola con demand)
+		 *
+		 * nave invia offer a porto
+		 *
+		 * porto riceve offer
+		 * porto segna la offer come arrivata (per dump)
+		 *
+		 * nave viene sbloccata
+		 */
+	}
+}
+
 void close_all(void)
 {
 	port_shm_detach(state.port);
