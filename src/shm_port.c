@@ -103,12 +103,8 @@ void port_shm_set_is_in_swell(shm_port_t *p, int id, bool_t value)
 {
 	if (p[id].dump_had_swell == FALSE && value == TRUE)
 		p[id].dump_had_swell = TRUE;
-	if (p[id].dump_had_daily_swell == FALSE && value == TRUE)
-		p[id].dump_had_daily_swell = TRUE;
 	p[id].is_in_swell = value;
 }
-
-void port_shm_reset_dump_had_daily_swell(shm_port_t *p, int id){p[id].dump_had_daily_swell = FALSE;}
 
 /* Getters */
 struct coord port_shm_get_coords(shm_port_t *p, int id){return p[id].coord;}
@@ -130,8 +126,6 @@ int port_shm_get_dump_had_swell(shm_port_t *p, int n_ports)
 }
 
 bool_t port_shm_get_dump_having_swell(shm_port_t *p, int id){return p[id].is_in_swell;}
-bool_t port_shm_get_dump_had_daily_swell(shm_port_t *p, int id){return p[id].dump_had_daily_swell;}
-
 bool_t port_shm_get_dump_swell_final(shm_port_t *p, int id){return p[id].dump_had_swell;}
 
 /* TODO: funzioni di distruzione della roba */
