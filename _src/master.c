@@ -172,8 +172,7 @@ void signal_handler(int signal)
 void close_all(void)
 {
 	send_signal_to_children(SIGKILL);
-	while (wait(NULL) > 0)
-		;
+	while (wait(NULL) > 0);
 
 	free(children_pid);
 	delete_all_shm();

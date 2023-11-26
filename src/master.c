@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #include "include/const.h"
 #include "include/shm_general.h"
@@ -307,11 +308,14 @@ void signal_handler(int signal)
 void close_all(void)
 {
 	print_final_report();
+
 	ship_shm_send_signal_to_all_ships(state.ships, state.general, SIGINT);
 	port_shm_send_signal_to_all_ports(state.ports, state.general, SIGINT);
 	kill(state.weather, SIGINT);
-	port_shm_delete(state.general);
-	ship_shm_delete(state.general);
+	while (wait(NULL) > 0);
+
+	msgctl(msg_commerce_in_port_get_id(), IPC_RMID, NULL);
+	msgctl(msg_commerce_out_port_get_id(), IPC_RMID, NULL);
 
 	sem_delete(get_sem_start_id());
 	sem_delete(get_sem_port_init_id());
