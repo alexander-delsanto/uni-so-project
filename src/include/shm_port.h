@@ -71,12 +71,12 @@ void port_shm_set_coordinates(shm_port_t *p, int id, struct coord coord);
 void port_shm_set_docks(shm_port_t *p, int id, int n);
 
 /**
- * @brief Sets had_swell = value when port receive SIGSWELL
+ * @brief Sets is_in_swell to value when port receive SIGSWELL
  * @param p Pointer to the array of port data in shared memory.
  * @param id Identifier of the port.
- * @param value bool_t TRUE or FALSE
+ * @param value the value to assign to is_in_swell
  */
-void port_shm_set_had_swell(shm_port_t *p, int id, bool_t value);
+void port_shm_set_is_in_swell(shm_port_t *p, int id, bool_t value);
 
 /**
  * @brief Gets the coordinates of a specific port in the shared memory structure.
@@ -114,7 +114,7 @@ int port_shm_get_dump_cargo_shipped(shm_port_t *p, int id);
 int port_shm_get_dump_cargo_received(shm_port_t *p, int id);
 int port_shm_get_dump_used_docks(shm_port_t *p, int id);
 int port_shm_get_dump_ships_arrived(shm_port_t *p, int id);
-int port_shm_get_dump_had_swell(shm_port_t *p, int id);
+int port_shm_get_had_swell(shm_port_t *p, int id);
 bool_t port_shm_get_dump_swell_final(shm_port_t *p, int id);
 
 #endif

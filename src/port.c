@@ -68,8 +68,6 @@ int main(int argc, char *argv[])
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
 			/* TODO: new day operations */
-			dprintf(1, "port %d: day %d to day %d.\n", state.id,
-				state.current_day, day);
 			state.current_day = day;
 
 			offer_demand_shm_generate(state.offer, state.demand,
@@ -144,13 +142,9 @@ void signal_handler(int signal)
 	case SIGDAY:
 		break;
 	case SIGSWELL:
-		port_shm_set_had_swell(state.port, state.id, TRUE);
-		dprintf(1,
-			"Port %d: Received SIGSWELL signal. Sleeping for %f seconds...\n",
-			state.id, get_swell_duration(state.general) / 24.0);
+		port_shm_set_is_in_swell(state.port, state.id, TRUE);
 		convert_and_sleep(get_swell_duration(state.general) / 24.0);
-		port_shm_set_had_swell(state.port, state.id, FALSE);
-		dprintf(1, "port %d woke up.\n", state.id);
+		port_shm_set_is_in_swell(state.port, state.id, FALSE);
 		break;
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");

@@ -187,7 +187,7 @@ void print_daily_report(void) {
 	dprintf(1, "**********WEATHER**********\n");
 	dprintf(1, "%d ships slowed by the storm until now.\n",
 		ship_shm_get_dump_had_storm(state.ships, n_ship));
-	dprintf(1, "%d ports affected by the swell until now: \n", port_shm_get_dump_had_swell(state.ports, i));
+	dprintf(1, "%d ports affected by the swell until now. \n", port_shm_get_had_swell(state.ports, i));
 	dprintf(1, "%d ships dead due to maelstrom today.\n",
 		ship_shm_get_dump_had_maelstrom(state.ships, n_ship));
 }

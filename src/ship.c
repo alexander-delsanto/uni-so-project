@@ -84,7 +84,6 @@ int main(int argc, char *argv[])
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
 			/* TODO: new day operations */
-			dprintf(1, "ship %d: day %d to day %d.\n", state.id, state.current_day, day);
 			state.current_day = day;
 		}
 	}
