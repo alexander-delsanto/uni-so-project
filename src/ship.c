@@ -31,7 +31,6 @@ void send_commerce_mgs(int port_id, struct commerce_msg *msg);
 void close_all(void);
 void loop(void);
 void find_new_destination(int *port_id, struct coord *coords);
-void trade(int id_port);
 
 struct state {
 	int id;
@@ -90,7 +89,7 @@ void handle_message(void)
 
 	if (!msg_commerce_receive(get_msg_out_id(state.general), state.id,
 				  &sender_id, &cargo_id, &quantity,
-				  &expiry_date, &status, FALSE)) {
+				  &expiry_date, NULL, &status, FALSE)) {
 		return;
 	}
 	switch (status) {
@@ -98,6 +97,9 @@ void handle_message(void)
 		/* Struttura per salvare il trading da fare con la barca */
 		break;
 	case STATUS_REFUSED:
+		break;
+	case STATUS_LOAD_ACCEPTED:
+		cargo_list_add(state.cargo, cargo_id, quantity, expiry_date);
 	default:
 		break;
 	}
@@ -112,10 +114,10 @@ void loop(void) {
 
 	pick_first_destination_port();
 
-	receiver_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
+	/*receiver_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
 	dprintf(1, "ship %d: sending message to port %d\n", state.id, receiver_port);
 	msg = msg_commerce_create(receiver_port, state.id, 1, 10, 8, 0);
-	msg_commerce_send(get_msg_in_id(state.general), &msg);
+	msg_commerce_send(get_msg_in_id(state.general), &msg);*/
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {

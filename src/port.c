@@ -148,7 +148,7 @@ void handle_message(void)
 						  exp_node->id,
 						  exp_node->quantity,
 						  exp_node->expire, 0,
-						  STATUS_ACCEPTED);
+						  STATUS_LOAD_ACCEPTED);
 
 			msg_commerce_send(get_msg_out_id(state.general), &msg);
 			free(exp_node);

@@ -8,6 +8,7 @@
 /* For port to ship messages */
 #define STATUS_ACCEPTED 1
 #define STATUS_REFUSED 2
+#define STATUS_LOAD_ACCEPTED 5
 
 /* For ship to port messages */
 #define STATUS_REQUEST 0
