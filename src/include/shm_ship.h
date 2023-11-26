@@ -104,7 +104,7 @@ void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value);
 
 /* Dump setters*/
 void ship_shm_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value);
-void ship_shm_set_dump_had_storm(shm_ship_t *s, int id, bool_t value);
+void ship_shm_set_dump_had_storm(shm_ship_t *s, int id);
 
 /* Dump getters*/
 int ship_shm_get_dump_with_cargo(shm_ship_t *s, int n_ships);
@@ -113,6 +113,5 @@ int ship_shm_get_dump_on_port(shm_ship_t *s, int n_ships);
 int ship_shm_get_dump_had_storm(shm_ship_t *s, int n_ships);
 int ship_shm_get_dump_had_maelstrom(shm_ship_t *s, int n_ships);
 int ship_shm_get_dump_is_dead(shm_ship_t *s, int n_ships);
-int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships);
 
 #endif

@@ -149,11 +149,9 @@ void ship_shm_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value)
 	s[id].dump_with_cargo = value;
 }
 
-void ship_shm_set_dump_had_storm(shm_ship_t *s, int id, bool_t value)
+void ship_shm_set_dump_had_storm(shm_ship_t *s, int id)
 {
-	s[id].dump_had_storm = value;
-	if(value == TRUE)
-		s[id].dump_storm_final = TRUE;
+	s[id].dump_had_storm = TRUE;
 }
 
 int ship_shm_get_dump_with_cargo(shm_ship_t *s, int n_ships)
