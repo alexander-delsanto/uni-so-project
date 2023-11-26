@@ -31,6 +31,7 @@ pid_t run_process(char *name, int index);
 
 void print_daily_report(void);
 void print_final_report(void);
+bool_t check_ships_all_dead(void);
 
 void close_all(void);
 
@@ -250,6 +251,19 @@ void print_final_report(void) {
 		ship_shm_get_dump_is_dead(state.ships, n_ship));
 }
 
+bool_t check_ships_all_dead(void)
+{
+	int i;
+	bool_t res = TRUE;
+	for (i = 0; i < get_navi(state.general); i++) {
+		if (!ship_shm_get_dead(state.ships, i)) {
+			res = FALSE;
+			break;
+		}
+	}
+	return res;
+}
+
 void signal_handler(int signal)
 {
 	switch (signal) {
@@ -261,6 +275,11 @@ void signal_handler(int signal)
 	case SIGALRM:
 		/* TODO: gestire semafori */
 		print_daily_report();
+		if (check_ships_all_dead()) {
+			dprintf(1, "All ships are dead. Terminating...\n");
+			close_all();
+		}
+
 		if (get_current_day(state.general) + 1 == get_days(state.general) + 1) {
 			dprintf(1,
 				"Reached last day of simulation. Terminating...\n");

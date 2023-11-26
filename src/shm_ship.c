@@ -89,7 +89,6 @@ void ship_shm_set_dead(shm_ship_t *s, int id)
 	s[id].is_dead = TRUE;
 }
 
-
 void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value)
 {
 	s[id].is_moving = value;
