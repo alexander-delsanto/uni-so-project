@@ -124,4 +124,8 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
 				  int id_port, shm_general_t *c);
 
+shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
+					     shm_general_t *c, int port_id,
+					     int ship_id);
+
 #endif
