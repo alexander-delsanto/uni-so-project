@@ -201,7 +201,6 @@ void signal_handler(int signal)
 		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n",
 			state.id);
 	case SIGINT:
-		dprintf(1, "ship %d: received SIGINT\n", state.id);
 		close_all();
 	}
 }

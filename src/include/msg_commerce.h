@@ -3,19 +3,18 @@
 
 #include <sys/msg.h>
 
-struct commerce_msg {
-	long receiver;
-	long sender;
-	int cargo_id;
-	int quantity;
-	int expiry_date;
-	int status;
-};
+#include "types.h"
+
+typedef struct commerce_msg commerce_msg_t;
 
 int msg_commerce_in_port_init();
 int msg_commerce_out_port_init();
 
 int msg_commerce_in_port_get_id();
 int msg_commerce_out_port_get_id();
+
+commerce_msg_t msg_commerce_create(long sender_id, long receiver_id, int cargo_id, int quantity, int expiry_date, int status);
+void msg_commerce_send(int queue_id, commerce_msg_t *msg);
+bool_t msg_commerce_receive();
 
 #endif
