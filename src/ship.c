@@ -194,7 +194,7 @@ void signal_handler(int signal)
 	case SIGMAELSTROM:
 		dprintf(1, "Ship %d: Received SIGMAELSTROM signal.\n",
 			state.id);
-		ship_shm_set_dead(state.ship, state.id);
+		ship_shm_set_is_dead(state.ship, state.id);
 		close_all();
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");

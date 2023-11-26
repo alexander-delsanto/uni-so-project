@@ -56,6 +56,7 @@ int get_swell_duration(shm_general_t *c);
 int get_maelstrom(shm_general_t *c);
 
 int get_current_day(shm_general_t *c);
+
 /**
  * @brief Increases the current day counter in the shared memory structure.
  * @param c Pointer to the general shared memory structure.

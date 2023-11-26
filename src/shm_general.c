@@ -78,11 +78,7 @@ shm_general_t *read_from_path(char *path, shm_general_t **g)
 	return data;
 }
 
-static void set_general_shm_id(shm_general_t *g)
-{
-	g->general_shm_id = shm_create(SHM_DATA_GENERAL_KEY, 0);
-}
-
+/* General shared memory */
 void general_shm_attach(shm_general_t **g)
 {
 	int shm_id;
@@ -94,21 +90,25 @@ void general_shm_attach(shm_general_t **g)
 	*g = shm_attach(shm_id);
 }
 
-void set_port_shm_id(shm_general_t *c, int id)
+void general_shm_detach(shm_general_t *c)
 {
-	c->port_shm_id = id;
+	shm_detach(c);
 }
 
-void set_ship_shm_id(shm_general_t *c, int id)
+void general_shm_delete(int id)
 {
-	c->ship_shm_id = id;
+	shm_delete(id);
 }
 
-void set_pid_shm_id(shm_general_t *c, int id)
-{
-	c->pid_shm_id = id;
-}
+/* Setters */
+void set_port_shm_id(shm_general_t *c, int id){	c->port_shm_id = id;}
+void set_pid_shm_id(shm_general_t *c, int id){	c->pid_shm_id = id;}
+static void set_general_shm_id(shm_general_t *g){ g->general_shm_id = shm_create(SHM_DATA_GENERAL_KEY, 0);}
+void set_ship_shm_id(shm_general_t *c, int id){	c->ship_shm_id = id;}
+void set_offer_shm_id(shm_general_t *c, int id){ c->offer_shm_id = id;}
+void set_demand_shm_id(shm_general_t *c, int id){ c->demand_shm_id = id;}
 
+/* Getters */
 int get_port_shm_id(shm_general_t *c)
 {
 	if (c == NULL) {
@@ -133,119 +133,7 @@ int get_pid_shm_id(shm_general_t *c)
 	return c->pid_shm_id;
 }
 
-double get_lato(shm_general_t *c)
-{
-	return c->so_lato;
-}
-
-int get_days(shm_general_t *c)
-{
-	return c->so_days;
-}
-
-int get_navi(shm_general_t *c)
-{
-	return c->so_navi;
-}
-
-int get_speed(shm_general_t *c)
-{
-	return c->so_speed;
-}
-
-int get_capacity(shm_general_t *c)
-{
-	return c->so_capacity;
-}
-
-int get_porti(shm_general_t *c)
-{
-	return c->so_porti;
-}
-
-int get_banchine(shm_general_t *c)
-{
-	return c->so_banchine;
-}
-
-int get_fill(shm_general_t *c)
-{
-	return c->so_fill;
-}
-
-int get_load_speed(shm_general_t *c)
-{
-	return c->so_loadspeed;
-}
-
-int get_merci(shm_general_t *c)
-{
-	return c->so_merci;
-}
-
-int get_size(shm_general_t *c)
-{
-	return c->so_size;
-}
-
-int get_min_vita(shm_general_t *c)
-{
-	return c->so_min_vita;
-}
-
-int get_max_vita(shm_general_t *c)
-{
-	return c->so_max_vita;
-}
-
-int get_storm_duration(shm_general_t *c)
-{
-	return c->so_storm_duration;
-}
-
-int get_swell_duration(shm_general_t *c)
-{
-	return c->so_swell_duration;
-}
-
-int get_maelstrom(shm_general_t *c)
-{
-	return c->so_maelstrom;
-}
-
-int get_current_day(shm_general_t *c)
-{
-	return c->current_day;
-}
-
-void increase_day(shm_general_t *c)
-{
-	c->current_day++;
-}
-
-int get_general_shm_id(shm_general_t *c)
-{
-	return c->general_shm_id;
-}
-
-void general_shm_detach(shm_general_t *c)
-{
-	shm_detach(c);
-}
-void general_shm_delete(int id)
-{
-	shm_delete(id);
-}
-
-void set_offer_shm_id(shm_general_t *c, int id)
-{
-	c->offer_shm_id = id;
-}
-
-void set_demand_shm_id(shm_general_t *c, int id)
-{
-	c->demand_shm_id = id;
-}
+int get_general_shm_id(shm_general_t *c){ return c->general_shm_id; }
 
 int get_offer_shm_id(shm_general_t *c)
 {
@@ -262,3 +150,33 @@ int get_demand_shm_id(shm_general_t *c, int id)
 	}
 	return c->demand_shm_id;
 }
+
+
+/* Getters for simulation costants */
+double get_lato(shm_general_t *c){ return c->so_lato; }
+int get_days(shm_general_t *c){	return c->so_days; }
+int get_navi(shm_general_t *c){	return c->so_navi; }
+int get_speed(shm_general_t *c){ return c->so_speed; }
+int get_capacity(shm_general_t *c){ return c->so_capacity; }
+int get_porti(shm_general_t *c){ return c->so_porti; }
+int get_banchine(shm_general_t *c){ return c->so_banchine; }
+int get_fill(shm_general_t *c){	return c->so_fill; }
+int get_load_speed(shm_general_t *c){ return c->so_loadspeed; }
+int get_merci(shm_general_t *c){ return c->so_merci; }
+int get_size(shm_general_t *c){	return c->so_size; }
+int get_min_vita(shm_general_t *c){ return c->so_min_vita; }
+int get_max_vita(shm_general_t *c){ return c->so_max_vita; }
+int get_storm_duration(shm_general_t *c){ return c->so_storm_duration; }
+int get_swell_duration(shm_general_t *c){ return c->so_swell_duration; }
+int get_maelstrom(shm_general_t *c){ return c->so_maelstrom; }
+
+int get_current_day(shm_general_t *c){ return c->current_day; }
+
+void increase_day(shm_general_t *c){ c->current_day++; }
+
+
+
+
+
+
+

@@ -187,7 +187,7 @@ void print_daily_report(void) {
 	dprintf(1, "**********WEATHER**********\n");
 	dprintf(1, "%d ships slowed by the storm until now.\n",
 		ship_shm_get_dump_had_storm(state.ships, n_ship));
-	dprintf(1, "%d ports affected by the swell until now. \n", port_shm_get_had_swell(state.ports, i));
+	dprintf(1, "%d ports affected by the swell until now. \n", port_shm_get_dump_had_swell(state.ports, i));
 	dprintf(1, "%d ships dead due to maelstrom today.\n",
 		ship_shm_get_dump_had_maelstrom(state.ships, n_ship));
 }
@@ -240,14 +240,14 @@ void print_final_report(void) {
 	/* TODO: Indicate the port that has offered the most goods and the one that has requested the most goods. */
 
 	dprintf(1, "**********WEATHER**********\n");
-	dprintf(1, "%d ships slowed by the storm\n",
+	dprintf(1, "%d ships slowed by the storm.\n",
 		ship_shm_get_dump_had_storm(state.ships, n_ship));
 	dprintf(1, "List of ports affected by the swell: \n");
 	for (i = 0; i < n_port; i++) {
 		if(port_shm_get_dump_swell_final(state.ports, i) == TRUE)
 			dprintf(1, "\tPort %d\n", i);
 	}
-	dprintf(1, "%d ships dead due to maelstrom\n",
+	dprintf(1, "%d ships dead due to maelstrom.\n",
 		ship_shm_get_dump_is_dead(state.ships, n_ship));
 }
 
