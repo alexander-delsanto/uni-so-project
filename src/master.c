@@ -287,7 +287,7 @@ void signal_handler(int signal)
 		close_all();
 	case SIGALRM:
 		/* TODO: gestire semafori */
-		print_daily_report();
+		/*print_daily_report();*/
 		if (check_ships_all_dead()) {
 			dprintf(1, "All ships are dead. Terminating...\n");
 			close_all();
@@ -313,7 +313,7 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
-	print_final_report();
+	/*print_final_report();*/
 
 	kill(state.weather, SIGINT);
 	ship_shm_send_signal_to_all_ships(state.ships, state.general, SIGINT);

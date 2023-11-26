@@ -15,6 +15,7 @@
 #include "include/shm_port.h"
 #include "include/shm_offer_demand.h"
 #include "include/cargo_list.h"
+#include "include/msg_commerce.h"
 
 struct state {
 	int id;
@@ -30,6 +31,7 @@ struct state {
 
 void signal_handler(int signal);
 void signal_handler_init(void);
+void loop(void);
 
 void generate_coordinates(void);
 void generate_docks(void);
@@ -40,7 +42,6 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
-	int day;
 	bzero(&state, sizeof(struct state));
 	signal_handler_init();
 
@@ -62,6 +63,14 @@ int main(int argc, char *argv[])
 	sem_execute_semop(get_sem_port_init_id(), 0, -1, 0);
 	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
 
+	loop();
+}
+
+void loop(void)
+{
+	int day;
+	int sender_id, cargo_id, quantity, expiry_date, status;
+
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
@@ -70,6 +79,10 @@ int main(int argc, char *argv[])
 			offer_demand_shm_generate(state.offer, state.demand,
 						  state.cargo, state.id,
 						  state.general);
+		}
+		if (msg_commerce_receive(get_msg_in_id(state.general), state.id, &sender_id, &cargo_id, &quantity, &expiry_date, &status, FALSE)) {
+			dprintf(1, "port %d: got message from ship %d: cargo_id: %d, quantity: %d, expiry_date: %d, status: %d\n",
+				state.id, sender_id, cargo_id, quantity, expiry_date, status);
 		}
 	}
 }

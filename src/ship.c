@@ -16,6 +16,7 @@
 #include "include/utils.h"
 #include "include/shm_offer_demand.h"
 #include "include/cargo_list.h"
+#include "include/msg_commerce.h"
 
 #define GET_DISTANCE(dest)\
 	(sqrt(pow(dest.x - ship_shm_get_coords(state.ship, state.id).x, 2) + pow(dest.y - ship_shm_get_coords(state.ship, state.id).y, 2)))
@@ -25,6 +26,7 @@ void signal_handler(int signal);
 void init_location(void);
 void pick_first_destination_port(void);
 void move(struct coord destination_port);
+void send_commerce_mgs(int port_id, struct commerce_msg *msg);
 
 void close_all(void);
 void loop(void);
@@ -47,7 +49,6 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
-	int day;
 	struct sigaction sa;
 	sigset_t mask;
 	bzero(&state, sizeof (struct state));
@@ -79,26 +80,33 @@ int main(int argc, char *argv[])
 	sem_execute_semop(get_sem_port_init_id(), 0, 0, 0);
 	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
 
+	loop();
+}
+
+void loop(void) {
+	int receiver_port;
+	int day;
+	int id_dest_port;
+	struct coord destination_coords;
+	struct commerce_msg msg;
+
 	pick_first_destination_port();
 
+	receiver_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
+	dprintf(1, "ship %d: sending message to port %d\n", state.id, receiver_port);
+	msg = msg_commerce_create(receiver_port, state.id, 1, 10, 8, 0);
+	msg_commerce_send(get_msg_in_id(state.general), &msg);
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
 			/* TODO: new day operations */
 			state.current_day = day;
 		}
-	}
-}
-
-void loop(void) {
-	int id_dest_port;
-	struct coord destination_coords;
-	while (1) {
-
-		find_new_destination(&id_dest_port, &destination_coords);
+/*		find_new_destination(&id_dest_port, &destination_coords);
 		move(destination_coords);
-		trade(id_dest_port);
+		trade(id_dest_port);*/
 	}
+
 }
 
 /**
@@ -185,6 +193,11 @@ void trade(int id_port)
 		/* nave fa merge di  scadenze */
 		cargo_list_merge(state.cargo, order_expires, state.general);
 	}
+}
+
+void send_commerce_msg(int port_id, struct commerce_msg *msg)
+{
+
 }
 
 void signal_handler(int signal)
