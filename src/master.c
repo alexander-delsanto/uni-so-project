@@ -12,7 +12,9 @@
 #include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
+#include "include/shm_offer_demand.h"
 #include "include/sem.h"
+#include "include/msg_commerce.h"
 
 struct state {
 	shm_general_t *general;
@@ -61,6 +63,8 @@ int main(int argc, char *argv[])
 
 	id_sem_start = sem_create(SEM_START_KEY, 1);
 	sem_setval(id_sem_start, 0, 1);
+	msg_commerce_in_port_init();
+	msg_commerce_out_port_init();
 
 	run_ports();
 	run_ships();
@@ -320,6 +324,10 @@ void close_all(void)
 	sem_delete(get_sem_start_id());
 	sem_delete(get_sem_port_init_id());
 	sem_delete(get_sem_port_id());
+
+	port_shm_delete(state.general);
+	ship_shm_delete(state.general);
+	offer_demand_shm_delete(state.general);
 
 	general_shm_delete(get_general_shm_id(state.general));
 
