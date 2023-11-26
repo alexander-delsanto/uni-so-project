@@ -16,7 +16,7 @@ struct commerce_msg {
 
 #define MSG_SIZE (sizeof(struct commerce_msg) - sizeof(long))
 
-int msg_commerce_in_port_init()
+int msg_commerce_in_port_init(void)
 {
 	int id;
 	if ((id = msgget(MSG_IN_PORT_KEY, 0660 | IPC_CREAT | IPC_EXCL)) < 0)
@@ -24,7 +24,7 @@ int msg_commerce_in_port_init()
 	return id;
 }
 
-int msg_commerce_out_port_init()
+int msg_commerce_out_port_init(void)
 {
 	int id;
 	if ((id = msgget(MSG_OUT_PORT_KEY, 0660 | IPC_CREAT | IPC_EXCL)) < 0)
@@ -32,7 +32,7 @@ int msg_commerce_out_port_init()
 	return id;
 }
 
-int msg_commerce_in_port_get_id()
+int msg_commerce_in_port_get_id(void)
 {
 	int id;
 	if ((id = msgget(MSG_IN_PORT_KEY, 0)) < 0)
@@ -41,7 +41,7 @@ int msg_commerce_in_port_get_id()
 	return id;
 }
 
-int msg_commerce_out_port_get_id()
+int msg_commerce_out_port_get_id(void)
 {
 	int id;
 	if ((id = msgget(MSG_OUT_PORT_KEY, 0)) < 0)
@@ -67,4 +67,23 @@ void msg_commerce_send(int queue_id, commerce_msg_t *msg)
 	do {
 		ret = msgsnd(queue_id, msg, MSG_SIZE, 0);
 	} while (ret < 0);
+}
+
+bool_t msg_commerce_receive(int queue_id, int type, long *sender_id, int *cargo_id, int *quantity, int *expiry_date, int *status, bool_t restarting)
+{
+	ssize_t ret;
+	commerce_msg_t msg;
+	do {
+		ret = msgrcv(queue_id, &msg, MSG_SIZE, type, 0);
+		if (!restarting && ret < 0)
+			return FALSE;
+	} while(ret < 0);
+
+	if (sender_id != NULL) *sender_id = msg.sender;
+	if (cargo_id != NULL) *cargo_id = msg.cargo_id;
+	if (quantity != NULL) *quantity = msg.quantity;
+	if (expiry_date != NULL) *expiry_date = msg.expiry_date;
+	if (status != NULL) *status = msg.status;
+
+	return TRUE;
 }
