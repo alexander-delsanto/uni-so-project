@@ -35,6 +35,7 @@ void loop(void);
 
 void generate_coordinates(void);
 void generate_docks(void);
+void handle_message(void);
 
 void close_all(void);
 
@@ -80,14 +81,15 @@ void loop(void)
 						  state.cargo, state.id,
 						  state.general);
 		}
-		if (msg_commerce_receive(get_msg_in_id(state.general), state.id,
+		handle_message();
+		/*if (msg_commerce_receive(get_msg_in_id(state.general), state.id,
 					 &sender_id, &cargo_id, &quantity,
 					 &expiry_date, &status, FALSE)) {
 			dprintf(1,
 				"port %d: got message from ship %d: cargo_id: %d, quantity: %d, expiry_date: %d, status: %d\n",
 				state.id, sender_id, cargo_id, quantity,
 				expiry_date, status);
-		}
+		}*/
 	}
 }
 
@@ -153,7 +155,7 @@ void handle_message(void)
 		}
 
 		cargo_list_delete(order_expires, state.general);
-		/* Free the *order */
+		offer_shm_delete(order);
 		break;
 	default:
 		break;
@@ -237,39 +239,6 @@ void signal_handler(int signal)
 		close_all();
 	default:
 		break;
-	}
-}
-
-void trade()
-{
-	bool_t is_selling;
-	int capacity = 0;
-	/* TODO */
-	is_selling = TRUE;
-
-	if (is_selling == TRUE) {
-		/* genera offer da inviare alla nave */
-
-		/*
-		 * Step:
-		 *
-		 * invia offer e scadenze alla nave
-		 * la nave farà il merge di offer e scadenze
-		 *
-		 * nave viene sbloccata
-		 */
-	} else {
-		/*
-		 * Step:
-		 * nave genera carico da vendere usando la offer (e comparandola con demand)
-		 *
-		 * nave invia offer a porto
-		 *
-		 * porto riceve offer
-		 * porto segna la offer come arrivata (per dump)
-		 *
-		 * nave viene sbloccata
-		 */
 	}
 }
 

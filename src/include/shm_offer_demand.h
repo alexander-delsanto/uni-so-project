@@ -135,4 +135,6 @@ shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
 					     shm_general_t *c, int port_id,
 					     int ship_id);
 
+void offer_shm_delete(shm_offer_t *o);
+
 #endif
