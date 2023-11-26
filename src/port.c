@@ -18,8 +18,6 @@
 
 struct state {
 	int id;
-	int sem_id;
-	pid_t pid;
 	shm_general_t *general;
 	shm_port_t *port;
 
@@ -47,7 +45,6 @@ int main(int argc, char *argv[])
 	signal_handler_init();
 
 	state.id = (int)strtol(argv[1], NULL, 10);
-	state.pid = getpid();
 
 	general_shm_attach(&state.general);
 	if (state.general == NULL) {
