@@ -160,15 +160,23 @@ void signal_handler(int signal)
 
 void trade()
 {
+	shm_offer_t *order;
+	o_list_t *order_expires;
 	bool_t is_selling;
+	int capacity = 0;
 	/* TODO */
 	is_selling = TRUE;
 
 	if (is_selling == TRUE) {
+		/* genera offer da inviare alla nave */
+		order = offer_shm_get_order(state.offer, state.general,
+					    state.id, capacity);
+		/* genera relative scadenze*/
+		order_expires = offer_shm_get_order_expires(state.cargo, order,
+							    state.general);
+
 		/*
 		 * Step:
-		 * genera offer da inviare alla nave
-		 * genera relative scadenze
 		 *
 		 * invia offer e scadenze alla nave
 		 * la nave farà il merge di offer e scadenze

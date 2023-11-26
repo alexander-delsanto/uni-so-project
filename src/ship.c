@@ -38,6 +38,7 @@ struct state {
 	shm_ship_t *ship;
 
 	shm_offer_t *offer;
+	shm_demand_t *demand;
 	o_list_t *cargo;
 
 	int current_day;
@@ -64,6 +65,8 @@ int main(int argc, char *argv[])
 	state.port = port_shm_attach(state.general);
 	state.ship = ship_shm_attach(state.general);
 	state.offer = offer_shm_ships_init(state.general);
+	state.demand = demand_shm_init(state.general);
+
 	state.cargo = cargo_list_create(state.general);
 
 	srand(time(NULL) * getpid());
@@ -150,20 +153,28 @@ void find_new_destination(int *port_id, struct coord *coords)
 
 void trade(int id_port)
 {
+	shm_offer_t *order;
+	o_list_t *order_expires;
+
 	bool_t is_selling;
-	/* TODO */
-	is_selling = TRUE;
+	/* TODO random bool è per zittire clion ora*/
+	is_selling = RANDOM_BOOL();
 
 	if (is_selling == TRUE) {
+		/* genera offer da inviare alla nave */
+		/* TODO qui ci va con la domanda */
+		order = offer_shm_get_order_from_demand(state.offer,
+							state.demand,
+							state.general, id_port,
+							state.id);
+		/* genera relative scadenze */
+		order_expires = offer_shm_get_order_expires(state.cargo, order,
+							    state.general);
+
 		/*
-		 * Step:
-		 * genera offer da inviare al porto
-		 * genera relative scadenze
-		 *
 		 * invia offer e scadenze al porto
 		 * il porto farà il merge di offer e scadenze
-		 *
-		 * nave riparte
+		 * aggiorna capacità
 		 */
 	} else {
 		/*
@@ -172,12 +183,14 @@ void trade(int id_port)
 		 * porto genera relative scadenze
 		 *
 		 * porto invia offer e scadenze a nave
-		 *
-		 * nave riceve offer e scadenze
-		 * nave fa merge di offer e scadenze
-		 *
-		 * nave riparte
 		 */
+
+		/* nave riceve offer e scadenze */
+
+		/* nave fa merge di offer */
+		offer_shm_merge(state.offer, order, state.general, state.id);
+		/* nave fa merge di  scadenze */
+		cargo_list_merge(state.cargo, order_expires, state.general);
 	}
 }
 

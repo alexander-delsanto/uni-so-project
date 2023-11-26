@@ -88,6 +88,13 @@ void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
 void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
 				  int id_port, shm_general_t *c);
 
+shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *c, int id,
+				 int capacity);
+
+shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
+					     shm_general_t *c, int port_id,
+					     int ship_id);
+
 o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
 				      shm_general_t *c);
 
