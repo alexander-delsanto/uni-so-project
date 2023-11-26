@@ -5,6 +5,15 @@
 
 #include "types.h"
 
+/* For port to ship messages */
+#define STATUS_ACCEPTED 1
+#define STATUS_PARTIAL 2
+#define STATUS_REFUSED 3
+
+/* For ship to port messages */
+#define STATUS_REQUEST 0
+#define STATUS_DEAD (-1)
+
 struct commerce_msg {
 	long receiver;
 	long sender;
