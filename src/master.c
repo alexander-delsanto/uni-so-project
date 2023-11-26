@@ -63,8 +63,10 @@ int main(int argc, char *argv[])
 
 	id_sem_start = sem_create(SEM_START_KEY, 1);
 	sem_setval(id_sem_start, 0, 1);
-	msg_commerce_in_port_init();
-	msg_commerce_out_port_init();
+
+	/* Initialize message queues and set ids in shm */
+	set_msg_in_id(state.general, msg_commerce_in_port_init());
+	set_msg_out_id(state.general, msg_commerce_out_port_init());
 
 	run_ports();
 	run_ships();
@@ -313,9 +315,9 @@ void close_all(void)
 {
 	print_final_report();
 
+	kill(state.weather, SIGINT);
 	ship_shm_send_signal_to_all_ships(state.ships, state.general, SIGINT);
 	port_shm_send_signal_to_all_ports(state.ports, state.general, SIGINT);
-	kill(state.weather, SIGINT);
 	while (wait(NULL) > 0);
 
 	msgctl(msg_commerce_in_port_get_id(), IPC_RMID, NULL);

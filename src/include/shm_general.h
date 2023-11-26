@@ -31,12 +31,16 @@ void set_port_shm_id(shm_general_t *c, int id);
 void set_ship_shm_id(shm_general_t *c, int id);
 void set_offer_shm_id(shm_general_t *c, int id);
 void set_demand_shm_id(shm_general_t *c, int id);
+void set_msg_in_id(shm_general_t *c, int id);
+void set_msg_out_id(shm_general_t *c, int id);
 
 int get_port_shm_id(shm_general_t *c);
 int get_ship_shm_id(shm_general_t *c);
 int get_general_shm_id(shm_general_t *c);
 int get_offer_shm_id(shm_general_t *c);
 int get_demand_shm_id(shm_general_t *c);
+int get_msg_in_id(shm_general_t *c);
+int get_msg_out_id(shm_general_t *c);
 
 double get_lato(shm_general_t *c);
 int get_days(shm_general_t *c);
