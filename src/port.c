@@ -63,13 +63,10 @@ int main(int argc, char *argv[])
 	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
 
 	while (1) {
-		offer_demand_shm_generate(state.offer, state.demand,
-					  state.cargo, state.id, state.general);
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
 			/* TODO: new day operations */
 			state.current_day = day;
-
 			offer_demand_shm_generate(state.offer, state.demand,
 						  state.cargo, state.id,
 						  state.general);
