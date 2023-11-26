@@ -5,8 +5,7 @@
 #define SHM_DATA_PORTS_KEY 0x2fffffff
 #define SHM_DATA_SHIPS_KEY 0x3fffffff
 #define SHM_DATA_PORT_OFFER_KEY 0x4fffffff
-#define SHM_DATA_SHIP_OFFER_KEY 0x5fffffff
-#define SHM_DATA_DEMAND_KEY 0x6fffffff
+#define SHM_DATA_DEMAND_KEY 0x5fffffff
 
 #define SEM_PORTS_INITIALIZED_KEY 0x00ffffff
 #define SEM_START_KEY 0x10ffffff
