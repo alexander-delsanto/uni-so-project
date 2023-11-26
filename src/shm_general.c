@@ -59,7 +59,7 @@ shm_general_t *read_from_path(char *path, shm_general_t **g)
 			return NULL;
 		}
 		value = strtod(buffer, NULL);
-		if(value <= 0) {
+		if(value < 0) {
 			fclose(file);
 			return NULL;
 		}
