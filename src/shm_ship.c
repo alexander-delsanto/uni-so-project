@@ -54,48 +54,11 @@ shm_ship_t *ship_shm_attach(shm_general_t *c)
 	return ships;
 }
 
-void ship_shm_delete(shm_general_t *c)
-{
-	shm_delete(get_ship_shm_id(c));
-}
+void ship_shm_detach(shm_ship_t *c) { shm_detach(c); }
 
-pid_t ship_shm_get_pid(shm_ship_t *s, int id)
-{
-	return s[id].pid;
-}
+void ship_shm_delete(shm_general_t *c) { shm_delete(get_ship_shm_id(c)); }
 
-bool_t ship_shm_get_dead(shm_ship_t *s, int id)
-{
-	return s[id].is_dead;
-}
-
-bool_t ship_shm_get_is_moving(shm_ship_t *s, int id)
-{
-	return s[id].is_moving;
-}
-
-void ship_shm_set_pid(shm_ship_t *s, int id, pid_t pid)
-{
-	s[id].pid = pid;
-}
-
-void ship_shm_set_coords(shm_ship_t *s, int id, struct coord coords)
-{
-	s[id].coords = coords;
-}
-
-void ship_shm_set_dead(shm_ship_t *s, int id)
-{
-	s[id].is_dead = TRUE;
-}
-
-void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value)
-{
-	s[id].is_moving = value;
-	s[id].dump_on_port = 1 - value;	/* if ship is moving then it's not on port */
-}
-
-
+/* Signals to ships */
 void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *c,
 				       int signal)
 {
@@ -109,31 +72,29 @@ void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *c,
 	}
 }
 
-void ship_shm_send_signal_to_ship(shm_ship_t *s, int id, int signal)
+void ship_shm_send_signal_to_ship(shm_ship_t *s, int id, int signal) { kill(s[id].pid, signal); }
+
+/* Setters */
+void ship_shm_set_pid(shm_ship_t *s, int id, pid_t pid) { s[id].pid = pid; }
+void ship_shm_set_coords(shm_ship_t *s, int id, struct coord coords) { s[id].coords = coords; }
+void ship_shm_set_is_dead(shm_ship_t *s, int id) { s[id].is_dead = TRUE; }
+
+void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value)
 {
-	kill(s[id].pid, signal);
+	s[id].is_moving = value;
+	s[id].dump_on_port = 1 - value;	/* if ship is moving then it's not on port */
 }
 
-struct coord ship_shm_get_coords(shm_ship_t *s, int id)
-{
-	return s[id].coords;
-}
+void ship_shm_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value) { s[id].dump_with_cargo = value; }
+void ship_shm_set_dump_had_storm(shm_ship_t *s, int id) { s[id].dump_had_storm = TRUE; }
 
-void ship_shm_detach(shm_ship_t *c)
-{
-	shm_detach(c);
-}
+/* Getters */
+pid_t ship_shm_get_pid(shm_ship_t *s, int id) { return s[id].pid; }
+bool_t ship_shm_get_dead(shm_ship_t *s, int id) { return s[id].is_dead; }
+bool_t ship_shm_get_is_moving(shm_ship_t *s, int id) { return s[id].is_moving; }
+struct coord ship_shm_get_coords(shm_ship_t *s, int id) { return s[id].coords; }
 
-void ship_shm_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value)
-{
-	s[id].dump_with_cargo = value;
-}
-
-void ship_shm_set_dump_had_storm(shm_ship_t *s, int id)
-{
-	s[id].dump_had_storm = TRUE;
-}
-
+/* Dump getters */
 int ship_shm_get_dump_with_cargo(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
@@ -143,7 +104,6 @@ int ship_shm_get_dump_with_cargo(shm_ship_t *s, int n_ships)
 			cnt++;
 	return cnt;
 }
-
 int ship_shm_get_dump_without_cargo(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
