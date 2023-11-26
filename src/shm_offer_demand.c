@@ -267,3 +267,32 @@ void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
 		}
 	}
 }
+
+shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
+					     shm_general_t *c, int port_id,
+					     int ship_id)
+{
+	int i, n_merci;
+	shm_offer_t *output;
+
+	n_merci = get_merci(c);
+	output = offer_shm_ports_get(c);
+
+	for (i = 0; i < n_merci; i++) {
+		if (o[ship_id].data[i] == 0 || d[port_id].data[i] == 0) {
+			continue;
+		}
+
+		if (o[ship_id].data[i] > 0 && d[port_id].data[i] > 0) {
+			if (o[ship_id].data[i] >= d[port_id].data[i]) {
+				output->data[i] = o[port_id].data[i];
+				o[ship_id].data[i] -= d[port_id].data[i];
+			} else {
+				output->data[i] = o[ship_id].data[i];
+				o[ship_id].data[i] = 0;
+			}
+		}
+	}
+
+	return output;
+}
