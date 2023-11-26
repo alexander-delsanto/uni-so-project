@@ -26,6 +26,7 @@ struct shm_port {
 	int dump_used_docks;
 	int dump_ships_arrived;
 	bool_t dump_had_swell;
+	bool_t dump_swell_final;	/* for final report */
 };
 
 shm_port_t *port_initialize(shm_general_t *g)
@@ -114,9 +115,81 @@ struct coord port_shm_get_coords(shm_port_t *p, int id)
 	return p[id].coord;
 }
 
+int port_shm_get_docks(shm_port_t *p, int id)
+{
+	return p[id].num_docks;
+}
+
 pid_t port_shm_get_pid(shm_port_t *p, int id)
 {
 	return p[id].pid;
+}
+
+void port_shm_set_dump_cargo_available(shm_port_t *p, int id, int n)
+{
+	p[id].dump_cargo_available += n;
+}
+
+void port_shm_set_dump_cargo_shipped(shm_port_t *p, int id, int n)
+{
+	p[id].dump_cargo_shipped += n;
+}
+
+void port_shm_set_dump_cargo_received(shm_port_t *p, int id, int n)
+{
+	p[id].dump_cargo_received += n;
+}
+
+void port_shm_set_dump_used_docks(shm_port_t *p, int id, int n)
+{
+	p[id].dump_used_docks += n;
+}
+
+void port_shm_set_dump_ships_arrived(shm_port_t *p, int id, int n)
+{
+	p[id].dump_ships_arrived += n;
+}
+
+void port_shm_set_dump_had_swell(shm_port_t *p, int id, bool_t value)
+{
+	p[id].dump_had_swell = value;
+	if(value == TRUE)
+		p[id].dump_swell_final = TRUE;
+}
+
+int port_shm_get_dump_cargo_available(shm_port_t *p, int id)
+{
+	return p[id].dump_cargo_available;
+}
+
+int port_shm_get_dump_cargo_shipped(shm_port_t *p, int id)
+{
+	return p[id].dump_cargo_shipped;
+}
+
+int port_shm_get_dump_cargo_received(shm_port_t *p, int id)
+{
+	return p[id].dump_cargo_received;
+}
+
+int port_shm_get_dump_used_docks(shm_port_t *p, int id)
+{
+	return p[id].dump_used_docks;
+}
+
+int port_shm_get_dump_ships_arrived(shm_port_t *p, int id)
+{
+	return p[id].dump_ships_arrived;
+}
+
+bool_t port_shm_get_dump_had_swell(shm_port_t *p, int id)
+{
+	return p[id].dump_had_swell;
+}
+
+bool_t port_shm_get_dump_swell_final(shm_port_t *p, int id)
+{
+	return p[id].dump_swell_final;
 }
 
 /* TODO: funzioni di distruzione della roba */

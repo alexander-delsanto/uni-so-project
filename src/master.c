@@ -29,6 +29,9 @@ void run_weather(void);
 
 pid_t run_process(char *name, int index);
 
+void print_daily_report(void);
+void print_final_report(void);
+
 void close_all(void);
 
 struct state state;
@@ -147,6 +150,110 @@ pid_t run_process(char *name, int index)
 	return process_pid;
 }
 
+void print_daily_report(void) {
+	int i;
+	int n_port = get_porti(state.general);
+	int n_ship = get_navi(state.general);
+
+	dprintf(1, "\nDaily report #%d:\n", get_current_day(state.general));
+	dprintf(1, "**********CARGO**********\n");
+	dprintf(1, "Type\tQuantity\tStatus\n");
+	/*TODO*/
+	for(i = 0; i < get_merci(state.general); i++){
+		/*dprintf(1, "%d\t%d\t%s", i, ...)*/
+	}
+	dprintf(1, "**********SHIPS**********\n");
+	dprintf(1, "Number of ships at sea with cargo: %d\n",
+		ship_shm_get_dump_with_cargo(state.ships, n_ship));
+	dprintf(1, "Number of ships at sea without cargo: %d\n",
+		ship_shm_get_dump_without_cargo(state.ships, n_ship));
+	dprintf(1, "Number of ships at port: %d\n",
+		ship_shm_get_dump_on_port(state.ships, n_ship));
+
+	dprintf(1, "**********PORTS**********\n");
+	for (i = 0; i < n_port; i++) {
+		dprintf(1, "Port %d:\n", i);
+		dprintf(1, "\t%d goods available;\n",
+			port_shm_get_dump_cargo_available(state.ports, i));
+		dprintf(1, "\t%d goods shipped;\n",
+			port_shm_get_dump_cargo_shipped(state.ports, i));
+		dprintf(1, "\t%d goods received;\n",
+			port_shm_get_dump_cargo_received(state.ports, i));
+		dprintf(1, "\tDocks used: %d/%d\n",
+			port_shm_get_dump_used_docks(state.ports, i), port_shm_get_docks(state.ports, i));
+	}
+
+	dprintf(1, "**********WEATHER**********\n");
+	dprintf(1, "%d ships slowed by the storm today\n",
+		ship_shm_get_dump_had_storm(state.ships, n_ship));
+	dprintf(1, "List of ports affected by the swell today: \n");
+	for (i = 0; i < n_port; i++) {
+		if(port_shm_get_dump_had_swell(state.ports, i) == TRUE)
+			dprintf(1, "\tPort %d\n", i);
+	}
+	dprintf(1, "%d ships dead due to maelstrom today\n",
+		ship_shm_get_dump_had_maelstrom(state.ships, n_ship));
+}
+
+void print_final_report(void) {
+	int i;
+	int n_port = get_porti(state.general);
+	int n_ship = get_navi(state.general);
+	int n_cargo = get_merci(state.general);
+
+	dprintf(1, "\n\nFINAL REPORT:\n");
+	dprintf(1, "**********SHIPS**********\n");
+	dprintf(1, "Number of ships at sea with cargo: %d\n",
+		ship_shm_get_dump_with_cargo(state.ships, n_ship));
+	dprintf(1, "Number of ships at sea without cargo: %d\n",
+		ship_shm_get_dump_without_cargo(state.ships, n_ship));
+	dprintf(1, "Number of ships at port: %d\n",
+		ship_shm_get_dump_on_port(state.ships, n_ship));
+	dprintf(1, "**********CARGO**********\n");
+	dprintf(1, "Type\tQuantity\tStatus\n");
+	/*TODO*/
+	for(i = 0; i < n_cargo; i++){
+		/*dprintf(1, "%d\t%d\t%s", i, ...)*/
+	}
+	dprintf(1, "**********PORTS**********\n");
+	for (i = 0; i < n_port; i++) {
+		dprintf(1, "Port %d:\n", i);
+		dprintf(1, "\t%d goods available;\n",
+			port_shm_get_dump_cargo_available(state.ports, i));
+		dprintf(1, "\t%d goods shipped;\n",
+			port_shm_get_dump_cargo_shipped(state.ports, i));
+		dprintf(1, "\t%d goods received;\n",
+			port_shm_get_dump_cargo_received(state.ports, i));
+	}
+
+	dprintf(1, "**********GOODS**********\n");
+	/* TODO:
+	 * For each type of goods, print the total quantity generated since the beginning of the simulation and how much
+	 * of it has remained stationary in port, has expired in port, has expired on ship, has been delivered by some ship.
+	 *
+	for (i = 0; i < n_cargo; i++) {
+		dprintf(1, "Type %d:\n", i);
+		dprintf(1, "\t%d totally genereted;\n", ...);
+		dprintf(1, "\t%d ton stationary in a port;\n", ...);
+		dprintf(1, "\t%d ton expired in a port;\n", ...);
+		dprintf(1, "\t%d ton delivered by some ship.\n", ...);
+	}
+	*/
+
+	/* TODO: Indicate the port that has offered the most goods and the one that has requested the most goods. */
+
+	dprintf(1, "**********WEATHER**********\n");
+	dprintf(1, "%d ships slowed by the storm\n",
+		ship_shm_get_dump_had_storm(state.ships, n_ship));
+	dprintf(1, "List of ports affected by the swell: \n");
+	for (i = 0; i < n_port; i++) {
+		if(port_shm_get_dump_swell_final(state.ports, i) == TRUE)
+			dprintf(1, "\tPort %d\n", i);
+	}
+	dprintf(1, "%d ships dead due to maelstrom\n",
+		ship_shm_get_dump_is_dead(state.ships, n_ship));
+}
+
 void signal_handler(int signal)
 {
 	switch (signal) {
@@ -156,6 +263,8 @@ void signal_handler(int signal)
 	case SIGINT:
 		close_all();
 	case SIGALRM:
+		/* TODO: gestire semafori */
+		print_daily_report();
 		if (get_current_day(state.general) + 1 == get_days(state.general) + 1) {
 			dprintf(1,
 				"Reached last day of simulation. Terminating...\n");
@@ -176,6 +285,7 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
+	print_final_report();
 	ship_shm_send_signal_to_all_ships(state.ships, state.general, SIGINT);
 	port_shm_send_signal_to_all_ports(state.ports, state.general, SIGINT);
 	kill(state.weather, SIGINT);

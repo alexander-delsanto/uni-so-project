@@ -16,16 +16,15 @@
 struct shm_ship {
 	pid_t pid;
 
-	bool_t is_dead;
+	bool_t is_dead;			/* == dump_had_maelstorm */
 	bool_t is_moving;
 	struct coord coords;
 
-	int dump_cargo_available;
-	int dump_cargo_shipped;
-	int dump_cargo_received;
-	int dump_used_docks;
-	int dump_ships_arrived;
-	bool_t dump_had_swell;
+	bool_t dump_with_cargo;
+	bool_t dump_on_port;
+	bool_t dump_had_storm;
+	bool_t dump_mael_logged;	/* for daily maeltrom */
+	bool_t dump_storm_final;	/* for final report */
 };
 
 shm_ship_t *ship_initialize(shm_general_t *c)
@@ -113,6 +112,7 @@ void ship_shm_set_dead(shm_ship_t *s, int id)
 void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value)
 {
 	s[id].is_moving = value;
+	s[id].dump_on_port = 1 - value;	/* if ship is moving then it's not on port */
 }
 
 
@@ -142,4 +142,89 @@ struct coord ship_shm_get_coords(shm_ship_t *s, int id)
 void ship_shm_detach(shm_ship_t *c)
 {
 	shm_detach(c);
+}
+
+void ship_shm_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value)
+{
+	s[id].dump_with_cargo = value;
+}
+
+void ship_shm_set_dump_had_storm(shm_ship_t *s, int id, bool_t value)
+{
+	s[id].dump_had_storm = value;
+	if(value == TRUE)
+		s[id].dump_storm_final = TRUE;
+}
+
+int ship_shm_get_dump_with_cargo(shm_ship_t *s, int n_ships)
+{
+	int id, cnt = 0;
+	for(id = 0; id < n_ships; id++)
+		if(s[id].is_dead == FALSE && (s[id].is_moving == TRUE
+					       && s[id].dump_with_cargo == TRUE))
+			cnt++;
+	return cnt;
+}
+
+int ship_shm_get_dump_without_cargo(shm_ship_t *s, int n_ships)
+{
+	int id, cnt = 0;
+	for(id = 0; id < n_ships; id++)
+		if(s[id].is_dead == FALSE && (s[id].is_moving == TRUE
+					       && s[id].dump_with_cargo == FALSE))
+			cnt++;
+	return cnt;
+}
+
+int ship_shm_get_dump_on_port(shm_ship_t *s, int n_ships)
+{
+	int id, cnt = 0;
+	for(id = 0; id < n_ships; id++)
+		if(s[id].is_dead == FALSE && s[id].dump_on_port == TRUE)
+			cnt++;
+	return cnt;
+}
+
+int ship_shm_get_dump_had_storm(shm_ship_t *s, int n_ships)
+{
+	int id, cnt = 0;
+	for(id = 0; id < n_ships; id++)
+		if(s[id].is_dead == FALSE && s[id].dump_had_storm == TRUE)
+			cnt++;
+	return cnt;
+}
+
+int ship_shm_get_dump_had_maelstrom(shm_ship_t *s, int n_ships)
+{
+	int id, cnt = 0;
+	for(id = 0; id < n_ships; id++){
+		if(s[id].is_dead == TRUE && s[id].dump_mael_logged == FALSE)
+		{
+			s[id].dump_mael_logged = TRUE;
+			cnt++;
+		}
+
+	}
+	return cnt;
+}
+
+int ship_shm_get_dump_is_dead(shm_ship_t *s, int n_ships)
+{
+	int id, cnt = 0;
+	for(id = 0; id < n_ships; id++){
+		if(s[id].is_dead == TRUE)
+		{
+			cnt++;
+		}
+	}
+	return cnt;
+}
+
+int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
+{
+	int i, cnt = 0;
+	for(i = 0; i < n_ships; i++)
+		if(s[i].dump_storm_final == TRUE)
+			cnt++;
+	return cnt;
 }

@@ -145,11 +145,13 @@ void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGDAY:
+		port_shm_set_dump_had_swell(state.port, state.id, FALSE);
 		break;
 	case SIGSWELL:
 		dprintf(1,
 			"Port %d: Received SIGSWELL signal. Sleeping for %f seconds...\n",
 			state.id, get_swell_duration(state.general) / 24.0);
+		port_shm_set_dump_had_swell(state.port, state.id, TRUE);
 		convert_and_sleep(get_swell_duration(state.general) / 24.0);
 		dprintf(1, "port %d woke up.\n", state.id);
 		break;

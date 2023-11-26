@@ -79,11 +79,35 @@ void port_shm_set_docks(shm_port_t *p, int id, int n);
 struct coord port_shm_get_coords(shm_port_t *p, int id);
 
 /**
+ * @brief Gets the number of docks of a specific port in the shared memory structure.
+ * @param p Pointer to the array of port data in shared memory.
+ * @param id Identifier of the port.
+ */
+int port_shm_get_docks(shm_port_t *p, int id);
+
+/**
  * @brief Gets the process ID of a specific port in the shared memory structure.
  * @param p Pointer to the array of port data in shared memory.
  * @param id Identifier of the port.
  * @return Process ID of the specified port.
  */
 pid_t port_shm_get_pid(shm_port_t *p, int id);
+
+/* Dump setters */
+void port_shm_set_dump_cargo_available(shm_port_t *p, int id, int n);
+void port_shm_set_dump_cargo_shipped(shm_port_t *p, int id, int n);
+void port_shm_set_dump_cargo_received(shm_port_t *p, int id, int n);
+void port_shm_set_dump_used_docks(shm_port_t *p, int id, int n);
+void port_shm_set_dump_ships_arrived(shm_port_t *p, int id, int n);
+void port_shm_set_dump_had_swell(shm_port_t *p, int id, bool_t value);
+
+/* Dump getters */
+int port_shm_get_dump_cargo_available(shm_port_t *p, int id);
+int port_shm_get_dump_cargo_shipped(shm_port_t *p, int id);
+int port_shm_get_dump_cargo_received(shm_port_t *p, int id);
+int port_shm_get_dump_used_docks(shm_port_t *p, int id);
+int port_shm_get_dump_ships_arrived(shm_port_t *p, int id);
+bool_t port_shm_get_dump_had_swell(shm_port_t *p, int id);
+bool_t port_shm_get_dump_swell_final(shm_port_t *p, int id);
 
 #endif

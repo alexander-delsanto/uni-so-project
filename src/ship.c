@@ -113,6 +113,8 @@ void init_location(void)
 
 	ship_shm_set_coords(state.ship, state.id, coords);
 	ship_shm_set_is_moving(state.ship, state.id, TRUE);
+	/* TODO
+	 * ship_shm_set_dump_with_cargo(state.ship, state.id, FALSE);*/
 }
 
 void pick_first_destination_port(void)
@@ -184,9 +186,11 @@ void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGDAY:
+		ship_shm_set_dump_had_storm(state.ship, state.id, FALSE);
 		break;
 	case SIGSTORM:
 		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", state.id);
+		ship_shm_set_dump_had_storm(state.ship, state.id, TRUE);
 		convert_and_sleep(get_storm_duration(state.general) / 24.0);
 		break;
 	case SIGMAELSTROM:
