@@ -43,24 +43,10 @@ shm_offer_t *offer_shm_ports_init(shm_general_t *c)
 	return offer;
 }
 
-shm_offer_t *offer_shm_ships_init(shm_general_t *c)
+void offer_demand_shm_delete(shm_general_t *c)
 {
-	int shm_id;
-	size_t size;
-	shm_offer_t *offer;
-
-	size = (sizeof(shm_offer_t) + sizeof(int) * get_merci(c)) * get_navi(c);
-
-	shm_id = shm_create(SHM_DATA_SHIP_OFFER_KEY, size);
-	if (shm_id == -1) {
-		return NULL;
-	}
-
-	offer = shm_attach(shm_id);
-	bzero(offer, size);
-	set_offer_shm_id(c, shm_id);
-
-	return offer;
+	shm_delete(get_offer_shm_id(c));
+	shm_delete(get_demand_shm_id(c));
 }
 
 shm_offer_t *offer_shm_ports_get(shm_general_t *c)

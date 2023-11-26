@@ -143,7 +143,7 @@ int get_offer_shm_id(shm_general_t *c)
 	return c->offer_shm_id;
 }
 
-int get_demand_shm_id(shm_general_t *c, int id)
+int get_demand_shm_id(shm_general_t *c)
 {
 	if (c == NULL) {
 		return -1;

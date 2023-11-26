@@ -37,7 +37,6 @@ struct state {
 	shm_port_t *port;
 	shm_ship_t *ship;
 
-	shm_offer_t *offer;
 	shm_demand_t *demand;
 	o_list_t *cargo;
 
@@ -64,7 +63,6 @@ int main(int argc, char *argv[])
 	general_shm_attach(&state.general);
 	state.port = port_shm_attach(state.general);
 	state.ship = ship_shm_attach(state.general);
-	state.offer = offer_shm_ships_init(state.general);
 	state.demand = demand_shm_init(state.general);
 
 	state.cargo = cargo_list_create(state.general);
@@ -163,10 +161,6 @@ void trade(int id_port)
 	if (is_selling == TRUE) {
 		/* genera offer da inviare alla nave */
 		/* TODO qui ci va con la domanda */
-		order = offer_shm_get_order_from_demand(state.offer,
-							state.demand,
-							state.general, id_port,
-							state.id);
 		/* genera relative scadenze */
 		order_expires = offer_shm_get_order_expires(state.cargo, order,
 							    state.general);
@@ -188,7 +182,6 @@ void trade(int id_port)
 		/* nave riceve offer e scadenze */
 
 		/* nave fa merge di offer */
-		offer_shm_merge(state.offer, order, state.general, state.id);
 		/* nave fa merge di  scadenze */
 		cargo_list_merge(state.cargo, order_expires, state.general);
 	}

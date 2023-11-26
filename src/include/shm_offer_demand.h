@@ -15,12 +15,12 @@ typedef struct shm_demand shm_demand_t;
  * @return Pointer to the attached offer data structure or NULL on failure.
  */
 shm_offer_t *offer_shm_ports_init(shm_general_t *c);
+
 /**
- * @brief Initializes and attaches shared memory for offer data in ships.
+ * Delete offer and demand shared memory
  * @param c pointer to general SHM
- * @return Pointer to the attached offer data structure or NULL on failure.
  */
-shm_offer_t *offer_shm_ships_init(shm_general_t *c);
+void offer_demand_shm_delete(shm_general_t *c);
 
 /**
  * @brief Adds a specified quantity to the offer data in shared memory.
