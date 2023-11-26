@@ -118,7 +118,7 @@ shm_demand_t *demand_shm_init(shm_general_t *c)
 	return demand;
 }
 
-void demand_shm_set(shm_demand_t *d, int id, int type, int quantity)
+void demand_shm_add(shm_demand_t *d, int id, int type, int quantity)
 {
 	if (d == NULL || quantity == 0) {
 		return;
@@ -135,6 +135,11 @@ void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity)
 	}
 
 	d[id].data[type] -= quantity;
+}
+
+int demand_shm_get(shm_demand_t *d, int id, int type)
+{
+	return d[id].data[type];
 }
 
 shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *c, int id,

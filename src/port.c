@@ -80,10 +80,83 @@ void loop(void)
 						  state.cargo, state.id,
 						  state.general);
 		}
-		if (msg_commerce_receive(get_msg_in_id(state.general), state.id, &sender_id, &cargo_id, &quantity, &expiry_date, &status, FALSE)) {
-			dprintf(1, "port %d: got message from ship %d: cargo_id: %d, quantity: %d, expiry_date: %d, status: %d\n",
-				state.id, sender_id, cargo_id, quantity, expiry_date, status);
+		if (msg_commerce_receive(get_msg_in_id(state.general), state.id,
+					 &sender_id, &cargo_id, &quantity,
+					 &expiry_date, &status, FALSE)) {
+			dprintf(1,
+				"port %d: got message from ship %d: cargo_id: %d, quantity: %d, expiry_date: %d, status: %d\n",
+				state.id, sender_id, cargo_id, quantity,
+				expiry_date, status);
 		}
+	}
+}
+
+void handle_message(void)
+{
+	shm_offer_t *order;
+	o_list_t *order_expires;
+
+	struct node_msg *exp_node;
+
+	struct commerce_msg msg;
+	int tmp_quantity;
+	int sender_id, cargo_id, quantity, expiry_date, capacity, status;
+
+	if (!msg_commerce_receive(get_msg_in_id(state.general), state.id,
+				  &sender_id, &cargo_id, &quantity,
+				  &expiry_date, &capacity, &status, FALSE)) {
+		return;
+	}
+	switch (status) {
+	case STATUS_REQUEST:
+		tmp_quantity = demand_shm_get(state.demand, state.id, cargo_id);
+		if (tmp_quantity == 0) {
+			msg = msg_commerce_create(sender_id, state.id, cargo_id,
+						  tmp_quantity, 0, 0,
+						  STATUS_REFUSED);
+		} else if (tmp_quantity >= quantity) {
+			msg = msg_commerce_create(sender_id, state.id, cargo_id,
+						  quantity, 0, 0,
+						  STATUS_ACCEPTED);
+			demand_shm_remove(state.demand, state.id, cargo_id,
+					  quantity);
+		} else {
+			msg = msg_commerce_create(sender_id, state.id, cargo_id,
+						  tmp_quantity, 0, 0,
+						  STATUS_ACCEPTED);
+			demand_shm_remove(state.demand, state.id, cargo_id,
+					  tmp_quantity);
+		}
+
+		msg_commerce_send(get_msg_out_id(state.general), &msg);
+		break;
+	case STATUS_MISSING:
+	case STATUS_DEAD:
+		demand_shm_add(state.demand, state.id, cargo_id, quantity);
+		break;
+	case STATUS_LOAD_REQUEST:
+		order = offer_shm_get_order(state.offer, state.general,
+					    state.id, capacity);
+		/* genera relative scadenze*/
+		order_expires = offer_shm_get_order_expires(state.cargo, order,
+							    state.general);
+		while ((exp_node = cargo_list_pop_order(
+				order_expires, state.general)) != NULL) {
+			msg = msg_commerce_create(sender_id, state.id,
+						  exp_node->id,
+						  exp_node->quantity,
+						  exp_node->expire, 0,
+						  STATUS_ACCEPTED);
+
+			msg_commerce_send(get_msg_out_id(state.general), &msg);
+			free(exp_node);
+		}
+
+		cargo_list_delete(order_expires, state.general);
+		/* Free the *order */
+		break;
+	default:
+		break;
 	}
 }
 
@@ -169,8 +242,6 @@ void signal_handler(int signal)
 
 void trade()
 {
-	shm_offer_t *order;
-	o_list_t *order_expires;
 	bool_t is_selling;
 	int capacity = 0;
 	/* TODO */
@@ -178,11 +249,6 @@ void trade()
 
 	if (is_selling == TRUE) {
 		/* genera offer da inviare alla nave */
-		order = offer_shm_get_order(state.offer, state.general,
-					    state.id, capacity);
-		/* genera relative scadenze*/
-		order_expires = offer_shm_get_order_expires(state.cargo, order,
-							    state.general);
 
 		/*
 		 * Step:

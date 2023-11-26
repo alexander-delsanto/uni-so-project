@@ -85,7 +85,7 @@ shm_demand_t *demand_shm_init(shm_general_t *c);
  * @param type the type of the demand data to be updated
  * @param quantity quantity to be added to the demand data
  */
-void demand_shm_set(shm_demand_t *d, int id, int type, int quantity);
+void demand_shm_add(shm_demand_t *d, int id, int type, int quantity);
 
 /**
  * @brief Removes a specified quantity from the demand data in shared memory.
@@ -96,6 +96,13 @@ void demand_shm_set(shm_demand_t *d, int id, int type, int quantity);
  */
 void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity);
 
+/**
+ * @brief Return the quantity of requested item
+ * @param d Pointer to the array of demands in shared memory.
+ * @param id Identifier of the entity for which the demand data is requested.
+ * @param type Type of the demand data to be requested.
+ */
+int demand_shm_get(shm_demand_t *d, int id, int type);
 
 /**
  * @brief Generates random offers and demands

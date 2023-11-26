@@ -225,6 +225,35 @@ void cargo_list_print_all(o_list_t *list, shm_general_t *c)
 	}
 }
 
+struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *c)
+{
+	struct node *tmp;
+	struct node_msg *output;
+
+	int i, n;
+
+	output = NULL;
+	n = get_merci(c);
+
+	for (i = 0; i < n; i++) {
+		if (list[i].head == NULL) {
+			continue;
+		}
+
+		output = malloc(sizeof(struct node_msg));
+		output->quantity = list[i].head->quantity;
+		output->expire = list[i].head->expire;
+		output->id = i;
+
+		tmp = list[i].head;
+		list[i].head = list[i].head->next;
+		free(tmp);
+		break;
+	}
+
+	return output;
+}
+
 static struct node *create_node(int quantity, int expire)
 {
 	struct node *node;

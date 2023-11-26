@@ -1,6 +1,12 @@
 #ifndef OS_PROJECT_LIST_H
 #define OS_PROJECT_LIST_H
 
+struct node_msg {
+	int id;
+	int quantity;
+	int expire;
+};
+
 typedef struct o_list o_list_t;
 
 /**
@@ -41,6 +47,8 @@ void cargo_list_merge(o_list_t *src, o_list_t *merge, shm_general_t *c);
  * @param list the list of cargoes
  */
 void cargo_list_delete(o_list_t *list, shm_general_t *c);
+
+struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *c);
 
 void cargo_list_print_all(o_list_t *list, shm_general_t *c);
 
