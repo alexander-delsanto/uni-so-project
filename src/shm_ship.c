@@ -59,25 +59,6 @@ void ship_shm_delete(shm_general_t *c)
 	shm_delete(get_ship_shm_id(c));
 }
 
-int ship_shm_get_random_maelstrom(shm_ship_t *s, shm_general_t *c)
-{
-	int i, n_ships, id = -1;
-	bool_t dead;
-
-	n_ships = get_navi(c);
-
-	while (id == -1) {
-		for (i = 0; i < n_ships; i++, dead = RANDOM_BOOL()) {
-			if (s[i].is_dead == FALSE && dead == TRUE) {
-				id = i;
-				break;
-			}
-		}
-	}
-
-	return id;
-}
-
 pid_t ship_shm_get_pid(shm_ship_t *s, int id)
 {
 	return s[id].pid;
