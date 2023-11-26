@@ -5,15 +5,6 @@
 #include "include/msg_commerce.h"
 #include "include/const.h"
 
-struct commerce_msg {
-	long receiver;
-	long sender;
-	int cargo_id;
-	int quantity;
-	int expiry_date;
-	int status;
-};
-
 #define MSG_SIZE (sizeof(struct commerce_msg) - sizeof(long))
 
 int msg_commerce_in_port_init(void)
@@ -49,9 +40,9 @@ int msg_commerce_out_port_get_id(void)
 	return id;
 }
 
-commerce_msg_t msg_commerce_create(long sender_id, long receiver_id, int cargo_id, int quantity, int expiry_date, int status)
+struct commerce_msg msg_commerce_create(long sender_id, long receiver_id, int cargo_id, int quantity, int expiry_date, int status)
 {
-	commerce_msg_t res;
+	struct commerce_msg res;
 	res.sender = sender_id;
 	res.receiver = receiver_id;
 	res.cargo_id = cargo_id;
@@ -61,7 +52,7 @@ commerce_msg_t msg_commerce_create(long sender_id, long receiver_id, int cargo_i
 	return res;
 }
 
-void msg_commerce_send(int queue_id, commerce_msg_t *msg)
+void msg_commerce_send(int queue_id, struct commerce_msg *msg)
 {
 	int ret;
 	do {
@@ -72,7 +63,7 @@ void msg_commerce_send(int queue_id, commerce_msg_t *msg)
 bool_t msg_commerce_receive(int queue_id, int type, long *sender_id, int *cargo_id, int *quantity, int *expiry_date, int *status, bool_t restarting)
 {
 	ssize_t ret;
-	commerce_msg_t msg;
+	struct commerce_msg msg;
 	do {
 		ret = msgrcv(queue_id, &msg, MSG_SIZE, type, 0);
 		if (!restarting && ret < 0)
