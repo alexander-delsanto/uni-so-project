@@ -109,6 +109,7 @@ void port_shm_set_dump_cargo_shipped(shm_port_t *p, int id, int n);
 void port_shm_set_dump_cargo_received(shm_port_t *p, int id, int n);
 void port_shm_set_dump_used_docks(shm_port_t *p, int id, int n);
 void port_shm_set_dump_ships_arrived(shm_port_t *p, int id, int n);
+void port_shm_reset_dump_had_daily_swell(shm_port_t *p, int id);
 
 /* Dump getters */
 int port_shm_get_dump_cargo_available(shm_port_t *p, int id);
@@ -118,6 +119,7 @@ int port_shm_get_dump_used_docks(shm_port_t *p, int id);
 int port_shm_get_dump_ships_arrived(shm_port_t *p, int id);
 int port_shm_get_dump_had_swell(shm_port_t *p, int id);
 bool_t port_shm_get_dump_having_swell(shm_port_t *p, int id);
+bool_t port_shm_get_dump_had_daily_swell(shm_port_t *p, int id);
 bool_t port_shm_get_dump_swell_final(shm_port_t *p, int id);
 
 #endif
