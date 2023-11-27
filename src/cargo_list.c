@@ -170,7 +170,7 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
 	return output;
 }
 
-int cargo_list_get_quantity(o_list_t *list, shm_general_t *c, int id)
+int cargo_list_get_quantity(o_list_t *list, int id)
 {
 	struct node *tmp;
 	int cnt;
