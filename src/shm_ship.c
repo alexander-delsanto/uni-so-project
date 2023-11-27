@@ -21,6 +21,7 @@ struct shm_ship {
 	struct coord coords;
 
 	int *dump_present;
+	int *dump_expired;
 
 	bool_t dump_with_cargo;
 	bool_t dump_on_port;
@@ -36,7 +37,7 @@ shm_ship_t *ship_initialize(shm_general_t *c)
 	size_t size;
 
 	n_ships = get_navi(c);
-	size = (sizeof(shm_ship_t) + sizeof(int) * get_merci(c)) * n_ships;
+	size = (sizeof(shm_ship_t) + sizeof(int) * get_merci(c) * 2) * n_ships;
 
 	id = shm_create(SHM_DATA_SHIPS_KEY, size);
 	if (id == -1) {
@@ -174,4 +175,9 @@ int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
 void ship_shm_present_add(shm_ship_t *s, int ship_id, int id, int quantity)
 {
 	s[ship_id].dump_present[id] += quantity;
+}
+
+void ship_shm_expired_add(shm_ship_t *s, int ship_id, int id, int quantity)
+{
+	s[ship_id].dump_expired[id] += quantity;
 }

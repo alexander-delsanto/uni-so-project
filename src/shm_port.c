@@ -21,7 +21,6 @@ struct shm_port {
 	bool_t is_in_swell;
 
 	bool_t dump_had_swell;
-	bool_t dump_had_daily_swell;
 
 	int *dump_sent;
 	int *dump_present;
