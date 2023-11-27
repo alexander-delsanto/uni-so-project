@@ -99,7 +99,7 @@ void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity);
 /**
  * @brief Return the quantity of requested item
  * @param d Pointer to the array of demands in shared memory.
- * @param id Identifier of the entity for which the demand data is requested.
+ * @param id Identifier of the port for which the demand data is requested.
  * @param type Type of the demand data to be requested.
  */
 int demand_shm_get(shm_demand_t *d, int id, int type);

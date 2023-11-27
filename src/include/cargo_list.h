@@ -86,6 +86,15 @@ void cargo_list_delete(o_list_t *list, shm_general_t *c);
 struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *c);
 
 /**
+ * @brief Returns the amount of cargo of cargo_type not expired by a certain day.
+ * @param list Pointer to the source cargo list.
+ * @param cargo_type The type of the cargo.
+ * @param day The day by which the cargo is not expired.
+ * @return The amount of cargo not expired by day.
+ */
+int get_not_expired_by_day(o_list_t *list, int cargo_type, int day);
+
+/**
  * @brief Prints all elements in a cargo list, displaying type, quantity, and expiration information.
  * @param list Pointer to the cargo list to be printed.
  * @param c Pointer to the shared memory structure containing general information.

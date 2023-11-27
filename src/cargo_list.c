@@ -299,3 +299,17 @@ static struct node *create_node(int quantity, int expire)
 
 	return node;
 }
+
+int get_not_expired_by_day(o_list_t *list, int cargo_type, int day)
+{
+	/* Need to test */
+	int res;
+	struct node *curr;
+	res = 0;
+	for (curr = list[cargo_type].head; curr != NULL; curr = curr->next) {
+		if (curr->expire > day) {
+			res += curr->quantity;
+		}
+	}
+	return res;
+}

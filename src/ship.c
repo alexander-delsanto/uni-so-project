@@ -24,13 +24,14 @@
 void signal_handler(int signal);
 
 void init_location(void);
-void pick_first_destination_port(void);
+struct coord pick_first_destination_port(void);
+void trade(void);
 void move(struct coord destination_port);
 void send_commerce_mgs(int port_id, struct commerce_msg *msg);
 
 void close_all(void);
 void loop(void);
-void find_new_destination(int *port_id, struct coord *coords);
+struct coord find_new_destination_port(void);
 
 struct state {
 	int id;
@@ -41,6 +42,7 @@ struct state {
 	shm_demand_t *demand;
 	o_list_t *cargo;
 
+	int curr_port_id;
 	int current_day;
 };
 
@@ -108,10 +110,12 @@ void loop(void) {
 	int receiver_port;
 	int day;
 	int id_dest_port;
-	struct coord destination_coords;
+	struct coord dest_port_coords;
 	struct commerce_msg msg;
 
-	pick_first_destination_port();
+	dest_port_coords = pick_first_destination_port();
+	move(dest_port_coords);
+	trade();
 
 	/*receiver_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
 	dprintf(1, "ship %d: sending message to port %d\n", state.id, receiver_port);
@@ -123,11 +127,10 @@ void loop(void) {
 			/* TODO: new day operations */
 			state.current_day = day;
 		}
-/*		find_new_destination(&id_dest_port, &destination_coords);
-		move(destination_coords);
-		trade(id_dest_port);*/
+		dest_port_coords = find_new_destination_port();
+		move(dest_port_coords);
+		trade();
 	}
-
 }
 
 /**
@@ -146,11 +149,12 @@ void init_location(void)
 	 * ship_shm_set_dump_with_cargo(state.ship, state.id, FALSE);*/
 }
 
-void pick_first_destination_port(void)
+struct coord pick_first_destination_port(void)
 {
-	struct coord dest;
-	dest = port_shm_get_coords(state.port, RANDOM_INTEGER(0, get_porti(state.general) - 1));
-	move(dest);
+	int target_port;
+	target_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
+	state.curr_port_id = target_port;
+	return port_shm_get_coords(state.port, target_port);
 }
 
 /**
@@ -173,9 +177,47 @@ void move(struct coord destination_port)
 	ship_shm_set_is_moving(state.ship, state.id, FALSE);
 }
 
-void find_new_destination(int *port_id, struct coord *coords)
+struct coord find_new_destination_port(void)
 {
-	/* TODO */
+	int cargo_type;
+	int port, best_port = -1;
+	int n_ports;
+	int port_demand;
+	int sale_amount, sale_best_amount = 0;
+	int amount_not_expired;
+	double distance, best_distance;
+
+	n_ports = get_porti(state.general);
+	for (port = 0; port < n_ports; port++) {
+		if (port == state.curr_port_id) continue;
+
+		/* Check port distance */
+		distance = GET_DISTANCE(port_shm_get_coords(state.port, port));
+
+		sale_amount = 0;
+		for (cargo_type = 0; cargo_type < get_merci(state.general); cargo_type++) {
+			amount_not_expired = get_not_expired_by_day(state.cargo, cargo_type, state.current_day + (int) distance);
+			port_demand = demand_shm_get(state.demand, port, cargo_type);
+			sale_amount += MIN(amount_not_expired, port_demand);
+		}
+
+		if (best_port == -1 || sale_amount > sale_best_amount
+		    || (sale_best_amount == sale_amount && distance < best_distance)) {
+			best_port = port;
+			sale_best_amount = sale_amount;
+			best_distance = distance;
+		}
+	}
+
+	/* Send message to port */
+
+	state.curr_port_id = best_port;
+	return port_shm_get_coords(state.port, best_port);
+}
+
+void trade(void)
+{
+
 }
 
 void signal_handler(int signal)

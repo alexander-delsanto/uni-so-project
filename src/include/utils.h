@@ -18,6 +18,11 @@
 #define RANDOM_BOOL() ((bool_t)random() % 2)
 
 /**
+ * @return the minimum value between x and y.
+ */
+#define MIN(x,y) ((x) < (y) ? (x) : (y))
+
+/**
  * @brief converts time data to timespec and calls nanosleep().
  *
  * @param time_required time required to terminate.
