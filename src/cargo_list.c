@@ -142,7 +142,7 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
 		return NULL;
 	}
 
-	if (list->head == NULL || quantity == 0) {
+	if (list[id].head == NULL || quantity == 0) {
 		return NULL;
 	}
 
@@ -168,6 +168,35 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
 	}
 
 	return output;
+}
+
+int cargo_list_get_quantity(o_list_t *list, shm_general_t *c, int id)
+{
+	struct node *tmp;
+	int cnt;
+
+	if (list == NULL) {
+		return -1;
+	}
+
+	tmp = list[id].head;
+	cnt = 0;
+
+	while (tmp->next != NULL) {
+		cnt += tmp->quantity;
+		tmp = tmp->next;
+	}
+
+	return cnt;
+}
+
+int cargo_list_get_first_expire(o_list_t *list, shm_general_t *c, int id)
+{
+	if (list == NULL || list[id].head == NULL) {
+		return -1;
+	}
+
+	return list[id].head->expire;
 }
 
 void cargo_list_delete(o_list_t *list, shm_general_t *c)

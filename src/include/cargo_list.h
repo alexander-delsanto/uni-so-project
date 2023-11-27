@@ -42,6 +42,24 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
 				int quantity);
 
 /**
+ * @brief get number of elements of id
+ * @param list
+ * @param quantity
+ * @param id
+ * @return quantity of the element id; -1 if error
+ */
+int cargo_list_get_quantity(o_list_t *list, shm_general_t *c, int id);
+
+/**
+ * @brief get number of elements of id
+ * @param list
+ * @param quantity
+ * @param id
+ * @return expire of the element; -1 if there are no elements
+ */
+int cargo_list_get_first_expire(o_list_t *list, shm_general_t *c, int id);
+
+/**
  * @brief Merges two cargo lists by adding the nodes from the merge list to the source list.
  * This function combines two cargo lists.
  * The source list is updated with the merged nodes.
