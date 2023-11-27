@@ -43,12 +43,6 @@ shm_offer_t *offer_shm_ports_init(shm_general_t *c)
 	return offer;
 }
 
-void offer_demand_shm_delete(shm_general_t *c)
-{
-	shm_delete(get_offer_shm_id(c));
-	shm_delete(get_demand_shm_id(c));
-}
-
 shm_offer_t *offer_shm_ports_get(shm_general_t *c)
 {
 	shm_offer_t *offer;
@@ -84,6 +78,13 @@ void offer_shm_remove(shm_offer_t *o, int id, int type, int quantity)
 	o[id].data[type] -= quantity;
 }
 
+
+void offer_shm_delete(shm_offer_t *o)
+{
+	free(o->data);
+	free(o);
+}
+
 void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
 		     int id)
 {
@@ -94,6 +95,51 @@ void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
 	for (i = 0; i < n; i++) {
 		src[id].data[i] += merge->data[i];
 	}
+}
+
+shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *c, int id,
+				 int capacity)
+{
+	int i, n_merci, cnt;
+	shm_offer_t *output;
+
+	cnt = 0;
+	n_merci = get_merci(c);
+	output = offer_shm_ports_get(c);
+
+	for (i = 0; i < n_merci || cnt == capacity; i++) {
+		if (o[id].data[i] == 0) {
+			continue;
+		}
+
+		if (o[id].data[i] <= capacity - cnt) {
+			output->data[i] = o[id].data[i];
+			cnt += o[id].data[i];
+			o[id].data[i] = 0;
+		} else {
+			output->data[i] = capacity - cnt;
+			o[id].data[i] -= capacity - cnt;
+			cnt = capacity;
+		}
+	}
+
+	return output;
+}
+
+o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
+				      shm_general_t *c)
+{
+	o_list_t *output;
+	int i;
+
+	output = cargo_list_create(c);
+	for (i = 0; i < get_merci(c); i++) {
+		cargo_list_merge(output,
+				 cargo_list_pop_needed(src, c, i, o->data[i]),
+				 c);
+	}
+
+	return output;
 }
 
 /* DEMAND */
@@ -142,51 +188,13 @@ int demand_shm_get(shm_demand_t *d, int id, int type)
 	return d[id].data[type];
 }
 
-shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *c, int id,
-				 int capacity)
+
+/* OFFER + DEMAND */
+void offer_demand_shm_delete(shm_general_t *c)
 {
-	int i, n_merci, cnt;
-	shm_offer_t *output;
-
-	cnt = 0;
-	n_merci = get_merci(c);
-	output = offer_shm_ports_get(c);
-
-	for (i = 0; i < n_merci || cnt == capacity; i++) {
-		if (o[id].data[i] == 0) {
-			continue;
-		}
-
-		if (o[id].data[i] <= capacity - cnt) {
-			output->data[i] = o[id].data[i];
-			cnt += o[id].data[i];
-			o[id].data[i] = 0;
-		} else {
-			output->data[i] = capacity - cnt;
-			o[id].data[i] -= capacity - cnt;
-			cnt = capacity;
-		}
-	}
-
-	return output;
+	shm_delete(get_offer_shm_id(c));
+	shm_delete(get_demand_shm_id(c));
 }
-
-o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
-				      shm_general_t *c)
-{
-	o_list_t *output;
-	int i;
-
-	output = cargo_list_create(c);
-	for (i = 0; i < get_merci(c); i++) {
-		cargo_list_merge(output,
-				 cargo_list_pop_needed(src, c, i, o->data[i]),
-				 c);
-	}
-
-	return output;
-}
-
 
 void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 			       int id, shm_general_t *c)
@@ -288,8 +296,3 @@ shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
 	return output;
 }
 
-void offer_shm_delete(shm_offer_t *o)
-{
-	free(o->data);
-	free(o);
-}

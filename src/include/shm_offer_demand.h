@@ -17,12 +17,6 @@ typedef struct shm_demand shm_demand_t;
 shm_offer_t *offer_shm_ports_init(shm_general_t *c);
 
 /**
- * Delete offer and demand shared memory
- * @param c pointer to general SHM
- */
-void offer_demand_shm_delete(shm_general_t *c);
-
-/**
  * @brief Adds a specified quantity to the offer data in shared memory.
  * @param o pointer to the array of offers
  * @param id the id of the entity for which the offer data is updated
@@ -39,6 +33,12 @@ void offer_shm_set(shm_offer_t *o, int id, int type, int quantity);
  * @param quantity quantity to be subtracted from the offer data
  */
 void offer_shm_remove(shm_offer_t *o, int id, int type, int quantity);
+
+/**
+ * @brief Delete a shared memory offer structure, freeing allocated memory.
+ * @param o Pointer to the shared memory offer structure to be deleted.
+ */
+void offer_shm_delete(shm_offer_t *o);
 
 /**
  * @brief Removes a specified quantity from the demand data in shared memory.
@@ -104,6 +104,13 @@ void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity);
  */
 int demand_shm_get(shm_demand_t *d, int id, int type);
 
+
+/**
+ * Delete offer and demand shared memory
+ * @param c pointer to general SHM
+ */
+void offer_demand_shm_delete(shm_general_t *c);
+
 /**
  * @brief Generates random offers and demands
  * @param o pointer to the array of offers
@@ -131,10 +138,22 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
 				  int id_port, shm_general_t *c);
 
+/**
+ * @brief Generate an order from a demand, considering available goods on a ship and at a port.
+ *
+ * This function calculates the order to be generated based on the available goods on a ship and at a port.
+ * It iterates over different types of goods, considers the available quantities, and generates the order accordingly.
+ *
+ * @param o Pointer to the array of ship offers.
+ * @param d Pointer to the array of port demands.
+ * @param c Pointer to the shared memory structure containing general information.
+ * @param port_id Index of the port in the demand array.
+ * @param ship_id Index of the ship in the offer array.
+ * @return Pointer to the newly generated order (shm_offer_t).
+ */
 shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
 					     shm_general_t *c, int port_id,
 					     int ship_id);
 
-void offer_shm_delete(shm_offer_t *o);
 
 #endif

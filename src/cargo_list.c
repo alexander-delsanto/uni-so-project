@@ -225,6 +225,7 @@ void cargo_list_print_all(o_list_t *list, shm_general_t *c)
 	}
 }
 
+
 struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *c)
 {
 	struct node *tmp;
