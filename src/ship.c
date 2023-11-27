@@ -96,10 +96,9 @@ void handle_message(void)
 	case STATUS_ACCEPTED:
 		/* Struttura per salvare il trading da fare con la barca */
 		break;
-	case STATUS_REFUSED:
-		break;
 	case STATUS_LOAD_ACCEPTED:
 		cargo_list_add(state.cargo, cargo_id, quantity, expiry_date);
+	case STATUS_REFUSED:
 	default:
 		break;
 	}
