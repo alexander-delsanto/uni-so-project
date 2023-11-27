@@ -113,4 +113,6 @@ int ship_shm_get_dump_had_storm(shm_ship_t *s, int n_ships);
 int ship_shm_get_dump_had_maelstrom(shm_ship_t *s, int n_ships);
 int ship_shm_get_dump_is_dead(shm_ship_t *s, int n_ships);
 
+void ship_shm_present_add(shm_ship_t *s, int ship_id, int id, int quantity);
+
 #endif

@@ -20,6 +20,8 @@ struct shm_ship {
 	bool_t is_moving;
 	struct coord coords;
 
+	int *dump_present;
+
 	bool_t dump_with_cargo;
 	bool_t dump_on_port;
 	bool_t dump_had_storm;
@@ -31,9 +33,11 @@ shm_ship_t *ship_initialize(shm_general_t *c)
 {
 	shm_ship_t *ships;
 	int n_ships, id;
-	size_t size = sizeof(shm_ship_t) * n_ships;
+	size_t size;
 
 	n_ships = get_navi(c);
+	size = (sizeof(shm_ship_t) + sizeof(int) * get_merci(c)) * n_ships;
+
 	id = shm_create(SHM_DATA_SHIPS_KEY, size);
 	if (id == -1) {
 		dprintf(1, "ciao\n");
@@ -165,4 +169,9 @@ int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
 		if(s[i].dump_storm_final == TRUE)
 			cnt++;
 	return cnt;
+}
+
+void ship_shm_present_add(shm_ship_t *s, int ship_id, int id, int quantity)
+{
+	s[ship_id].dump_present[id] += quantity;
 }
