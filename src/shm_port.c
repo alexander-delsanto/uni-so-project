@@ -2,7 +2,6 @@
 
 #include <string.h>
 #include <signal.h>
-#include <stdio.h>
 
 #include "../lib/shm.h"
 #include "../lib/semaphore.h"
@@ -23,6 +22,12 @@ struct shm_port {
 
 	bool_t dump_had_swell;
 	bool_t dump_had_daily_swell;
+
+	int *dump_sent;
+	int *dump_present;
+	int *dump_received;
+	int *dump_expired;
+
 	int dump_cargo_available;
 	int dump_cargo_shipped;
 	int dump_cargo_received;
@@ -40,7 +45,8 @@ shm_port_t *port_initialize(shm_general_t *g)
 
 	n_ports = get_porti(g);
 
-	size = sizeof(shm_port_t) * n_ports;
+	size = (sizeof(shm_port_t) + 4 * (sizeof(int) * get_merci(g))) *
+	       n_ports;
 
 	shm_id = shm_create(SHM_DATA_PORTS_KEY, size);
 	if (shm_id == -1) {
@@ -128,4 +134,23 @@ int port_shm_get_dump_had_swell(shm_port_t *p, int n_ports)
 bool_t port_shm_get_dump_having_swell(shm_port_t *p, int id){return p[id].is_in_swell;}
 bool_t port_shm_get_dump_swell_final(shm_port_t *p, int id){return p[id].dump_had_swell;}
 
-/* TODO: funzioni di distruzione della roba */
+void port_shm_dump_expired_add(shm_port_t *p, int port_id, int id, int quantity)
+{
+	p[port_id].dump_expired[id] += quantity;
+}
+
+void port_shm_dump_received_add(shm_port_t *p, int port_id, int id,
+				int quantity)
+{
+	p[port_id].dump_received[id] += quantity;
+}
+
+void port_shm_present_add(shm_port_t *p, int port_id, int id, int quantity)
+{
+	p[port_id].dump_present[id] += quantity;
+}
+
+void port_shm_dump_sent_add(shm_port_t *p, int port_id, int id, int quantity)
+{
+	p[port_id].dump_sent[id] += quantity;
+}

@@ -5,16 +5,18 @@
 
 #include "types.h"
 
-/* For port to ship messages */
-#define STATUS_ACCEPTED 1
-#define STATUS_REFUSED 2
-#define STATUS_LOAD_ACCEPTED 5
-
-/* For ship to port messages */
-#define STATUS_REQUEST 0
-#define STATUS_DEAD (-1)
-#define STATUS_MISSING 3
-#define STATUS_LOAD_REQUEST 4
+enum status {
+	STATUS_DEAD = -1,
+	/* For port to ship messages */
+	STATUS_ACCEPTED,
+	STATUS_REFUSED,
+	STATUS_LOAD_ACCEPTED,
+	/* For ship to port messages */
+	STATUS_REQUEST,
+	STATUS_MISSING,
+	STATUS_LOAD_REQUEST,
+	STATUS_SELLING
+};
 
 struct commerce_msg {
 	long receiver;

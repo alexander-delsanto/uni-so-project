@@ -120,4 +120,10 @@ int port_shm_get_dump_had_swell(shm_port_t *p, int id);
 bool_t port_shm_get_dump_having_swell(shm_port_t *p, int id);
 bool_t port_shm_get_dump_swell_final(shm_port_t *p, int id);
 
+void port_shm_dump_expired_add(shm_port_t *p, int port_id, int id,
+			       int quantity);
+void port_shm_dump_received_add(shm_port_t *p, int port_id, int id,
+				int quantity);
+void port_shm_present_add(shm_port_t *p, int port_id, int id, int quantity);
+void port_shm_dump_sent_add(shm_port_t *p, int port_id, int id, int quantity);
 #endif

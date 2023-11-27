@@ -69,27 +69,27 @@ int main(int argc, char *argv[])
 
 void loop(void)
 {
-	int day;
-	int sender_id, cargo_id, quantity, expiry_date, status;
+	int *expired;
+	int i, day;
 
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
 			/* TODO: new day operations */
 			state.current_day = day;
+			/* Dumping expired stuff */
+			expired = cargo_list_remove_expired(state.cargo,
+							    state.general);
+			for (i = 0; i < get_merci(state.general); i++) {
+				port_shm_dump_expired_add(state.port, state.id,
+							  i, expired[i]);
+			}
+			/* Generation of new demand/offer */
 			offer_demand_shm_generate(state.offer, state.demand,
 						  state.cargo, state.id,
 						  state.general);
 		}
 		handle_message();
-		/*if (msg_commerce_receive(get_msg_in_id(state.general), state.id,
-					 &sender_id, &cargo_id, &quantity,
-					 &expiry_date, &status, FALSE)) {
-			dprintf(1,
-				"port %d: got message from ship %d: cargo_id: %d, quantity: %d, expiry_date: %d, status: %d\n",
-				state.id, sender_id, cargo_id, quantity,
-				expiry_date, status);
-		}*/
 	}
 }
 
@@ -132,25 +132,35 @@ void handle_message(void)
 
 		msg_commerce_send(get_msg_out_id(state.general), &msg);
 		break;
+	case STATUS_SELLING:
+		port_shm_dump_received_add(state.port, state.id, cargo_id,
+					   quantity);
+		break;
 	case STATUS_MISSING:
 	case STATUS_DEAD:
 		demand_shm_add(state.demand, state.id, cargo_id, quantity);
 		break;
 	case STATUS_LOAD_REQUEST:
+		/* Getting order from capacity */
 		order = offer_shm_get_order(state.offer, state.general,
 					    state.id, capacity);
-		/* genera relative scadenze*/
+		/* Getting order expires */
 		order_expires = offer_shm_get_order_expires(state.cargo, order,
 							    state.general);
 		while ((exp_node = cargo_list_pop_order(
 				order_expires, state.general)) != NULL) {
+			/* Sending items */
 			msg = msg_commerce_create(sender_id, state.id,
 						  exp_node->id,
 						  exp_node->quantity,
 						  exp_node->expire, 0,
 						  STATUS_LOAD_ACCEPTED);
-
 			msg_commerce_send(get_msg_out_id(state.general), &msg);
+			/* Updating dump of sent items */
+			port_shm_dump_sent_add(state.port, state.id,
+					       exp_node->id,
+					       exp_node->quantity);
+
 			free(exp_node);
 		}
 
