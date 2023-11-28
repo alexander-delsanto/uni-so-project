@@ -15,7 +15,7 @@ typedef struct shm_demand shm_demand_t;
  * @param g pointer to general SHM
  * @return Pointer to the attached offer data structure or NULL on failure.
  */
-shm_offer_t *offer_shm_ports_init(shm_general_t *g);
+shm_offer_t *shm_offer_ports_init(shm_general_t *g);
 
 /**
  * @brief Attaches shared memory for offer data in ports.
