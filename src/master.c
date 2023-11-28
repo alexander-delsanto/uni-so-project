@@ -159,17 +159,42 @@ pid_t run_process(char *name, int index)
 }
 
 void print_daily_report(void) {
-	int i;
+	int i, cnt, type;
 	int n_port = get_porti(state.general);
 	int n_ship = get_navi(state.general);
+	int n_cargo = get_merci(state.general);
 
 	dprintf(1, "\nDaily report #%d:\n", get_current_day(state.general));
 	dprintf(1, "**********CARGO**********\n");
-	dprintf(1, "Type\tQuantity\tStatus\n");
-	/*TODO*/
-	for(i = 0; i < get_merci(state.general); i++){
-		/*dprintf(1, "%d\t%d\t%s", i, ...)*/
+	for(type = 0; type < n_cargo; type++){
+		dprintf(1, "Type %d:\n", type);
+		cnt = 0;
+		for(i = 0; i < n_port; i++) {
+			cnt += port_shm_get_dump_present_by_id(state.ports, i, type);
+		}
+		dprintf(1, "\t%d ton in ports;\n", cnt);
+		cnt = 0;
+		for(i = 0; i < n_ship; i++) {
+			cnt += ship_shm_get_dump_present_by_id(state.ships, i, type);
+		}
+		dprintf(1, "\t%d ton on ships;\n", cnt);
+		cnt = 0;
+		for(i = 0; i < n_port; i++) {
+			cnt += port_shm_get_dump_received_by_id(state.ports, i, type);
+		}
+		dprintf(1, "\t%d ton received in ports;\n", cnt);
+		cnt = 0;
+		for(i = 0; i < n_port; i++) {
+			cnt += port_shm_get_dump_expired_by_id(state.ports, i, type);
+		}
+		dprintf(1, "\t%d ton expired in ports;\n", cnt);
+		cnt = 0;
+		for(i = 0; i < n_ship; i++) {
+			cnt += ship_shm_get_dump_expired_by_id(state.ships, i, type);
+		}
+		dprintf(1, "\t%d ton expired on ships;\n", cnt);
 	}
+
 	dprintf(1, "**********SHIPS**********\n");
 	dprintf(1, "Number of ships at sea with cargo: %d\n",
 		ship_shm_get_dump_with_cargo(state.ships, n_ship));
@@ -206,7 +231,7 @@ void print_daily_report(void) {
 }
 
 void print_final_report(void) {
-	int i;
+	int i, type, cnt;
 	int n_port = get_porti(state.general);
 	int n_ship = get_navi(state.general);
 	int n_cargo = get_merci(state.general);
@@ -220,11 +245,36 @@ void print_final_report(void) {
 	dprintf(1, "Number of ships at port: %d\n",
 		ship_shm_get_dump_on_port(state.ships, n_ship));
 	dprintf(1, "**********CARGO**********\n");
-	dprintf(1, "Type\tQuantity\tStatus\n");
-	/*TODO*/
-	for(i = 0; i < n_cargo; i++){
-		/*dprintf(1, "%d\t%d\t%s", i, ...)*/
+	for(type = 0; type < n_cargo; type++){
+		dprintf(1, "Type %d:\n", type);
+		/*dprintf(1, "\t%d totally genereted;\n", ...);*/
+		cnt = 0;
+		for(i = 0; i < n_port; i++) {
+			cnt += port_shm_get_dump_present_by_id(state.ports, i, type);
+		}
+		dprintf(1, "\t%d ton in ports;\n", cnt);
+		cnt = 0;
+		for(i = 0; i < n_ship; i++) {
+			cnt += ship_shm_get_dump_present_by_id(state.ships, i, type);
+		}
+		dprintf(1, "\t%d ton on ships;\n", cnt);
+		cnt = 0;
+		for(i = 0; i < n_port; i++) {
+			cnt += port_shm_get_dump_received_by_id(state.ports, i, type);
+		}
+		dprintf(1, "\t%d ton received in ports;\n", cnt);
+		cnt = 0;
+		for(i = 0; i < n_port; i++) {
+			cnt += port_shm_get_dump_expired_by_id(state.ports, i, type);
+		}
+		dprintf(1, "\t%d ton expired in ports;\n", cnt);
+		cnt = 0;
+		for(i = 0; i < n_ship; i++) {
+			cnt += ship_shm_get_dump_expired_by_id(state.ships, i, type);
+		}
+		dprintf(1, "\t%d ton expired on ships;\n", cnt);
 	}
+
 	dprintf(1, "**********PORTS**********\n");
 	for (i = 0; i < n_port; i++) {
 		dprintf(1, "Port %d:\n", i);
@@ -236,19 +286,6 @@ void print_final_report(void) {
 			port_shm_get_dump_cargo_received(state.ports, i));
 	}
 
-	dprintf(1, "**********GOODS**********\n");
-	/* TODO:
-	 * For each type of goods, print the total quantity generated since the beginning of the simulation and how much
-	 * of it has remained stationary in port, has expired in port, has expired on ship, has been delivered by some ship.
-	 *
-	for (i = 0; i < n_cargo; i++) {
-		dprintf(1, "Type %d:\n", i);
-		dprintf(1, "\t%d totally genereted;\n", ...);
-		dprintf(1, "\t%d ton stationary in a port;\n", ...);
-		dprintf(1, "\t%d ton expired in a port;\n", ...);
-		dprintf(1, "\t%d ton delivered by some ship.\n", ...);
-	}
-	*/
 
 	/* TODO: Indicate the port that has offered the most goods and the one that has requested the most goods. */
 

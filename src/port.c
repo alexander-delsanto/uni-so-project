@@ -81,8 +81,9 @@ void loop(void)
 			expired = cargo_list_remove_expired(state.cargo,
 							    state.general);
 			for (i = 0; i < get_merci(state.general); i++) {
-				port_shm_dump_expired_add(state.port, state.id,
+				port_shm_set_dump_expired(state.port, state.id,
 							  i, expired[i]);
+				dprintf(1, "\nCIAO\n");
 			}
 			/* Generation of new demand/offer */
 			offer_demand_shm_generate(state.offer, state.demand,
@@ -133,7 +134,7 @@ void handle_message(void)
 		msg_commerce_send(get_msg_out_id(state.general), &msg);
 		break;
 	case STATUS_SELLING:
-		port_shm_dump_received_add(state.port, state.id, cargo_id,
+		port_shm_set_dump_received(state.port, state.id, cargo_id,
 					   quantity);
 		break;
 	case STATUS_MISSING:
@@ -157,7 +158,7 @@ void handle_message(void)
 						  STATUS_LOAD_ACCEPTED);
 			msg_commerce_send(get_msg_out_id(state.general), &msg);
 			/* Updating dump of sent items */
-			port_shm_dump_sent_add(state.port, state.id,
+			port_shm_set_dump_shipped(state.port, state.id,
 					       exp_node->id,
 					       exp_node->quantity);
 

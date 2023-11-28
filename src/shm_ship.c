@@ -37,7 +37,7 @@ shm_ship_t *ship_initialize(shm_general_t *c)
 	size_t size;
 
 	n_ships = get_navi(c);
-	size = (sizeof(shm_ship_t) + sizeof(int) * get_merci(c) * 2) * n_ships;
+	size = (sizeof(shm_ship_t) + (sizeof(int) * get_merci(c)) * 2) * n_ships;
 
 	id = shm_create(SHM_DATA_SHIPS_KEY, size);
 	if (id == -1) {
@@ -90,6 +90,7 @@ void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value)
 	s[id].dump_on_port = 1 - value;	/* if ship is moving then it's not on port */
 }
 
+/* Dump setters */
 void ship_shm_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value) { s[id].dump_with_cargo = value; }
 void ship_shm_set_dump_had_storm(shm_ship_t *s, int id) { s[id].dump_had_storm = TRUE; }
 
@@ -172,12 +173,17 @@ int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
 	return cnt;
 }
 
-void ship_shm_present_add(shm_ship_t *s, int ship_id, int id, int quantity)
+int ship_shm_get_dump_present_by_id(shm_ship_t *s, int ship_id, int id){return s[ship_id].dump_present[id];}
+int ship_shm_get_dump_expired_by_id(shm_ship_t *s, int ship_id, int id){return s[ship_id].dump_expired[id];}
+
+void ship_shm_set_dump_present(shm_ship_t *s, int ship_id, int id, int quantity)
 {
 	s[ship_id].dump_present[id] += quantity;
 }
 
-void ship_shm_expired_add(shm_ship_t *s, int ship_id, int id, int quantity)
+void ship_shm_set_dump_expired(shm_ship_t *s, int ship_id, int id, int quantity)
 {
 	s[ship_id].dump_expired[id] += quantity;
+	s[ship_id].dump_present[id] -= quantity;
 }
+

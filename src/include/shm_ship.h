@@ -75,6 +75,8 @@ void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value);
 /* Dump setters */
 void ship_shm_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value);
 void ship_shm_set_dump_had_storm(shm_ship_t *s, int id);
+void ship_shm_set_dump_present(shm_ship_t *s, int ship_id, int id, int quantity);
+void ship_shm_set_dump_expired(shm_ship_t *s, int ship_id, int id, int quantity);
 
 /**
  * @brief Gets the process ID of a specific ship in the shared memory structure.
@@ -112,7 +114,7 @@ int ship_shm_get_dump_on_port(shm_ship_t *s, int n_ships);
 int ship_shm_get_dump_had_storm(shm_ship_t *s, int n_ships);
 int ship_shm_get_dump_had_maelstrom(shm_ship_t *s, int n_ships);
 int ship_shm_get_dump_is_dead(shm_ship_t *s, int n_ships);
-
-void ship_shm_present_add(shm_ship_t *s, int ship_id, int id, int quantity);
+int ship_shm_get_dump_present_by_id(shm_ship_t *s, int id, int type);
+int ship_shm_get_dump_expired_by_id(shm_ship_t *s, int id, int type);
 
 #endif
