@@ -199,22 +199,55 @@ void offer_demand_shm_delete(shm_general_t *g)
 void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 			       int id, shm_cargo_t *c, shm_general_t *g)
 {
+	bool_t filled;
 	int random_quantity, random_id, expiration;
-	int n_merci, size, current_fill, index;
+	int n_merci, size, fill, current_fill, index, i, cur_id;
+	int id_min, size_min;
 
 	if (o == NULL || d == NULL || l == NULL || c == NULL) {
 		return;
 	}
 
-	current_fill = get_fill(g) / get_days(g);
+	fill = get_fill(g) / get_days(g);
+	current_fill = fill;
 	n_merci = get_merci(g);
-	dprintf(1, "port %d: generating %d fill\n", id, current_fill);
+	id_min = shm_cargo_get_min_size_id(c, g);
+	size_min = shm_cargo_get_size(c, id_min);
+	
 	while (current_fill > 0) {
+		filled = TRUE;
 		random_id = RANDOM_INTEGER(0, n_merci - 1);
+		random_quantity = (RANDOM_INTEGER(1, current_fill));
 		size = shm_cargo_get_size(c, random_id);
+
+		if ((random_quantity * size) > current_fill) {
+			for (i = 0; i < n_merci; i++) {
+				cur_id = (random_id + i + 1) % n_merci;
+				size = shm_cargo_get_size(c, cur_id);
+				random_quantity = (RANDOM_INTEGER(1, current_fill));
+
+				if (((random_quantity * size) >= current_fill && (current_fill >= size))) {
+					random_quantity = RANDOM_INTEGER(1, current_fill / size);
+					random_id = cur_id;
+					filled = TRUE;
+					break;
+				}
+				filled = FALSE;
+			}
+
+			if (filled == FALSE) {
+				if (size <= current_fill) {
+					random_quantity = current_fill / size_min;
+					random_id = id_min;
+				} else {
+					dprintf(1, "Riempito: %d su %d\n", fill - current_fill, fill);
+					break;
+				}
+			}
+		}
+
+
 		expiration = shm_cargo_get_life(c, random_id);
-		dprintf(1, "size %d, life %d\n", size, expiration);
-		random_quantity = RANDOM_INTEGER(1, size) % current_fill;
 		index = GET_INDEX(id, random_id, n_merci);
 
 		if (d[index].data > 0) {
@@ -233,8 +266,9 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 				d[index].data = random_quantity;
 			}
 		}
-		dprintf(1, "done\n");
-		current_fill -= random_quantity;
+
+		dprintf(1, "cargo: %d - Aggiunto %d di peso %d\n", random_id, random_quantity, random_quantity * size);
+		current_fill -= random_quantity * size;
 	}
 }
 
