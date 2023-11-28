@@ -46,7 +46,7 @@ shm_cargo_t *shm_cargo_initialize(shm_general_t *g)
 
 	cargo = shm_attach(shm_id);
 	bzero(cargo, size);
-	set_cargo_shm_id(g, shm_id);
+	shm_cargo_set_id(g, shm_id);
 
 	shm_cargo_values_init(g, cargo);
 
@@ -73,7 +73,7 @@ shm_cargo_t *shm_cargo_attach(shm_general_t *g)
 {
 	shm_cargo_t *cargo;
 
-	cargo = shm_attach(get_cargo_shm_id(g));
+	cargo = shm_attach(shm_cargo_get_id(g));
 	return cargo;
 }
 
@@ -84,7 +84,7 @@ void shm_cargo_detach(shm_cargo_t *c)
 
 void cargo_shm_delete(shm_general_t *c)
 {
-	shm_delete(get_cargo_shm_id(c));
+	shm_delete(shm_cargo_get_id(c));
 }
 
 

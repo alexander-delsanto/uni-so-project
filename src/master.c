@@ -55,12 +55,12 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	state.ports = port_initialize(state.general);
+	state.ports = shm_port_initialize(state.general);
 	if (state.ports == NULL) {
 		exit(1);
 	}
 
-	state.ships = ship_initialize(state.general);
+	state.ships = shm_ship_initialize(state.general);
 	if (state.ships == NULL) {
 		exit(1);
 	}
@@ -121,7 +121,7 @@ void run_ports(void)
 
 	for (i = 0; i < n_port; i++) {
 		pid = run_process("./port", i);
-		port_shm_set_pid(state.ports, i, pid);
+		shm_port_set_pid(state.ports, i, pid);
 	}
 }
 
@@ -133,7 +133,7 @@ void run_ships(void)
 
 	for (i = 0; i < n_ship; i++) {
 		pid = run_process("./ship", i);
-		ship_shm_set_pid(state.ships, i, pid);
+		shm_ship_set_pid(state.ships, i, pid);
 	}
 }
 
@@ -179,64 +179,64 @@ void print_daily_report(void) {
 		dprintf(1, "Type %d:\n", type);
 		cnt = 0;
 		for(i = 0; i < n_port; i++) {
-			cnt += port_shm_get_dump_present_by_id(state.ports, i, type);
+			cnt += shm_port_get_dump_present_by_id(state.ports, i, type);
 		}
 		dprintf(1, "\t%d ton in ports;\n", cnt);
 		cnt = 0;
 		for(i = 0; i < n_ship; i++) {
-			cnt += ship_shm_get_dump_present_by_id(state.ships, i, type);
+			cnt += shm_ship_get_dump_present_by_id(state.ships, i, type);
 		}
 		dprintf(1, "\t%d ton on ships;\n", cnt);
 		cnt = 0;
 		for(i = 0; i < n_port; i++) {
-			cnt += port_shm_get_dump_received_by_id(state.ports, i, type);
+			cnt += shm_port_get_dump_received_by_id(state.ports, i, type);
 		}
 		dprintf(1, "\t%d ton received in ports;\n", cnt);
 		cnt = 0;
 		for(i = 0; i < n_port; i++) {
-			cnt += port_shm_get_dump_expired_by_id(state.ports, i, type);
+			cnt += shm_port_get_dump_expired_by_id(state.ports, i, type);
 		}
 		dprintf(1, "\t%d ton expired in ports;\n", cnt);
 		cnt = 0;
 		for(i = 0; i < n_ship; i++) {
-			cnt += ship_shm_get_dump_expired_by_id(state.ships, i, type);
+			cnt += shm_ship_get_dump_expired_by_id(state.ships, i, type);
 		}
 		dprintf(1, "\t%d ton expired on ships;\n", cnt);
 	}
 
 	dprintf(1, "**********SHIPS**********\n");
 	dprintf(1, "Number of ships at sea with cargo: %d\n",
-		ship_shm_get_dump_with_cargo(state.ships, n_ship));
+		shm_ship_get_dump_with_cargo(state.ships, n_ship));
 	dprintf(1, "Number of ships at sea without cargo: %d\n",
-		ship_shm_get_dump_without_cargo(state.ships, n_ship));
+		shm_ship_get_dump_without_cargo(state.ships, n_ship));
 	dprintf(1, "Number of ships at port: %d\n",
-		ship_shm_get_dump_on_port(state.ships, n_ship));
+		shm_ship_get_dump_on_port(state.ships, n_ship));
 
 	dprintf(1, "**********PORTS**********\n");
 	for (i = 0; i < n_port; i++) {
 		dprintf(1, "Port %d:\n", i);
 		dprintf(1, "\t%d goods available;\n",
-			port_shm_get_dump_cargo_available(state.ports, i));
+			shm_port_get_dump_cargo_available(state.ports, i));
 		dprintf(1, "\t%d goods shipped;\n",
-			port_shm_get_dump_cargo_shipped(state.ports, i));
+			shm_port_get_dump_cargo_shipped(state.ports, i));
 		dprintf(1, "\t%d goods received;\n",
-			port_shm_get_dump_cargo_received(state.ports, i));
+			shm_port_get_dump_cargo_received(state.ports, i));
 		dprintf(1, "\tDocks used: %d/%d\n",
-			port_shm_get_dump_used_docks(state.ports, i), port_shm_get_docks(state.ports, i));
+			shm_port_get_dump_used_docks(state.ports, i), shm_port_get_docks(state.ports, i));
 	}
 
 	dprintf(1, "**********WEATHER**********\n");
 	dprintf(1, "%d ships slowed by the storm until now.\n",
-		ship_shm_get_dump_had_storm(state.ships, n_ship));
+		shm_ship_get_dump_had_storm(state.ships, n_ship));
 
 	dprintf(1, "List of ports affecting by the swell at the moment: \n");
 	for (i = 0; i < n_port; i++) {
-		if(port_shm_get_dump_having_swell(state.ports, i) == TRUE)
+		if(shm_port_get_dump_having_swell(state.ports, i) == TRUE)
 			dprintf(1, "\tPort %d\n", i);
 	}
 
 	dprintf(1, "%d ships dead due to maelstrom today.\n",
-		ship_shm_get_dump_had_maelstrom(state.ships, n_ship));
+		shm_ship_get_dump_had_maelstrom(state.ships, n_ship));
 }
 
 void print_final_report(void) {
@@ -248,38 +248,38 @@ void print_final_report(void) {
 	dprintf(1, "\n\nFINAL REPORT:\n");
 	dprintf(1, "**********SHIPS**********\n");
 	dprintf(1, "Number of ships at sea with cargo: %d\n",
-		ship_shm_get_dump_with_cargo(state.ships, n_ship));
+		shm_ship_get_dump_with_cargo(state.ships, n_ship));
 	dprintf(1, "Number of ships at sea without cargo: %d\n",
-		ship_shm_get_dump_without_cargo(state.ships, n_ship));
+		shm_ship_get_dump_without_cargo(state.ships, n_ship));
 	dprintf(1, "Number of ships at port: %d\n",
-		ship_shm_get_dump_on_port(state.ships, n_ship));
+		shm_ship_get_dump_on_port(state.ships, n_ship));
 	dprintf(1, "**********CARGO**********\n");
 	for(type = 0; type < n_cargo; type++){
 		dprintf(1, "Type %d:\n", type);
 		/*dprintf(1, "\t%d totally genereted;\n", ...);*/
 		cnt = 0;
 		for(i = 0; i < n_port; i++) {
-			cnt += port_shm_get_dump_present_by_id(state.ports, i, type);
+			cnt += shm_port_get_dump_present_by_id(state.ports, i, type);
 		}
 		dprintf(1, "\t%d ton in ports;\n", cnt);
 		cnt = 0;
 		for(i = 0; i < n_ship; i++) {
-			cnt += ship_shm_get_dump_present_by_id(state.ships, i, type);
+			cnt += shm_ship_get_dump_present_by_id(state.ships, i, type);
 		}
 		dprintf(1, "\t%d ton on ships;\n", cnt);
 		cnt = 0;
 		for(i = 0; i < n_port; i++) {
-			cnt += port_shm_get_dump_received_by_id(state.ports, i, type);
+			cnt += shm_port_get_dump_received_by_id(state.ports, i, type);
 		}
 		dprintf(1, "\t%d ton received in ports;\n", cnt);
 		cnt = 0;
 		for(i = 0; i < n_port; i++) {
-			cnt += port_shm_get_dump_expired_by_id(state.ports, i, type);
+			cnt += shm_port_get_dump_expired_by_id(state.ports, i, type);
 		}
 		dprintf(1, "\t%d ton expired in ports;\n", cnt);
 		cnt = 0;
 		for(i = 0; i < n_ship; i++) {
-			cnt += ship_shm_get_dump_expired_by_id(state.ships, i, type);
+			cnt += shm_ship_get_dump_expired_by_id(state.ships, i, type);
 		}
 		dprintf(1, "\t%d ton expired on ships;\n", cnt);
 	}
@@ -288,11 +288,11 @@ void print_final_report(void) {
 	for (i = 0; i < n_port; i++) {
 		dprintf(1, "Port %d:\n", i);
 		dprintf(1, "\t%d goods available;\n",
-			port_shm_get_dump_cargo_available(state.ports, i));
+			shm_port_get_dump_cargo_available(state.ports, i));
 		dprintf(1, "\t%d goods shipped;\n",
-			port_shm_get_dump_cargo_shipped(state.ports, i));
+			shm_port_get_dump_cargo_shipped(state.ports, i));
 		dprintf(1, "\t%d goods received;\n",
-			port_shm_get_dump_cargo_received(state.ports, i));
+			shm_port_get_dump_cargo_received(state.ports, i));
 	}
 
 
@@ -300,14 +300,14 @@ void print_final_report(void) {
 
 	dprintf(1, "**********WEATHER**********\n");
 	dprintf(1, "%d ships slowed by the storm.\n",
-		ship_shm_get_dump_had_storm(state.ships, n_ship));
+		shm_ship_get_dump_had_storm(state.ships, n_ship));
 	dprintf(1, "List of ports affected by the swell: \n");
 	for (i = 0; i < n_port; i++) {
-		if(port_shm_get_dump_swell_final(state.ports, i) == TRUE)
+		if(shm_port_get_dump_swell_final(state.ports, i) == TRUE)
 			dprintf(1, "\tPort %d\n", i);
 	}
 	dprintf(1, "%d ships dead due to maelstrom.\n",
-		ship_shm_get_dump_is_dead(state.ships, n_ship));
+		shm_ship_get_dump_is_dead(state.ships, n_ship));
 }
 
 bool_t check_ships_all_dead(void)
@@ -315,7 +315,7 @@ bool_t check_ships_all_dead(void)
 	int i;
 	bool_t res = TRUE;
 	for (i = 0; i < get_navi(state.general); i++) {
-		if (!ship_shm_get_dead(state.ships, i)) {
+		if (!shm_ship_get_is_dead(state.ships, i)) {
 			res = FALSE;
 			break;
 		}
@@ -345,9 +345,9 @@ void signal_handler(int signal)
 			close_all();
 		}
 		increase_day(state.general);
-		port_shm_send_signal_to_all_ports(
+		shm_port_send_signal_to_all_ports(
 			state.ports, state.general, SIGDAY);
-		ship_shm_send_signal_to_all_ships(
+		shm_ship_send_signal_to_all_ships(
 			state.ships, state.general, SIGDAY);
 		kill(state.weather, SIGDAY);
 		alarm(1);
@@ -362,8 +362,8 @@ void close_all(void)
 	/*print_final_report();*/
 
 	kill(state.weather, SIGINT);
-	ship_shm_send_signal_to_all_ships(state.ships, state.general, SIGINT);
-	port_shm_send_signal_to_all_ports(state.ports, state.general, SIGINT);
+	shm_ship_send_signal_to_all_ships(state.ships, state.general, SIGINT);
+	shm_port_send_signal_to_all_ports(state.ports, state.general, SIGINT);
 	while (wait(NULL) > 0);
 
 	msgctl(msg_commerce_in_port_get_id(), IPC_RMID, NULL);
@@ -373,12 +373,12 @@ void close_all(void)
 	sem_delete(get_sem_port_init_id());
 	sem_delete(get_sem_port_id());
 
-	port_shm_delete(state.general);
-	ship_shm_delete(state.general);
+	shm_port_delete(state.general);
+	shm_ship_delete(state.general);
 	offer_demand_shm_delete(state.general);
 	cargo_shm_delete(state.general);
 
-	general_shm_delete(get_general_shm_id(state.general));
+	shm_general_delete(shm_general_get_id(state.general));
 
 	exit(EXIT_SUCCESS);
 

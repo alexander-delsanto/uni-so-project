@@ -17,14 +17,14 @@ struct o_list {
 static struct node *create_node(int quantity, int expire);
 void cargo_list_add_node(o_list_t *list, int type, struct node *node);
 
-o_list_t *cargo_list_create(shm_general_t *c)
+o_list_t *cargo_list_create(shm_general_t *g)
 {
 	o_list_t *list;
 	int i, n_merci;
 
-	n_merci = get_merci(c);
+	n_merci = get_merci(g);
 
-	list = malloc(sizeof(struct o_list) * get_merci(c));
+	list = malloc(sizeof(struct o_list) * get_merci(g));
 	if (list == NULL) {
 		return NULL;
 	}
@@ -112,8 +112,8 @@ int *cargo_list_remove_expired(o_list_t *list, shm_general_t *c)
 		return NULL;
 	}
 
-	n_merci = get_merci(c);
-	expire_day = get_current_day(c);
+	n_merci = get_merci(g);
+	expire_day = get_current_day(g);
 
 	qt = calloc(n_merci, sizeof(int));
 
@@ -130,7 +130,7 @@ int *cargo_list_remove_expired(o_list_t *list, shm_general_t *c)
 	return qt;
 }
 
-o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
+o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *g, int id,
 				int quantity)
 {
 	o_list_t *output;
@@ -146,7 +146,7 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *c, int id,
 		return NULL;
 	}
 
-	output = cargo_list_create(c);
+	output = cargo_list_create(g);
 	if (output == NULL) {
 		return NULL;
 	}
@@ -190,7 +190,7 @@ int cargo_list_get_quantity(o_list_t *list, int id)
 	return cnt;
 }
 
-int cargo_list_get_first_expire(o_list_t *list, shm_general_t *c, int id)
+int cargo_list_get_first_expire(o_list_t *list, shm_general_t *g, int id)
 {
 	if (list == NULL || list[id].head == NULL) {
 		return -1;
@@ -199,12 +199,12 @@ int cargo_list_get_first_expire(o_list_t *list, shm_general_t *c, int id)
 	return list[id].head->expire;
 }
 
-void cargo_list_delete(o_list_t *list, shm_general_t *c)
+void cargo_list_delete(o_list_t *list, shm_general_t *g)
 {
 	struct node *curr, *tmp;
 	int i, n;
 
-	n = get_merci(c);
+	n = get_merci(g);
 
 	for (i = 0; i < n; i++) {
 		curr = list[i].head;
@@ -219,12 +219,12 @@ void cargo_list_delete(o_list_t *list, shm_general_t *c)
 	free(list);
 }
 
-void cargo_list_merge(o_list_t *src, o_list_t *merge, shm_general_t *c)
+void cargo_list_merge(o_list_t *src, o_list_t *merge, shm_general_t *g)
 {
 	struct node *curr;
 	int i, n_merci;
 
-	n_merci = get_merci(c);
+	n_merci = get_merci(g);
 
 	for (i = 0; i < n_merci; i++) {
 		curr = merge[i].head;
@@ -235,13 +235,13 @@ void cargo_list_merge(o_list_t *src, o_list_t *merge, shm_general_t *c)
 	}
 }
 
-void cargo_list_print_all(o_list_t *list, shm_general_t *c)
+void cargo_list_print_all(o_list_t *list, shm_general_t *g)
 {
 	struct node *curr;
 
 	int i, n;
 
-	n = get_merci(c);
+	n = get_merci(g);
 
 	for (i = 0; i < n; i++) {
 		curr = list[i].head;
@@ -255,7 +255,7 @@ void cargo_list_print_all(o_list_t *list, shm_general_t *c)
 }
 
 
-struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *c)
+struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *g)
 {
 	struct node *tmp;
 	struct node_msg *output;
@@ -263,7 +263,7 @@ struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *c)
 	int i, n;
 
 	output = NULL;
-	n = get_merci(c);
+	n = get_merci(g);
 
 	for (i = 0; i < n; i++) {
 		if (list[i].head == NULL) {

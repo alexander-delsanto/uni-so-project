@@ -11,10 +11,17 @@ typedef struct shm_demand shm_demand_t;
 
 /**
  * @brief Initializes and attaches shared memory for offer data in ports.
- * @param c pointer to general SHM
+ * @param g pointer to general SHM
  * @return Pointer to the attached offer data structure or NULL on failure.
  */
-shm_offer_t *offer_shm_ports_init(shm_general_t *c);
+shm_offer_t *offer_shm_ports_init(shm_general_t *g);
+
+/**
+ * @brief Attaches shared memory for offer data in ports.
+ * @param g pointer to general shm
+ * @return Pointer to the attached offer data structure.
+ */
+shm_offer_t *shm_offer_ports_attach(shm_general_t *g);
 
 /**
  * @brief Adds a specified quantity to the offer data in shared memory.
@@ -53,30 +60,30 @@ void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
 /**
  * @brief Gets a portion of goods from a specific offer in shared memory.
  * @param o Pointer to the array of shared memory offers.
- * @param c Pointer to the shared memory structure containing general information.
+ * @param g Pointer to the shared memory structure containing general information.
  * @param id The index of the offer to retrieve goods from.
  * @param capacity The maximum capacity of goods to retrieve.
  *
  * @return A pointer to a new shared memory offer containing the retrieved goods.
  */
-shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *c, int id,
+shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *g, int id,
 				 int capacity);
 /**
  * @brief Gets expired goods from a source offer list.
  * @param src Pointer to the source offer list.
  * @param o Pointer to the array of shared memory offers.
- * @param c Pointer to the shared memory structure containing general information.
+ * @param g Pointer to the shared memory structure containing general information.
  * @return A pointer to a new offer list containing the retrieved expired goods.
  */
 o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
-				      shm_general_t *c);
+				      shm_general_t *g);
 
 /**
  * @brief Initializes and attaches shared memory for demand data.
- * @param c pointer to general SHM
+ * @param g pointer to general SHM
  * @return Pointer to the attached demand data structure or NULL on failure.
  */
-shm_demand_t *demand_shm_init(shm_general_t *c);
+shm_demand_t *demand_shm_init(shm_general_t *g);
 
 /**
  * @brief Sets the demand data in shared memory for a specific entity and type.
@@ -107,9 +114,9 @@ int demand_shm_get(shm_demand_t *d, int id, int type);
 
 /**
  * Delete offer and demand shared memory
- * @param c pointer to general SHM
+ * @param g pointer to general SHM
  */
-void offer_demand_shm_delete(shm_general_t *c);
+void offer_demand_shm_delete(shm_general_t *g);
 
 /**
  * @brief Generates random offers and demands
@@ -117,7 +124,8 @@ void offer_demand_shm_delete(shm_general_t *c);
  * @param d pointer to the array of demands
  * @param l pointer to the array of expires
  * @param id the id of the entity offering or demanding
- * @param c pointer to general SHM
+ * @param c pointer to cargo SHM
+ * @param g pointer to general SHM
  */
 void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 			       int id, shm_general_t *c);
@@ -133,10 +141,10 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
  * @param d Pointer to the array of shared memory port demands.
  * @param id_ship The index of the ship's offer in the shared memory.
  * @param id_port The index of the port's demand in the shared memory.
- * @param c Pointer to the shared memory structure containing general information.
+ * @param g Pointer to the shared memory structure containing general information.
  */
 void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
-				  int id_port, shm_general_t *c);
+				  int id_port, shm_general_t *g);
 
 /**
  * @brief Generate an order from a demand, considering available goods on a ship and at a port.
@@ -146,14 +154,16 @@ void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
  *
  * @param o Pointer to the array of ship offers.
  * @param d Pointer to the array of port demands.
- * @param c Pointer to the shared memory structure containing general information.
+ * @param g Pointer to the shared memory structure containing general information.
  * @param port_id Index of the port in the demand array.
  * @param ship_id Index of the ship in the offer array.
  * @return Pointer to the newly generated order (shm_offer_t).
  */
 shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
-					     shm_general_t *c, int port_id,
+					     shm_general_t *g, int port_id,
 					     int ship_id);
 
+int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id);
+int shm_demand_get_quantity(shm_general_t *g, shm_demand_t *d, int port_id, int cargo_id);
 
 #endif

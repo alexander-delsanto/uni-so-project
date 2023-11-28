@@ -20,7 +20,7 @@
 #include "include/msg_commerce.h"
 
 #define GET_DISTANCE(dest)\
-	(sqrt(pow(dest.x - ship_shm_get_coords(state.ship, state.id).x, 2) + pow(dest.y - ship_shm_get_coords(state.ship, state.id).y, 2)))
+	(sqrt(pow(dest.x - shm_ship_get_coords(state.ship, state.id).x, 2) + pow(dest.y - shm_ship_get_coords(state.ship, state.id).y, 2)))
 
 void signal_handler(int signal);
 
@@ -64,9 +64,9 @@ int main(int argc, char *argv[])
 	sigaction(SIGSEGV, &sa, NULL);
 
 	state.id = (int)strtol(argv[1], NULL, 10);
-	general_shm_attach(&state.general);
-	state.port = port_shm_attach(state.general);
-	state.ship = ship_shm_attach(state.general);
+	shm_general_attach(&state.general);
+	state.port = shm_port_attach(state.general);
+	state.ship = shm_ship_attach(state.general);
 	state.cargo = shm_cargo_attach(state.general);
 	state.demand = demand_shm_init(state.general);
 
@@ -147,8 +147,8 @@ void init_location(void)
 	coords.x = RANDOM_DOUBLE(0, get_lato(state.general));
 	coords.y = RANDOM_DOUBLE(0, get_lato(state.general));
 
-	ship_shm_set_coords(state.ship, state.id, coords);
-	ship_shm_set_is_moving(state.ship, state.id, TRUE);
+	shm_ship_set_coords(state.ship, state.id, coords);
+	shm_ship_set_is_moving(state.ship, state.id, TRUE);
 	/* TODO
 	 * ship_shm_set_dump_with_cargo(state.ship, state.id, FALSE);*/
 }
@@ -158,7 +158,7 @@ struct coord pick_first_destination_port(void)
 	int target_port;
 	target_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
 	state.curr_port_id = target_port;
-	return port_shm_get_coords(state.port, target_port);
+	return shm_port_get_coordinates(state.port, target_port);
 }
 
 /**
@@ -169,16 +169,16 @@ void move(struct coord destination_port)
 	double distance;
 	double time_required;
 /*	dprintf(1, "ship %d: before x: %lf y: %lf\n", state.id, ship_shm_get_coords(state.ship, state.id).x, ship_shm_get_coords(state.ship, state.id).y);*/
-	ship_shm_set_is_moving(state.ship, state.id, TRUE);
+	shm_ship_set_is_moving(state.ship, state.id, TRUE);
 	/* calculate distance between actual position and destination */
 	distance = GET_DISTANCE(destination_port);
 	/* calculate time required to arrive (in days) */
 	time_required = distance / get_speed(state.general);
 	convert_and_sleep(time_required);
 	/* set new location */
-	ship_shm_set_coords(state.ship, state.id, destination_port);
+	shm_ship_set_coords(state.ship, state.id, destination_port);
 /*	dprintf(1, "ship %d: after x: %lf y: %lf\n", state.id, ship_shm_get_coords(state.ship, state.id).x, ship_shm_get_coords(state.ship, state.id).y);*/
-	ship_shm_set_is_moving(state.ship, state.id, FALSE);
+	shm_ship_set_is_moving(state.ship, state.id, FALSE);
 }
 
 struct coord find_new_destination_port(void)
@@ -196,7 +196,7 @@ struct coord find_new_destination_port(void)
 		if (port == state.curr_port_id) continue;
 
 		/* Check port distance */
-		distance = GET_DISTANCE(port_shm_get_coords(state.port, port));
+		distance = GET_DISTANCE(shm_port_get_coordinates(state.port, port));
 
 		sale_amount = 0;
 		for (cargo_type = 0; cargo_type < get_merci(state.general); cargo_type++) {
@@ -216,7 +216,7 @@ struct coord find_new_destination_port(void)
 	/* Send message to port */
 
 	state.curr_port_id = best_port;
-	return port_shm_get_coords(state.port, best_port);
+	return shm_port_get_coordinates(state.port, best_port);
 }
 
 void trade(void)
@@ -231,13 +231,13 @@ void signal_handler(int signal)
 		break;
 	case SIGSTORM:
 		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", state.id);
-		ship_shm_set_dump_had_storm(state.ship, state.id);
+		shm_ship_set_dump_had_storm(state.ship, state.id);
 		convert_and_sleep(get_storm_duration(state.general) / 24.0);
 		break;
 	case SIGMAELSTROM:
 		dprintf(1, "Ship %d: Received SIGMAELSTROM signal.\n",
 			state.id);
-		ship_shm_set_is_dead(state.ship, state.id);
+		shm_ship_set_is_dead(state.ship, state.id);
 		close_all();
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");
@@ -251,9 +251,9 @@ void signal_handler(int signal)
 void close_all(void)
 {
 	cargo_list_delete(state.cargo_hold, state.general);
-	port_shm_detach(state.port);
-	ship_shm_detach(state.ship);
+	shm_port_detach(state.port);
+	shm_ship_detach(state.ship);
 	shm_cargo_detach(state.cargo);
-	general_shm_detach(state.general);
+	shm_general_detach(state.general);
 	exit(0);
 }

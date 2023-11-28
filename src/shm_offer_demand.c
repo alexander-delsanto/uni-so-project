@@ -43,6 +43,13 @@ shm_offer_t *offer_shm_ports_init(shm_general_t *c)
 	return offer;
 }
 
+shm_offer_t *shm_offer_ports_attach(shm_general_t *g)
+{
+	shm_offer_t *offer;
+	offer = shm_attach(shm_offer_get_id(g));
+	return offer;
+}
+
 shm_offer_t *offer_shm_ports_get(shm_general_t *c)
 {
 	shm_offer_t *offer;
@@ -231,7 +238,7 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 				cargo_list_add(l, random_id, random_quantity,
 					       random_exp + get_current_day(c));
 			} else {
-				d[id].data[random_id] = random_quantity;
+				d[index].data = random_quantity;
 			}
 		}
 

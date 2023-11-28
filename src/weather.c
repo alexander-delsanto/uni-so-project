@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
 {
 	signal_handler_init();
 
-	general_shm_attach(&state.general);
-	state.ports = port_shm_attach(state.general);
-	state.ships = ship_shm_attach(state.general);
+	shm_general_attach(&state.general);
+	state.ports = shm_port_attach(state.general);
+	state.ships = shm_ship_attach(state.general);
 
 	srand(getpid() * time(NULL));
 
@@ -92,9 +92,9 @@ void send_storm_signal(void)
 	target_ship = RANDOM_INTEGER(0, n_ships - 1);
 
 	for (i = 0; i < n_ships; i++) {
-		if (!ship_shm_get_dead(state.ships, target_ship) &&
-		    ship_shm_get_is_moving(state.ships, target_ship)) {
-			ship_shm_send_signal_to_ship(state.ships, target_ship, SIGSTORM);
+		if (!shm_ship_get_is_dead(state.ships, target_ship) &&
+		    shm_ship_get_is_moving(state.ships, target_ship)) {
+			shm_ship_send_signal_to_ship(state.ships, target_ship, SIGSTORM);
 			return;
 		}
 		target_ship = (target_ship + 1) % n_ships;
@@ -108,8 +108,8 @@ void send_maelstrom_signal(void)
 	target_ship = RANDOM_INTEGER(0, n_ships - 1);
 
 	for (i = 0; i < n_ships; i++) {
-		if (!ship_shm_get_dead(state.ships, target_ship)) {
-			ship_shm_send_signal_to_ship(state.ships, target_ship, SIGMAELSTROM);
+		if (!shm_ship_get_is_dead(state.ships, target_ship)) {
+			shm_ship_send_signal_to_ship(state.ships, target_ship, SIGMAELSTROM);
 			return;
 		}
 		target_ship = (target_ship + 1) % n_ships;
@@ -119,7 +119,7 @@ void send_maelstrom_signal(void)
 void send_swell_signal(void)
 {
 	int target_port = RANDOM_INTEGER(0, (get_porti(state.general) - 1));
-	port_shm_send_signal_to_port(state.ports, target_port, SIGSWELL);
+	shm_port_send_signal_to_port(state.ports, target_port, SIGSWELL);
 }
 
 void start_timer(double timer_interval)
@@ -140,9 +140,9 @@ void start_timer(double timer_interval)
 
 void close_all(void)
 {
-	port_shm_detach(state.ports);
-	ship_shm_detach(state.ships);
-	general_shm_detach(state.general);
+	shm_port_detach(state.ports);
+	shm_ship_detach(state.ships);
+	shm_general_detach(state.general);
 
 	exit(EXIT_SUCCESS);
 }

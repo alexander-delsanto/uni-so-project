@@ -30,14 +30,14 @@ struct shm_ship {
 	bool_t dump_storm_final;	/* for final report */
 };
 
-shm_ship_t *ship_initialize(shm_general_t *c)
+shm_ship_t *shm_ship_initialize(shm_general_t *g)
 {
 	shm_ship_t *ships;
 	int n_ships, id;
 	size_t size;
 
-	n_ships = get_navi(c);
-	size = (sizeof(shm_ship_t) + (sizeof(int) * get_merci(c)) * 2) * n_ships;
+	n_ships = get_navi(g);
+	size = (sizeof(shm_ship_t) + (sizeof(int) * get_merci(g)) * 2) * n_ships;
 
 	id = shm_create(SHM_DATA_SHIPS_KEY, size);
 	if (id == -1) {
@@ -47,28 +47,28 @@ shm_ship_t *ship_initialize(shm_general_t *c)
 
 	ships = shm_attach(id);
 	bzero(ships, size);
-	set_ship_shm_id(c, id);
+	shm_ship_set_id(g, id);
 	return ships;
 }
 
-shm_ship_t *ship_shm_attach(shm_general_t *c)
+shm_ship_t *shm_ship_attach(shm_general_t *g)
 {
 	shm_ship_t *ships;
-	ships = shm_attach(get_ship_shm_id(c));
+	ships = shm_attach(shm_ship_get_id(g));
 
 	return ships;
 }
 
-void ship_shm_detach(shm_ship_t *c) { shm_detach(c); }
+void shm_ship_detach(shm_ship_t *g) { shm_detach(g); }
 
-void ship_shm_delete(shm_general_t *c) { shm_delete(get_ship_shm_id(c)); }
+void shm_ship_delete(shm_general_t *g) { shm_delete(shm_ship_get_id(g)); }
 
 /* Signals to ships */
-void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *c,
+void shm_ship_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *g,
 				       int signal)
 {
 	int i;
-	int n_ships = get_navi(c);
+	int n_ships = get_navi(g);
 
 	for (i = 0; i < n_ships; i++) {
 		if (s[i].is_dead == FALSE) {
@@ -77,31 +77,41 @@ void ship_shm_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *c,
 	}
 }
 
-void ship_shm_send_signal_to_ship(shm_ship_t *s, int id, int signal) { kill(s[id].pid, signal); }
+void shm_ship_send_signal_to_ship(shm_ship_t *s, int id, int signal) { kill(s[id].pid, signal); }
 
 /* Setters */
-void ship_shm_set_pid(shm_ship_t *s, int id, pid_t pid) { s[id].pid = pid; }
-void ship_shm_set_coords(shm_ship_t *s, int id, struct coord coords) { s[id].coords = coords; }
-void ship_shm_set_is_dead(shm_ship_t *s, int id) { s[id].is_dead = TRUE; }
+void shm_ship_set_pid(shm_ship_t *s, int id, pid_t pid) { s[id].pid = pid; }
+void shm_ship_set_coords(shm_ship_t *s, int id, struct coord coords) { s[id].coords = coords; }
+void shm_ship_set_is_dead(shm_ship_t *s, int id) { s[id].is_dead = TRUE; }
 
-void ship_shm_set_is_moving(shm_ship_t *s, int id, bool_t value)
+void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value)
 {
 	s[id].is_moving = value;
 	s[id].dump_on_port = 1 - value;	/* if ship is moving then it's not on port */
 }
 
 /* Dump setters */
-void ship_shm_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value) { s[id].dump_with_cargo = value; }
-void ship_shm_set_dump_had_storm(shm_ship_t *s, int id) { s[id].dump_had_storm = TRUE; }
+void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value) { s[id].dump_with_cargo = value; }
+void shm_ship_set_dump_had_storm(shm_ship_t *s, int id) { s[id].dump_had_storm = TRUE; }
+void shm_ship_set_dump_present(shm_ship_t *s, int ship_id, int id, int quantity)
+{
+	s[ship_id].dump_present[id] += quantity;
+}
+
+void shm_ship_set_dump_expired(shm_ship_t *s, int ship_id, int id, int quantity)
+{
+	s[ship_id].dump_expired[id] += quantity;
+	s[ship_id].dump_present[id] -= quantity;
+}
 
 /* Getters */
-pid_t ship_shm_get_pid(shm_ship_t *s, int id) { return s[id].pid; }
-bool_t ship_shm_get_dead(shm_ship_t *s, int id) { return s[id].is_dead; }
-bool_t ship_shm_get_is_moving(shm_ship_t *s, int id) { return s[id].is_moving; }
-struct coord ship_shm_get_coords(shm_ship_t *s, int id) { return s[id].coords; }
+pid_t shm_ship_get_pid(shm_ship_t *s, int id) { return s[id].pid; }
+bool_t shm_ship_get_is_dead(shm_ship_t *s, int id) { return s[id].is_dead; }
+bool_t shm_ship_get_is_moving(shm_ship_t *s, int id) { return s[id].is_moving; }
+struct coord shm_ship_get_coords(shm_ship_t *s, int id) { return s[id].coords; }
 
 /* Dump getters */
-int ship_shm_get_dump_with_cargo(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++)
@@ -110,7 +120,7 @@ int ship_shm_get_dump_with_cargo(shm_ship_t *s, int n_ships)
 			cnt++;
 	return cnt;
 }
-int ship_shm_get_dump_without_cargo(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++)
@@ -120,7 +130,7 @@ int ship_shm_get_dump_without_cargo(shm_ship_t *s, int n_ships)
 	return cnt;
 }
 
-int ship_shm_get_dump_on_port(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_on_port(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++)
@@ -129,7 +139,7 @@ int ship_shm_get_dump_on_port(shm_ship_t *s, int n_ships)
 	return cnt;
 }
 
-int ship_shm_get_dump_had_storm(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_had_storm(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++)
@@ -138,7 +148,7 @@ int ship_shm_get_dump_had_storm(shm_ship_t *s, int n_ships)
 	return cnt;
 }
 
-int ship_shm_get_dump_had_maelstrom(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_had_maelstrom(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++){
@@ -152,7 +162,7 @@ int ship_shm_get_dump_had_maelstrom(shm_ship_t *s, int n_ships)
 	return cnt;
 }
 
-int ship_shm_get_dump_is_dead(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_is_dead(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++){
@@ -173,17 +183,7 @@ int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
 	return cnt;
 }
 
-int ship_shm_get_dump_present_by_id(shm_ship_t *s, int ship_id, int id){return s[ship_id].dump_present[id];}
-int ship_shm_get_dump_expired_by_id(shm_ship_t *s, int ship_id, int id){return s[ship_id].dump_expired[id];}
+int shm_ship_get_dump_present_by_id(shm_ship_t *s, int ship_id, int id){return s[ship_id].dump_present[id];}
+int shm_ship_get_dump_expired_by_id(shm_ship_t *s, int ship_id, int id){return s[ship_id].dump_expired[id];}
 
-void ship_shm_set_dump_present(shm_ship_t *s, int ship_id, int id, int quantity)
-{
-	s[ship_id].dump_present[id] += quantity;
-}
-
-void ship_shm_set_dump_expired(shm_ship_t *s, int ship_id, int id, int quantity)
-{
-	s[ship_id].dump_expired[id] += quantity;
-	s[ship_id].dump_present[id] -= quantity;
-}
 
