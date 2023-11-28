@@ -213,7 +213,7 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 	n_merci = get_merci(g);
 	id_min = shm_cargo_get_min_size_id(c, g);
 	size_min = shm_cargo_get_size(c, id_min);
-	
+
 	while (current_fill > 0) {
 		filled = TRUE;
 		random_id = RANDOM_INTEGER(0, n_merci - 1);
