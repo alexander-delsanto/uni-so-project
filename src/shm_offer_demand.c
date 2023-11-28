@@ -25,7 +25,7 @@ struct shm_demand {
 shm_offer_t *offer_shm_ports_get(shm_general_t *g);
 
 /* OFFER */
-shm_offer_t *offer_shm_ports_init(shm_general_t *g)
+shm_offer_t *shm_offer_ports_init(shm_general_t *g)
 {
 	int shm_id;
 	size_t size;
