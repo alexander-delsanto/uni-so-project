@@ -38,7 +38,6 @@ struct shm_port {
 shm_port_t *port_initialize(shm_general_t *g)
 {
 	shm_port_t *ports;
-	int i;
 	int shm_id, n_ports;
 	size_t size;
 

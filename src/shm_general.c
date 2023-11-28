@@ -18,7 +18,8 @@ struct shm_general {
 
 	int current_day;
 
-	int general_shm_id, ship_shm_id, port_shm_id, offer_shm_id, demand_shm_id;
+	int general_shm_id, ship_shm_id, port_shm_id, cargo_shm_id;
+	int offer_shm_id, demand_shm_id;
 	int msg_in_id, msg_out_id;
 };
 
@@ -90,60 +91,26 @@ void general_shm_attach(shm_general_t **g)
 	*g = shm_attach(shm_id);
 }
 
-void general_shm_detach(shm_general_t *c)
-{
-	shm_detach(c);
-}
-
-void general_shm_delete(int id)
-{
-	shm_delete(id);
-}
+void general_shm_detach(shm_general_t *c){shm_detach(c);}
+void general_shm_delete(int id){shm_delete(id);}
 
 /* Setters */
-void set_port_shm_id(shm_general_t *c, int id){c->port_shm_id = id;}
 static void set_general_shm_id(shm_general_t *g){g->general_shm_id = shm_create(SHM_DATA_GENERAL_KEY, 0);}
 void set_ship_shm_id(shm_general_t *c, int id){c->ship_shm_id = id;}
+void set_port_shm_id(shm_general_t *c, int id){c->port_shm_id = id;}
+void set_cargo_shm_id(shm_general_t *g, int id){g->cargo_shm_id = id;}
 void set_offer_shm_id(shm_general_t *c, int id){c->offer_shm_id = id;}
 void set_demand_shm_id(shm_general_t *c, int id){c->demand_shm_id = id;}
 void set_msg_in_id(shm_general_t *c, int id){c->msg_in_id = id;}
 void set_msg_out_id(shm_general_t *c, int id){c->msg_out_id = id;}
 
 /* Getters */
-int get_port_shm_id(shm_general_t *c)
-{
-	if (c == NULL) {
-		return -1;
-	}
-	return c->port_shm_id;
-}
-
-int get_ship_shm_id(shm_general_t *c)
-{
-	if (c == NULL) {
-		return -1;
-	}
-	return c->ship_shm_id;
-}
-
 int get_general_shm_id(shm_general_t *c){ return c->general_shm_id; }
-
-int get_offer_shm_id(shm_general_t *c)
-{
-	if (c == NULL) {
-		return -1;
-	}
-	return c->offer_shm_id;
-}
-
-int get_demand_shm_id(shm_general_t *c)
-{
-	if (c == NULL) {
-		return -1;
-	}
-	return c->demand_shm_id;
-}
-
+int get_ship_shm_id(shm_general_t *c){return c->ship_shm_id;}
+int get_port_shm_id(shm_general_t *c){return c->port_shm_id;}
+int get_cargo_shm_id(shm_general_t *c){return c->cargo_shm_id;}
+int get_offer_shm_id(shm_general_t *c){	return c->offer_shm_id;}
+int get_demand_shm_id(shm_general_t *c){return c->demand_shm_id;}
 int get_msg_in_id(shm_general_t *c){return c->msg_in_id;}
 int get_msg_out_id(shm_general_t *c){return c->msg_out_id;}
 

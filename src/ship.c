@@ -13,6 +13,7 @@
 #include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
+#include "include/shm_cargo.h"
 #include "include/utils.h"
 #include "include/shm_offer_demand.h"
 #include "include/cargo_list.h"
@@ -38,9 +39,10 @@ struct state {
 	shm_general_t *general;
 	shm_port_t *port;
 	shm_ship_t *ship;
+	shm_cargo_t *cargo;
 
 	shm_demand_t *demand;
-	o_list_t *cargo;
+	o_list_t *cargo_hold;
 
 	int curr_port_id;
 	int current_day;
@@ -65,9 +67,10 @@ int main(int argc, char *argv[])
 	general_shm_attach(&state.general);
 	state.port = port_shm_attach(state.general);
 	state.ship = ship_shm_attach(state.general);
+	state.cargo = shm_cargo_attach(state.general);
 	state.demand = demand_shm_init(state.general);
 
-	state.cargo = cargo_list_create(state.general);
+	state.cargo_hold = cargo_list_create(state.general);
 
 	srand(time(NULL) * getpid());
 	init_location();
@@ -81,6 +84,7 @@ int main(int argc, char *argv[])
 	sem_execute_semop(get_sem_port_init_id(), 0, 0, 0);
 	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
 
+	dprintf(1, "ship %d: reached loop\n", state.id);
 	loop();
 }
 
@@ -99,7 +103,7 @@ void handle_message(void)
 		/* Struttura per salvare il trading da fare con la barca */
 		break;
 	case STATUS_LOAD_ACCEPTED:
-		cargo_list_add(state.cargo, cargo_id, quantity, expiry_date);
+		cargo_list_add(state.cargo_hold, cargo_id, quantity, expiry_date);
 	case STATUS_REFUSED:
 	default:
 		break;
@@ -127,9 +131,9 @@ void loop(void) {
 			/* TODO: new day operations */
 			state.current_day = day;
 		}
-		dest_port_coords = find_new_destination_port();
+/*		dest_port_coords = find_new_destination_port();
 		move(dest_port_coords);
-		trade();
+		trade();*/
 	}
 }
 
@@ -196,7 +200,7 @@ struct coord find_new_destination_port(void)
 
 		sale_amount = 0;
 		for (cargo_type = 0; cargo_type < get_merci(state.general); cargo_type++) {
-			amount_not_expired = get_not_expired_by_day(state.cargo, cargo_type, state.current_day + (int) distance);
+			amount_not_expired = get_not_expired_by_day(state.cargo_hold, cargo_type, state.current_day + (int) distance);
 			port_demand = demand_shm_get(state.demand, port, cargo_type);
 			sale_amount += MIN(amount_not_expired, port_demand);
 		}
@@ -246,8 +250,10 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
+	cargo_list_delete(state.cargo_hold, state.general);
 	port_shm_detach(state.port);
 	ship_shm_detach(state.ship);
+	shm_cargo_detach(state.cargo);
 	general_shm_detach(state.general);
 	exit(0);
 }

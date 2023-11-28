@@ -7,11 +7,13 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <time.h>
 
 #include "include/const.h"
 #include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
+#include "include/shm_cargo.h"
 #include "include/shm_offer_demand.h"
 #include "include/sem.h"
 #include "include/msg_commerce.h"
@@ -20,6 +22,7 @@ struct state {
 	shm_general_t *general;
 	shm_port_t *ports;
 	shm_ship_t *ships;
+	shm_cargo_t *cargo;
 	pid_t weather;
 };
 
@@ -46,6 +49,7 @@ int main(int argc, char *argv[])
 
 	signal_handler_init();
 
+	srand(time(NULL) * getpid());
 	state.general = read_from_path("../constants.txt", &state.general);
 	if (state.general == NULL) {
 		exit(1);
@@ -58,6 +62,11 @@ int main(int argc, char *argv[])
 
 	state.ships = ship_initialize(state.general);
 	if (state.ships == NULL) {
+		exit(1);
+	}
+
+	state.cargo = shm_cargo_initialize(state.general);
+	if (state.cargo == NULL) {
 		exit(1);
 	}
 
@@ -367,6 +376,7 @@ void close_all(void)
 	port_shm_delete(state.general);
 	ship_shm_delete(state.general);
 	offer_demand_shm_delete(state.general);
+	cargo_shm_delete(state.general);
 
 	general_shm_delete(get_general_shm_id(state.general));
 

@@ -27,16 +27,18 @@ void general_shm_detach(shm_general_t *c);
  */
 void general_shm_delete(int id);
 
-void set_port_shm_id(shm_general_t *c, int id);
 void set_ship_shm_id(shm_general_t *c, int id);
+void set_port_shm_id(shm_general_t *c, int id);
+void set_cargo_shm_id(shm_general_t *g, int id);
 void set_offer_shm_id(shm_general_t *c, int id);
 void set_demand_shm_id(shm_general_t *c, int id);
 void set_msg_in_id(shm_general_t *c, int id);
 void set_msg_out_id(shm_general_t *c, int id);
 
-int get_port_shm_id(shm_general_t *c);
-int get_ship_shm_id(shm_general_t *c);
 int get_general_shm_id(shm_general_t *c);
+int get_ship_shm_id(shm_general_t *c);
+int get_port_shm_id(shm_general_t *c);
+int get_cargo_shm_id(shm_general_t *c);
 int get_offer_shm_id(shm_general_t *c);
 int get_demand_shm_id(shm_general_t *c);
 int get_msg_in_id(shm_general_t *c);

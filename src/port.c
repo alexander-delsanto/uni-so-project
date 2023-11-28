@@ -13,6 +13,7 @@
 #include "include/types.h"
 #include "include/utils.h"
 #include "include/shm_port.h"
+#include "include/shm_cargo.h"
 #include "include/shm_offer_demand.h"
 #include "include/cargo_list.h"
 #include "include/msg_commerce.h"
@@ -21,10 +22,11 @@ struct state {
 	int id;
 	shm_general_t *general;
 	shm_port_t *port;
+	shm_cargo_t *cargo;
 
 	shm_offer_t *offer;
 	shm_demand_t *demand;
-	o_list_t *cargo;
+	o_list_t *cargo_hold;
 
 	int current_day;
 };
@@ -54,8 +56,10 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	state.port = port_shm_attach(state.general);
+	state.cargo = shm_cargo_attach(state.general);
 	state.offer = offer_shm_ports_init(state.general);
 	state.demand = demand_shm_init(state.general);
+	state.cargo_hold = cargo_list_create(state.general);
 
 	srand(time(NULL) * getpid());
 	generate_coordinates();
@@ -64,12 +68,13 @@ int main(int argc, char *argv[])
 	sem_execute_semop(get_sem_port_init_id(), 0, -1, 0);
 	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
 
+	dprintf(1, "port %d: reached loop\n", state.id);
 	loop();
 }
 
 void loop(void)
 {
-	int *expired;
+	int qt_expired;
 	int i, day;
 
 	while (1) {
@@ -78,16 +83,17 @@ void loop(void)
 			/* TODO: new day operations */
 			state.current_day = day;
 			/* Dumping expired stuff */
-			expired = cargo_list_remove_expired(state.cargo,
+			qt_expired = cargo_list_remove_expired(state.cargo_hold,
 							    state.general);
-			for (i = 0; i < get_merci(state.general); i++) {
+			dprintf(1, "expired: %d\n", qt_expired);
+/*			for (i = 0; i < get_merci(state.general); i++) {
 				port_shm_set_dump_expired(state.port, state.id,
-							  i, expired[i]);
+							  i, *expired);
 				dprintf(1, "\nCIAO\n");
-			}
+			}*/
 			/* Generation of new demand/offer */
 			offer_demand_shm_generate(state.offer, state.demand,
-						  state.cargo, state.id,
+						  state.cargo_hold, state.id,
 						  state.general);
 		}
 		handle_message();
@@ -146,7 +152,7 @@ void handle_message(void)
 		order = offer_shm_get_order(state.offer, state.general,
 					    state.id, capacity);
 		/* Getting order expires */
-		order_expires = offer_shm_get_order_expires(state.cargo, order,
+		order_expires = offer_shm_get_order_expires(state.cargo_hold, order,
 							    state.general);
 		while ((exp_node = cargo_list_pop_order(
 				order_expires, state.general)) != NULL) {
@@ -244,7 +250,7 @@ void signal_handler(int signal)
 		break;
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");
-		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n",
+		dprintf(2, "port.c: id: %d: Segmentation fault. Terminating.\n",
 			state.id);
 	case SIGINT:
 		close_all();
@@ -255,7 +261,9 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
+	cargo_list_delete(state.cargo_hold, state.general);
 	port_shm_detach(state.port);
+	shm_cargo_detach(state.cargo);
 	general_shm_detach(state.general);
 	exit(EXIT_SUCCESS);
 }
