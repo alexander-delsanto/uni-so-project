@@ -35,4 +35,6 @@ void shm_cargo_set_dump_received_in_port(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_available_in_port(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_available_on_ship(shm_cargo_t *c, int id, int quantity);
 
+int shm_cargo_get_min_size_id(shm_cargo_t *c, shm_general_t *g);
+
 #endif

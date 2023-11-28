@@ -130,7 +130,7 @@ void offer_demand_shm_delete(shm_general_t *g);
  * @param o pointer to the array of offers
  * @param d pointer to the array of demands
  * @param l pointer to the array of expires
- * @param id the id of the entity offering or demanding
+ * @param id the id of the port offering or demanding
  * @param c pointer to cargo SHM
  * @param g pointer to general SHM
  */

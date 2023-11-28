@@ -132,3 +132,17 @@ void shm_cargo_set_dump_available_on_ship(shm_cargo_t *c, int id, int quantity)
 {
 	c[id].dump_available_on_ship += quantity;
 }
+
+
+int shm_cargo_get_min_size_id(shm_cargo_t *c, shm_general_t *g)
+{
+	int i, min, tmp_batch;
+
+	for(i = 0, tmp_batch = 0; i < get_merci(g); i++){
+		if(c[i].batch_size < tmp_batch || tmp_batch == 0) {
+			min = i;
+			tmp_batch = c[i].batch_size;
+		}
+	}
+ 	return min;
+}
