@@ -56,35 +56,32 @@ shm_offer_t *offer_shm_ports_get(shm_general_t *g)
 {
 	shm_offer_t *offer;
 
-	offer = malloc(sizeof(shm_offer_t));
+	offer = calloc(get_merci(g), sizeof(shm_offer_t));
 	if (offer == NULL) {
-		return NULL;
-	}
-
-	offer->data = calloc(get_merci(g), sizeof(int));
-	if (offer->data == NULL) {
 		return NULL;
 	}
 
 	return offer;
 }
 
-void offer_shm_set(shm_offer_t *o, int id, int type, int quantity)
+void offer_shm_set(shm_offer_t *o, shm_general_t *g, int id, int type,
+		   int quantity)
 {
 	if (o == NULL || quantity == 0) {
 		return;
 	}
 
-	o[id].data[type] += quantity;
+	o[GET_INDEX(id, type, get_merci(g))].data += quantity;
 }
 
-void offer_shm_remove(shm_offer_t *o, int id, int type, int quantity)
+void offer_shm_remove(shm_offer_t *o, shm_general_t *g, int id, int type,
+		      int quantity)
 {
 	if (o == NULL || quantity == 0) {
 		return;
 	}
 
-	o[id].data[type] -= quantity;
+	o[GET_INDEX(id, type, get_merci(g))].data -= quantity;
 }
 
 
@@ -96,19 +93,20 @@ void offer_shm_delete(shm_offer_t *o)
 void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *g,
 		     int id)
 {
-	int n, i;
+	int n, i, index;
 
 	n = get_merci(g);
 
 	for (i = 0; i < n; i++) {
-		src[id].data[i] += merge->data[i];
+		index = GET_INDEX(id, i, n);
+		src[index].data += merge[i].data;
 	}
 }
 
 shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *g, int id,
 				 int capacity)
 {
-	int i, n_merci, cnt;
+	int i, n_merci, cnt, index;
 	shm_offer_t *output;
 
 	cnt = 0;
@@ -116,17 +114,18 @@ shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *g, int id,
 	output = offer_shm_ports_get(g);
 
 	for (i = 0; i < n_merci || cnt == capacity; i++) {
-		if (o[id].data[i] == 0) {
+		index = GET_INDEX(id, i, n_merci);
+		if (o[index].data == 0) {
 			continue;
 		}
 
-		if (o[id].data[i] <= capacity - cnt) {
-			output->data[i] = o[id].data[i];
-			cnt += o[id].data[i];
-			o[id].data[i] = 0;
+		if (o[index].data <= capacity - cnt) {
+			output[i].data = o[index].data;
+			cnt += o[index].data;
+			o[index].data = 0;
 		} else {
-			output->data[i] = capacity - cnt;
-			o[id].data[i] -= capacity - cnt;
+			output[i].data = capacity - cnt;
+			o[index].data -= capacity - cnt;
 			cnt = capacity;
 		}
 	}
@@ -142,9 +141,7 @@ o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
 
 	output = cargo_list_create(g);
 	for (i = 0; i < get_merci(g); i++) {
-		cargo_list_merge(output,
-				 cargo_list_pop_needed(src, g, i, o->data[i]),
-				 g);
+		cargo_list_merge(output, cargo_list_pop_needed(src, g, i, o[i].data), g);
 	}
 
 	return output;
@@ -171,28 +168,24 @@ shm_demand_t *demand_shm_init(shm_general_t *g)
 	return demand;
 }
 
-void demand_shm_add(shm_demand_t *d, int id, int type, int quantity)
+void demand_shm_add(shm_demand_t *d, shm_general_t *g, int id, int type,
+		    int quantity)
 {
 	if (d == NULL || quantity == 0) {
 		return;
 	}
 
-	d[id].data[type] += quantity;
+	d[GET_INDEX(id, type, get_merci(g))].data += quantity;
 }
 
-
-void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity)
+void demand_shm_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
+		       int quantity)
 {
 	if (d == NULL || quantity == 0) {
 		return;
 	}
 
-	d[id].data[type] -= quantity;
-}
-
-int demand_shm_get(shm_demand_t *d, int id, int type)
-{
-	return d[id].data[type];
+	d[GET_INDEX(id, type, get_merci(g))].data -= quantity;
 }
 
 
@@ -243,63 +236,6 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 		dprintf(1, "done\n");
 		current_fill -= random_quantity;
 	}
-}
-
-void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
-				  int id_port, shm_general_t *g)
-{
-	int i, n_merci;
-
-	shm_offer_t *ship;
-	shm_demand_t *port;
-
-	ship = &o[id_ship];
-	port = &d[id_port];
-
-	n_merci = get_merci(g);
-
-	for (i = 0; i < n_merci; i++) {
-		if (port->data[i] == 0) {
-			continue;
-		}
-
-		if (ship->data[i] >= port->data[i]) {
-			ship->data[i] -= port->data[i];
-			port->data[i] = 0;
-		} else {
-			port->data[i] -= ship->data[i];
-			ship->data[i] = 0;
-		}
-	}
-}
-
-shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
-					     shm_general_t *g, int port_id,
-					     int ship_id)
-{
-	int i, n_merci;
-	shm_offer_t *output;
-
-	n_merci = get_merci(g);
-	output = offer_shm_ports_get(g);
-
-	for (i = 0; i < n_merci; i++) {
-		if (o[ship_id].data[i] == 0 || d[port_id].data[i] == 0) {
-			continue;
-		}
-
-		if (o[ship_id].data[i] > 0 && d[port_id].data[i] > 0) {
-			if (o[ship_id].data[i] >= d[port_id].data[i]) {
-				output->data[i] = o[port_id].data[i];
-				o[ship_id].data[i] -= d[port_id].data[i];
-			} else {
-				output->data[i] = o[ship_id].data[i];
-				o[ship_id].data[i] = 0;
-			}
-		}
-	}
-
-	return output;
 }
 
 int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id)

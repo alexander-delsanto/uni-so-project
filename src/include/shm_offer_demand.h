@@ -31,7 +31,8 @@ shm_offer_t *shm_offer_ports_attach(shm_general_t *g);
  * @param type the type of the offer data to be updated
  * @param quantity quantity to be added to the offer data
  */
-void offer_shm_set(shm_offer_t *o, int id, int type, int quantity);
+void offer_shm_set(shm_offer_t *o, shm_general_t *g, int id, int type,
+		   int quantity);
 
 /**
  * @brief Removes a specified quantity from the offer data in shared memory.
@@ -40,7 +41,8 @@ void offer_shm_set(shm_offer_t *o, int id, int type, int quantity);
  * @param type type of the offer data to be updated
  * @param quantity quantity to be subtracted from the offer data
  */
-void offer_shm_remove(shm_offer_t *o, int id, int type, int quantity);
+void offer_shm_remove(shm_offer_t *o, shm_general_t *g, int id, int type,
+		      int quantity);
 
 /**
  * @brief Delete a shared memory offer structure, freeing allocated memory.
@@ -89,20 +91,24 @@ shm_demand_t *demand_shm_init(shm_general_t *g);
 /**
  * @brief Sets the demand data in shared memory for a specific entity and type.
  * @param o pointer to the array of demands
+ * @param g pointer to general SHM
  * @param id the id of the entity for which the demand data is updated
  * @param type the type of the demand data to be updated
  * @param quantity quantity to be added to the demand data
  */
-void demand_shm_add(shm_demand_t *d, int id, int type, int quantity);
+void demand_shm_add(shm_demand_t *d, shm_general_t *g, int id, int type,
+		    int quantity);
 
 /**
  * @brief Removes a specified quantity from the demand data in shared memory.
  * @param d Pointer to the array of demands in shared memory.
+ * @param g pointer to general SHM
  * @param id Identifier of the entity for which the demand data is updated.
  * @param type Type of the demand data to be updated.
  * @param quantity Quantity to be subtracted from the demand data.
  */
-void demand_shm_remove(shm_demand_t *d, int id, int type, int quantity);
+void demand_shm_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
+		       int quantity);
 
 /**
  * @brief Return the quantity of requested item
@@ -130,39 +136,6 @@ void offer_demand_shm_delete(shm_general_t *g);
  */
 void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 			       int id, shm_cargo_t *c, shm_general_t *g);
-
-/**
- * @brief Performs a transaction between a ship's offer and a port's demand in shared memory.
- *
- * This function updates the quantities of goods in a ship's offer and a port's demand based on the transaction.
- * If the ship has enough goods for the demand, it deducts the demanded quantity from the ship and updates the port accordingly.
- * If the ship has insufficient goods, it deducts all available goods from the ship and updates the port's demand.
- *
- * @param o Pointer to the array of shared memory ship offers.
- * @param d Pointer to the array of shared memory port demands.
- * @param id_ship The index of the ship's offer in the shared memory.
- * @param id_port The index of the port's demand in the shared memory.
- * @param g Pointer to the shared memory structure containing general information.
- */
-void offer_demand_shm_transaction(shm_offer_t *o, shm_demand_t *d, int id_ship,
-				  int id_port, shm_general_t *g);
-
-/**
- * @brief Generate an order from a demand, considering available goods on a ship and at a port.
- *
- * This function calculates the order to be generated based on the available goods on a ship and at a port.
- * It iterates over different types of goods, considers the available quantities, and generates the order accordingly.
- *
- * @param o Pointer to the array of ship offers.
- * @param d Pointer to the array of port demands.
- * @param g Pointer to the shared memory structure containing general information.
- * @param port_id Index of the port in the demand array.
- * @param ship_id Index of the ship in the offer array.
- * @return Pointer to the newly generated order (shm_offer_t).
- */
-shm_offer_t *offer_shm_get_order_from_demand(shm_offer_t *o, shm_demand_t *d,
-					     shm_general_t *g, int port_id,
-					     int ship_id);
 
 int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id);
 int shm_demand_get_quantity(shm_general_t *g, shm_demand_t *d, int port_id, int cargo_id);
