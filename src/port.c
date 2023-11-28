@@ -76,16 +76,23 @@ void loop(void)
 {
 	int qt_expired;
 	int i, day;
+	int tot_expired = 0;
 
+	int n_merci;
+	int tot_demand;
+	n_merci = get_merci(state.general);
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
+			tot_demand = 0;
+			dprintf(1, "day %d\n", day);
 			/* TODO: new day operations */
 			state.current_day = day;
 			/* Dumping expired stuff */
-/*			qt_expired = cargo_list_remove_expired(state.cargo_hold,
+			qt_expired = cargo_list_remove_expired(state.cargo_hold,
 							    state.general);
-			dprintf(1, "expired: %d\n", qt_expired);*/
+			tot_expired += qt_expired;
+			dprintf(1, "port %d: expired: %d\n", state.id, qt_expired);
 /*			for (i = 0; i < get_merci(state.general); i++) {
 				port_shm_set_dump_expired(state.port, state.id,
 							  i, *expired);
@@ -95,8 +102,13 @@ void loop(void)
 			offer_demand_shm_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
 						  state.cargo, state.general);
+			for (i = 0; i < n_merci; i++) {
+				tot_demand += shm_demand_get_quantity(state.general, state.demand, state.id, i);
+			}
+			dprintf(1, "port %d: tot_expired %d, tot_demand %d, total: %d\n", state.id, tot_expired, tot_demand, tot_expired + tot_demand);
 		}
-		handle_message();
+
+		/*handle_message();*/
 	}
 }
 
@@ -118,7 +130,7 @@ void handle_message(void)
 	}
 	switch (status) {
 	case STATUS_REQUEST:
-		tmp_quantity = demand_shm_get(state.demand, state.id, cargo_id);
+		tmp_quantity = shm_demand_get_quantity(state.general, state.demand, state.id, cargo_id);
 		if (tmp_quantity == 0) {
 			msg = msg_commerce_create(sender_id, state.id, cargo_id,
 						  tmp_quantity, 0, 0,
@@ -127,25 +139,24 @@ void handle_message(void)
 			msg = msg_commerce_create(sender_id, state.id, cargo_id,
 						  quantity, 0, 0,
 						  STATUS_ACCEPTED);
-			demand_shm_remove(state.demand, state.id, cargo_id,
+			demand_shm_remove(state.demand, state.general, state.id, cargo_id,
 					  quantity);
 		} else {
 			msg = msg_commerce_create(sender_id, state.id, cargo_id,
 						  tmp_quantity, 0, 0,
 						  STATUS_ACCEPTED);
-			demand_shm_remove(state.demand, state.id, cargo_id,
+			demand_shm_remove(state.demand, state.general, state.id, cargo_id,
 					  tmp_quantity);
 		}
 
 		msg_commerce_send(get_msg_out_id(state.general), &msg);
 		break;
 	case STATUS_SELLING:
-		shm_port_set_dump_received(state.port, state.id, cargo_id,
-					   quantity);
+
 		break;
 	case STATUS_MISSING:
 	case STATUS_DEAD:
-		demand_shm_add(state.demand, state.id, cargo_id, quantity);
+		demand_shm_add(state.demand, state.general, state.id, cargo_id, quantity);
 		break;
 	case STATUS_LOAD_REQUEST:
 		/* Getting order from capacity */
@@ -164,9 +175,7 @@ void handle_message(void)
 						  STATUS_LOAD_ACCEPTED);
 			msg_commerce_send(get_msg_out_id(state.general), &msg);
 			/* Updating dump of sent items */
-			shm_port_set_dump_shipped(state.port, state.id,
-					       exp_node->id,
-					       exp_node->quantity);
+
 
 			free(exp_node);
 		}

@@ -201,7 +201,7 @@ struct coord find_new_destination_port(void)
 		sale_amount = 0;
 		for (cargo_type = 0; cargo_type < get_merci(state.general); cargo_type++) {
 			amount_not_expired = get_not_expired_by_day(state.cargo_hold, cargo_type, state.current_day + (int) distance);
-			port_demand = demand_shm_get(state.demand, port, cargo_type);
+			port_demand = shm_demand_get_quantity(state.general, state.demand, port, cargo_type);
 			sale_amount += MIN(amount_not_expired, port_demand);
 		}
 
