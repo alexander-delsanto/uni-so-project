@@ -116,7 +116,7 @@ void demand_shm_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
  * @param id Identifier of the port for which the demand data is requested.
  * @param type Type of the demand data to be requested.
  */
-int demand_shm_get(shm_demand_t *d, int id, int type);
+/*int demand_shm_get(shm_demand_t *d, int id, int type);*/
 
 
 /**
