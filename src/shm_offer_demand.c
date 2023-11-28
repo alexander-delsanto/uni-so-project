@@ -222,6 +222,7 @@ void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 	while (current_fill > 0) {
 		random_id = RANDOM_INTEGER(0, n_merci - 1);
 		random_quantity = RANDOM_INTEGER(1, size) % current_fill;
+		index = GET_INDEX(id, random_id, n_merci);
 
 		if (d->data[random_id] > 0) {
 			d[id].data[random_id] += random_quantity;
