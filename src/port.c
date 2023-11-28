@@ -50,12 +50,12 @@ int main(int argc, char *argv[])
 
 	state.id = (int)strtol(argv[1], NULL, 10);
 
-	general_shm_attach(&state.general);
+	shm_general_attach(&state.general);
 	if (state.general == NULL) {
 		close_all();
 		exit(1);
 	}
-	state.port = port_shm_attach(state.general);
+	state.port = shm_port_attach(state.general);
 	state.cargo = shm_cargo_attach(state.general);
 	state.offer = offer_shm_ports_init(state.general);
 	state.demand = demand_shm_init(state.general);
@@ -83,9 +83,9 @@ void loop(void)
 			/* TODO: new day operations */
 			state.current_day = day;
 			/* Dumping expired stuff */
-			qt_expired = cargo_list_remove_expired(state.cargo_hold,
+/*			qt_expired = cargo_list_remove_expired(state.cargo_hold,
 							    state.general);
-			dprintf(1, "expired: %d\n", qt_expired);
+			dprintf(1, "expired: %d\n", qt_expired);*/
 /*			for (i = 0; i < get_merci(state.general); i++) {
 				port_shm_set_dump_expired(state.port, state.id,
 							  i, *expired);
@@ -94,7 +94,7 @@ void loop(void)
 			/* Generation of new demand/offer */
 			offer_demand_shm_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
-						  state.general);
+						  state.cargo, state.general);
 		}
 		handle_message();
 	}
@@ -140,7 +140,7 @@ void handle_message(void)
 		msg_commerce_send(get_msg_out_id(state.general), &msg);
 		break;
 	case STATUS_SELLING:
-		port_shm_set_dump_received(state.port, state.id, cargo_id,
+		shm_port_set_dump_received(state.port, state.id, cargo_id,
 					   quantity);
 		break;
 	case STATUS_MISSING:
@@ -164,7 +164,7 @@ void handle_message(void)
 						  STATUS_LOAD_ACCEPTED);
 			msg_commerce_send(get_msg_out_id(state.general), &msg);
 			/* Updating dump of sent items */
-			port_shm_set_dump_shipped(state.port, state.id,
+			shm_port_set_dump_shipped(state.port, state.id,
 					       exp_node->id,
 					       exp_node->quantity);
 
@@ -209,7 +209,7 @@ void generate_coordinates(void)
 		break;
 	}
 
-	port_shm_set_coordinates(state.port, state.id, coordinates);
+	shm_port_set_coordinates(state.port, state.id, coordinates);
 }
 
 void generate_docks(void)
@@ -220,7 +220,7 @@ void generate_docks(void)
 	/* TODO: gen semaphore
 	state.sem_id = sem_create(100, n);*/
 
-	port_shm_set_docks(state.port, state.id, n);
+	shm_port_set_docks(state.port, state.id, n);
 }
 
 void signal_handler_init(void)
@@ -244,9 +244,9 @@ void signal_handler(int signal)
 	case SIGDAY:
 		break;
 	case SIGSWELL:
-		port_shm_set_is_in_swell(state.port, state.id, TRUE);
+		shm_port_set_is_in_swell(state.port, state.id, TRUE);
 		convert_and_sleep(get_swell_duration(state.general) / 24.0);
-		port_shm_set_is_in_swell(state.port, state.id, FALSE);
+		shm_port_set_is_in_swell(state.port, state.id, FALSE);
 		break;
 	case SIGSEGV:
 		dprintf(1, "Received SIGSEGV signal.\n");
@@ -262,8 +262,8 @@ void signal_handler(int signal)
 void close_all(void)
 {
 	cargo_list_delete(state.cargo_hold, state.general);
-	port_shm_detach(state.port);
+	shm_port_detach(state.port);
 	shm_cargo_detach(state.cargo);
-	general_shm_detach(state.general);
+	shm_general_detach(state.general);
 	exit(EXIT_SUCCESS);
 }

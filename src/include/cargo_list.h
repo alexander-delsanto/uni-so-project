@@ -31,7 +31,7 @@ void cargo_list_add(o_list_t *list, int type, int quantity, int expire);
  * @param g pointer to general SHM
  * @return the quantity of goods removed
  */
-int *cargo_list_remove_expired(o_list_t *list, shm_general_t *c);
+int cargo_list_remove_expired(o_list_t *list, shm_general_t *g);
 
 /**
  * @brief pops the expires of needed quantity for element id

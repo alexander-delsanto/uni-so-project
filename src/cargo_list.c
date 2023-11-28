@@ -103,26 +103,26 @@ void cargo_list_add_node(o_list_t *list, int type, struct node *node)
 	}
 }
 
-int *cargo_list_remove_expired(o_list_t *list, shm_general_t *c)
+int cargo_list_remove_expired(o_list_t *list, shm_general_t *g)
 {
 	struct node *tmp;
-	int i, n_merci, expire_day, *qt;
+	int i, n_merci, expire_day, qt = 0;
 
 	if (list == NULL) {
-		return NULL;
+		return 0;
 	}
 
 	n_merci = get_merci(g);
 	expire_day = get_current_day(g);
 
-	qt = calloc(n_merci, sizeof(int));
+	/*qt = calloc(n_merci, sizeof(int));*/
 
 	for (i = 0; i < n_merci; i++) {
 		if (list[i].head != NULL &&
 		    list[i].head->expire == expire_day) {
-			qt[i] = list[i].head->quantity;
+			qt += list[i].head->quantity;
 			tmp = list[i].head;
-			list[i].head = list[i].head->next;
+			list[i].head = tmp->next;
 			free(tmp);
 		}
 	}

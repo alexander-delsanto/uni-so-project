@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "shm_general.h"
+#include "shm_cargo.h"
 #include "cargo_list.h"
 #include "types.h"
 
@@ -128,7 +129,7 @@ void offer_demand_shm_delete(shm_general_t *g);
  * @param g pointer to general SHM
  */
 void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
-			       int id, shm_general_t *c);
+			       int id, shm_cargo_t *c, shm_general_t *g);
 
 /**
  * @brief Performs a transaction between a ship's offer and a port's demand in shared memory.
