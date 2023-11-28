@@ -3,6 +3,7 @@
 
 #include "include/shm_general.h"
 #include "include/cargo_list.h"
+#include "include/shm_cargo.h"
 
 struct node {
 	int quantity;
