@@ -23,11 +23,6 @@ struct shm_port {
 
 	bool_t dump_had_swell;
 
-	int *dump_sent;
-	int *dump_present;
-	int *dump_received;
-	int *dump_expired;
-
 	int dump_cargo_available;
 	int dump_cargo_shipped;
 	int dump_cargo_received;
