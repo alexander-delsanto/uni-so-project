@@ -22,11 +22,17 @@ int shm_cargo_get_dump_total_generated(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_stayed_in_port(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_expired_in_port(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_expired_on_ship(shm_cargo_t *c, int id);
+int shm_cargo_get_dump_received_in_port(shm_cargo_t *c, int id);
+int shm_cargo_get_dump_available_in_port(shm_cargo_t *c, int id);
+int shm_cargo_get_dump_available_on_ship(shm_cargo_t *c, int id);
 
 /* Setters */
 void shm_cargo_set_dump_total_generated(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_stayed_in_port(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_expired_in_port(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_expired_on_ship(shm_cargo_t *c, int id, int quantity);
+void shm_cargo_set_dump_received_in_port(shm_cargo_t *c, int id, int quantity);
+void shm_cargo_set_dump_available_in_port(shm_cargo_t *c, int id, int quantity);
+void shm_cargo_set_dump_available_on_ship(shm_cargo_t *c, int id, int quantity);
 
 #endif

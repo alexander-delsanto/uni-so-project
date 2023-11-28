@@ -20,9 +20,6 @@ struct shm_ship {
 	bool_t is_moving;
 	struct coord coords;
 
-	int *dump_present;
-	int *dump_expired;
-
 	bool_t dump_with_cargo;
 	bool_t dump_on_port;
 	bool_t dump_had_storm;
@@ -93,16 +90,7 @@ void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value)
 /* Dump setters */
 void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value) { s[id].dump_with_cargo = value; }
 void shm_ship_set_dump_had_storm(shm_ship_t *s, int id) { s[id].dump_had_storm = TRUE; }
-void shm_ship_set_dump_present(shm_ship_t *s, int ship_id, int id, int quantity)
-{
-	s[ship_id].dump_present[id] += quantity;
-}
 
-void shm_ship_set_dump_expired(shm_ship_t *s, int ship_id, int id, int quantity)
-{
-	s[ship_id].dump_expired[id] += quantity;
-	s[ship_id].dump_present[id] -= quantity;
-}
 
 /* Getters */
 pid_t shm_ship_get_pid(shm_ship_t *s, int id) { return s[id].pid; }
@@ -182,8 +170,5 @@ int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
 			cnt++;
 	return cnt;
 }
-
-int shm_ship_get_dump_present_by_id(shm_ship_t *s, int ship_id, int id){return s[ship_id].dump_present[id];}
-int shm_ship_get_dump_expired_by_id(shm_ship_t *s, int ship_id, int id){return s[ship_id].dump_expired[id];}
 
 
