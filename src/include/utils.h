@@ -4,7 +4,7 @@
 /**
  * @return a random integer between min and max (included).
  */
-#define RANDOM_INTEGER(min, max) ((random() % ((max) - (min) + 1)) + (min))
+#define RANDOM_INTEGER(min, max) ((int)((random() % ((max) - (min) + 1)) + (min)))
 
 /**
  * @return a random double between min and max (included).
