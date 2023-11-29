@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "include/shm_general.h"
 #include "include/cargo_list.h"
-#include "include/types.h"
 
 struct node {
 	int quantity;
@@ -16,126 +14,81 @@ struct o_list {
 };
 
 static struct node *create_node(int quantity, int expire);
-void cargo_list_add_node(o_list_t *list, int type, struct node *node);
-int cargo_list_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c, bool_t source);
 
-o_list_t *cargo_list_create(shm_general_t *g)
+o_list_t *cargo_list_create(void)
 {
 	o_list_t *list;
-	int i, n_merci;
 
-	n_merci = get_merci(g);
-
-	list = malloc(sizeof(struct o_list) * get_merci(g));
+	list = calloc(1, sizeof(o_list_t));
 	if (list == NULL) {
 		return NULL;
 	}
-
-	for (i = 0; i < n_merci; i++) {
-		list[i].head = NULL;
-	}
+	list->head = NULL;
 
 	return list;
 }
 
-void cargo_list_add(o_list_t *list, int type, int quantity, int expire)
+void cargo_list_add(o_list_t *list, int quantity, int expire)
 {
-	struct node *node, *prev, *curr;
+	struct node *node, *prev, *cur;
 
 	if (list == NULL) {
 		return;
 	}
 
 	prev = NULL;
-	curr = list[type].head;
+	cur = list->head;
 
 	while (1) {
 		/* If list is empty or expiration date is lower than current element */
-		if (curr == NULL || curr->expire > expire) {
+		if (cur == NULL || cur->expire > expire) {
 			node = create_node(quantity, expire);
 			if (node == NULL) {
 				return;
 			}
-			node->next = curr;
+			node->next = cur;
 			if (prev != NULL) {
 				prev->next = node;
 			} else {
-				list[type].head = node;
+				list->head = node;
 			}
 
 			break;
-		} else if (curr->expire == expire) {
-			curr->quantity += quantity;
+		} else if (cur->expire == expire) {
+			cur->quantity += quantity;
 			break;
 		}
-		prev = curr;
-		curr = curr->next;
+		prev = cur;
+		cur = cur->next;
 	}
 }
 
-void cargo_list_add_node(o_list_t *list, int type, struct node *node)
-{
-	struct node *prev, *curr;
-
-	if (list == NULL) {
-		return;
-	}
-
-	prev = NULL;
-	curr = list[type].head;
-
-	while (1) {
-		/* If list is empty or expiration date is lower than current element */
-		if (curr == NULL || curr->expire > node->expire) {
-			node->next = curr;
-			if (prev != NULL) {
-				prev->next = node;
-			} else {
-				list[type].head = node;
-			}
-
-			break;
-		} else if (curr->expire == node->expire) {
-			curr->quantity += node->quantity;
-			free(node);
-			break;
-		}
-		prev = curr;
-		curr = curr->next;
-	}
-}
-
-int cargo_list_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c, bool_t source)
+int cargo_list_remove_expired(o_list_t *list, int expire_day)
 {
 	struct node *tmp;
-	int i, n_merci, expire_day, qt = 0;
+	int qt;
 
 	if (list == NULL) {
+		return -1;
+	}
+
+	if (list->head == NULL) {
 		return 0;
 	}
 
-	n_merci = get_merci(g);
-	expire_day = get_current_day(g);
+	qt = 0;
 
-	/*qt = calloc(n_merci, sizeof(int));*/
-
-	for (i = 0; i < n_merci; i++) {
-		if (list[i].head != NULL &&
-		    list[i].head->expire == expire_day) {
-			if(source) shm_cargo_set_dump_daily_expired_in_port(c, i, list[i].head->quantity);
-			else shm_cargo_set_dump_daily_expired_on_ship(c, i, list[i].head->quantity);
-			qt += list[i].head->quantity;
-			tmp = list[i].head;
-			list[i].head = tmp->next;
-			free(tmp);
-		}
+	if (list->head->expire == expire_day) {
+		qt = list->head->quantity;
+		tmp = list->head;
+		list->head = list->head->next;
+		free(tmp);
 	}
 
 	return qt;
 }
 
-o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *g, int id,
-				int quantity)
+o_list_t *cargo_list_pop_needed(o_list_t *list, int quantity)
 {
 	o_list_t *output;
 
@@ -146,27 +99,27 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *g, int id,
 		return NULL;
 	}
 
-	if (list[id].head == NULL || quantity == 0) {
+	if (list->head == NULL || quantity == 0) {
 		return NULL;
 	}
 
-	output = cargo_list_create(g);
+	output = cargo_list_create();
 	if (output == NULL) {
 		return NULL;
 	}
 
 	cnt = quantity;
 
-	while (list[id].head->next != NULL || cnt > 0) {
-		if (list[id].head->quantity <= cnt) {
-			cnt -= list[id].head->quantity;
-			tmp = list[id].head;
-			cargo_list_add_node(output, id, tmp);
-			list[id].head = list[id].head->next;
+	while (list->head->next != NULL || cnt > 0) {
+		if (list->head->quantity <= cnt) {
+			cargo_list_add(output, list->head->quantity, list->head->expire);
+			cnt -= list->head->quantity;
+			tmp = list->head;
+			list->head = list->head->next;
+			free(tmp);
 		} else {
-			tmp = create_node(cnt, list[id].head->expire);
-			cargo_list_add_node(output, id, tmp);
-			list[id].head->quantity -= cnt;
+			cargo_list_add(output, cnt, list->head->expire);
+			list->head->quantity -= cnt;
 			break;
 		}
 	}
@@ -174,139 +127,48 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *g, int id,
 	return output;
 }
 
-int cargo_list_get_quantity_by_id(o_list_t *list, int id)
+void cargo_list_delete(o_list_t *list)
 {
-	struct node *tmp;
-	int cnt;
+	struct node *cur, *tmp;
 
-	if (list == NULL) {
-		return -1;
-	}
+	cur = list->head;
 
-	tmp = list[id].head;
-	cnt = 0;
-
-	while (tmp != NULL) {
-		cnt += tmp->quantity;
-		tmp = tmp->next;
-	}
-
-	return cnt;
-}
-
-int cargo_list_get_quantity(o_list_t *list, shm_general_t *g)
-{
-	struct node *tmp;
-	int cnt;
-	int id = 0;
-
-	if (list == NULL) {
-		return -1;
-	}
-
-	tmp = list[id].head;
-	cnt = 0;
-	for(id = 0; id < get_merci(g); id++) {
-		while (tmp != NULL) {
-			cnt += tmp->quantity;
-			tmp = tmp->next;
-		}
-	}
-	return cnt;
-}
-
-int cargo_list_get_first_expire(o_list_t *list, shm_general_t *g, int id)
-{
-	if (list == NULL || list[id].head == NULL) {
-		return -1;
-	}
-
-	return list[id].head->expire;
-}
-
-void cargo_list_delete(o_list_t *list, shm_general_t *g)
-{
-	struct node *curr, *tmp;
-	int i, n;
-
-	n = get_merci(g);
-
-	for (i = 0; i < n; i++) {
-		curr = list[i].head;
-
-		while (curr != NULL) {
-			tmp = curr;
-			curr = curr->next;
-			free(tmp);
-		}
+	while (cur != NULL) {
+		tmp = cur;
+		cur = cur->next;
+		free(tmp);
 	}
 
 	free(list);
 }
 
-void cargo_list_merge(o_list_t *src, o_list_t *merge, shm_general_t *g)
+void cargo_list_print_all(o_list_t *list)
 {
-	struct node *curr;
-	int i, n_merci;
+	struct node *cur;
 
-	n_merci = get_merci(g);
+	cur = list->head;
 
-	for (i = 0; i < n_merci; i++) {
-		curr = merge[i].head;
-		while (curr->next != NULL) {
-			cargo_list_add_node(src, i, curr);
-			curr = curr->next;
-		}
+	while (cur != NULL) {
+		printf("%d %d\n", cur->quantity, cur->expire);
+		cur = cur->next;
 	}
 }
 
-void cargo_list_print_all(o_list_t *list, shm_general_t *g)
-{
-	struct node *curr;
-
-	int i, n;
-
-	n = get_merci(g);
-
-	for (i = 0; i < n; i++) {
-		curr = list[i].head;
-		printf("Element of type %d:\n", i);
-		while (curr != NULL) {
-			printf("%d %d\n", curr->quantity, curr->expire);
-			curr = curr->next;
-		}
-		printf("\n");
-	}
-}
-
-
-struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *g)
-{
+void cargo_list_pop(o_list_t *list, int *quantity, int *expire_day) {
 	struct node *tmp;
-	struct node_msg *output;
 
-	int i, n;
-
-	output = NULL;
-	n = get_merci(g);
-
-	for (i = 0; i < n; i++) {
-		if (list[i].head == NULL) {
-			continue;
-		}
-
-		output = malloc(sizeof(struct node_msg));
-		output->quantity = list[i].head->quantity;
-		output->expire = list[i].head->expire;
-		output->id = i;
-
-		tmp = list[i].head;
-		list[i].head = list[i].head->next;
-		free(tmp);
-		break;
+	if (list == NULL || list->head == NULL) {
+		*quantity = -1;
+		*expire_day = -1;
+		return;
 	}
 
-	return output;
+	*quantity = list->head->quantity;
+	*expire_day = list->head->expire;
+
+	tmp = list->head;
+	list->head = list->head->next;
+	free(tmp);
 }
 
 int cargo_list_get_not_expired_by_day(o_list_t *list, int expire_day) {
@@ -357,29 +219,4 @@ static struct node *create_node(int quantity, int expire)
 	node->next = NULL;
 
 	return node;
-}
-
-int get_not_expired_by_day(o_list_t *list, int cargo_type, int day)
-{
-	/* Need to test */
-	int res;
-	struct node *curr;
-	res = 0;
-	for (curr = list[cargo_type].head; curr != NULL; curr = curr->next) {
-		if (curr->expire > day) {
-			res += curr->quantity;
-		}
-	}
-	return res;
-}
-
-/* wrappers */
-int cargo_list_port_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c)
-{
-	return cargo_list_remove_expired(list, g, c, TRUE);
-}
-
-int cargo_list_ship_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c)
-{
-	return cargo_list_remove_expired(list, g, c, FALSE);
 }

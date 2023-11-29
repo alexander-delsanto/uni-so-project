@@ -1,7 +1,9 @@
-#ifndef OS_PROJECT_LIST_H
+/*
+#ifndef OS_PROJECT__CARGO_LIST_H
 #define OS_PROJECT_LIST_H
 
-#include "shm_cargo.h"
+#include "../../src/include/shm_cargo.h"
+#include "../../src/include/shm_ship.h"
 
 struct node_msg {
 	int id;
@@ -48,9 +50,13 @@ int cargo_list_port_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t
  * @brief removes a node with a specific expiration date from the list of a ship.
  * @param list the list of cargoes
  * @param g pointer to general SHM
+ * @param s pointer to ship SHM
+ * @param ship_id identifier of the ship
+ * @param c pointer to cargo SHM
  * @return the quantity of goods removed
- */
-int cargo_list_ship_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c);
+ *//*
+
+int cargo_list_ship_remove_expired(o_list_t *list, shm_general_t *g, shm_ship_t *s, int ship_id, shm_cargo_t *c);
 
 */
 /**
@@ -148,6 +154,10 @@ int get_not_expired_by_day(o_list_t *list, int cargo_type, int day);
  *//*
 
 void cargo_list_print_all(o_list_t *list, shm_general_t *g);
+
+void cargo_list_pop(o_list_t *list, int *quantity, int *expiration_date);
+
+void cargo_list_print_single(o_list_t *list);
 
 #endif
 */

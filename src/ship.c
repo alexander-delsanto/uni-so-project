@@ -96,11 +96,7 @@ int main(int argc, char *argv[])
 
 void loop(void)
 {
-	int receiver_port;
-	int day;
 	int id_dest_port;
-	struct coord dest_port_coords;
-	struct commerce_msg msg;
 
 	id_dest_port = pick_first_destination_port();
 	move(id_dest_port);
@@ -117,7 +113,9 @@ void loop(void)
 			shm_ship_set_dump_with_cargo(state.ship, state.id, TRUE);
 		}*/
 		id_dest_port = find_new_destination_port();
+		dprintf(1, "ship %d: moving to port %d\n", state.id, id_dest_port);
 		move(id_dest_port);
+		dprintf(1, "ship %d: arrived to port %d\n", state.id, id_dest_port);
 		trade();
 	}
 }
@@ -215,14 +213,19 @@ void trade(void)
 	/* Requesting dock */
 	sem_execute_semop(sem_docks_id, state.curr_port_id, -1, 0);
 	shm_ship_set_is_at_dock(state.ship, state.id, TRUE);
+	dprintf(1, "ship %d: got dock at port %d\n", state.id, state.curr_port_id);
 
 	/* Selling */
 	if (shm_ship_get_capacity(state.ship, state.id) < get_capacity(state.general)) {
+		dprintf(1, "ship %d: selling to port %d\n", state.id, state.curr_port_id);
 		for (i = 0; i < n_cargo; i++) {
-			cargo_list_ship_remove_expired(state.cargo_hold, state.general, state.cargo);
+			n_expired = cargo_list_remove_expired(state.cargo_hold[i], get_current_day(state.general));
+			shm_ship_update_capacity(state.ship, state.id, n_expired * shm_cargo_get_size(state.cargo, i));
+			/*cargo_list_ship_remove_expired(state.cargo_hold, state.general, state.ship, state.id, state.cargo);*/
 			sigprocmask(SIG_BLOCK, &mask, NULL);
 			tons_moved = sell(i);
 			sigprocmask(SIG_UNBLOCK, &mask, NULL);
+			dprintf(1, "ship %d: unloading %d tons at port %d\n", state.id, tons_moved, state.curr_port_id);
 			convert_and_sleep(tons_moved / (double)load_speed);
 		}
 	}
@@ -230,15 +233,19 @@ void trade(void)
 	/* Buying */
 	cargo_type = RANDOM_INTEGER(0, n_cargo -1);
 	for (i = 0; i < n_cargo; i++) {
-		cargo_list_ship_remove_expired(state.cargo_hold, state.general, state.cargo);
-
+		dprintf(1, "ship %d: buying from port %d\n", state.id, state.curr_port_id);
+		n_expired = cargo_list_remove_expired(state.cargo_hold[i], get_current_day(state.general));
+		shm_ship_update_capacity(state.ship, state.id, n_expired * shm_cargo_get_size(state.cargo, i));
+		/*cargo_list_ship_remove_expired(state.cargo_hold, state.general, state.ship, state.id, state.cargo);*/
 		cargo_type = (cargo_type + i) % n_cargo;
+		dprintf(1, "port %d offers %d of cargo %d\n", state.curr_port_id, shm_offer_get_quantity(state.general, state.offer, state.curr_port_id, cargo_type), cargo_type);
 		if (shm_offer_get_quantity(state.general, state.offer, state.curr_port_id, cargo_type) <= 0)
 			continue;
 		sigprocmask(SIG_BLOCK, &mask, NULL);
 		tons_moved = buy(cargo_type);
 		sigprocmask(SIG_UNBLOCK, &mask, NULL);
 
+		dprintf(1, "ship %d: loading %d tons at port %d\n", state.id, tons_moved, state.curr_port_id);
 		convert_and_sleep(tons_moved / (double)load_speed);
 	}
 
@@ -334,9 +341,8 @@ void signal_handler(int signal)
 		shm_ship_set_is_dead(state.ship, state.id);
 		close_all();
 	case SIGSEGV:
-		dprintf(1, "Received SIGSEGV signal.\n");
-		dprintf(2, "ship.c: id: %d: Segmentation fault. Terminating.\n",
-			state.id);
+		dprintf(1, "ship.c: id: %d: Received SIGSEGV signal.\n", state.id);
+
 	case SIGINT:
 		close_all();
 	}

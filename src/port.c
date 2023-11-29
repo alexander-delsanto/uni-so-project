@@ -27,7 +27,7 @@ struct state {
 
 	shm_offer_t *offer;
 	shm_demand_t *demand;
-	o_list_t *cargo_hold;
+	o_list_t **cargo_hold;
 
 	int current_day;
 };
@@ -35,6 +35,8 @@ struct state {
 void signal_handler(int signal);
 void signal_handler_init(void);
 void loop(void);
+
+void respond_ship_msg(int ship_id, int cargo_type, int amount, int status);
 
 void generate_coordinates(void);
 void handle_message(void);
@@ -60,7 +62,11 @@ int main(int argc, char *argv[])
 	state.cargo = shm_cargo_attach(state.general);
 	state.offer = shm_offer_ports_init(state.general);
 	state.demand = shm_demand_init(state.general);
-	state.cargo_hold = cargo_list_create(state.general);
+	state.cargo_hold = malloc(8 * get_merci(state.general));
+	for (i = 0; i < get_merci(state.general); i++) {
+		state.cargo_hold[i] = cargo_list_create();
+	}
+
 
 	srand(time(NULL) * getpid());
 	generate_coordinates();
@@ -78,8 +84,10 @@ int main(int argc, char *argv[])
 
 void loop(void)
 {
+	int msg_in_id = msg_in_get_id(state.general);
+	int ship_id, needed_type, needed_amount, status;
 	int sem_dump_id;
-	int qt_expired;
+	int qt_expired = 0;
 	int i, day;
 	int tot_expired = 0;
 
@@ -93,7 +101,6 @@ void loop(void)
 		if (state.current_day < day) {
 			tot_demand = 0;
 			state.current_day = day;
-			dprintf(1, "port %d: daily update\n", state.id);
 			/* Dumping expired stuff */
 			for (i = 0; i < n_merci; i++) {
 				qt_expired += cargo_list_remove_expired(state.cargo_hold[i], state.current_day);
@@ -103,7 +110,6 @@ void loop(void)
 			shm_port_set_dump_cargo_available(state.port, state.id,
 							  shm_offer_get_tot_quantity(state.general, state.offer, state.id));
 			/* Generation of new demand/offer */
-
 			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
 						  state.cargo, state.general);
@@ -112,87 +118,61 @@ void loop(void)
 			}
 			dprintf(1, "port %d: tot_expired: %d, tot_demand: %d, tot: %d\n", state.id, tot_expired, tot_demand, tot_expired + tot_demand);*/
 		}
-
-		/* TODO fix handle_message() */
-		/*handle_message();*/
+		if (msg_commerce_receive(msg_in_id, state.id, &ship_id, &needed_type, &needed_amount, NULL, &status, FALSE)) {
+			dprintf(1, "port %d: got message from ship %d with status %d requesting %d of cargo %d\n", state.id, ship_id, status,
+				needed_amount, needed_type);
+			respond_ship_msg(ship_id, needed_type, needed_amount,
+					 status);
+		}
 	}
 }
 
-/*void handle_message(void)
+
+
+void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 {
-	shm_offer_t *order;
-	o_list_t *order_expires;
-
-	struct node_msg *exp_node;
-
+	o_list_t *cargo;
 	struct commerce_msg msg;
-	int tmp_quantity;
-	int sender_id, cargo_id, quantity, expiry_date, capacity, status;
+	int msg_out_id = msg_out_get_id(state.general);
+	int port_amount;
+	int quantity, expiration_date;
 
-	if (!msg_commerce_receive(msg_in_get_id(state.general), state.id,
-				  &sender_id, &cargo_id, &quantity,
-				  &expiry_date, &status, FALSE)) {
-		return;
-	}
-	switch (status) {
-	case STATUS_REQUEST:
-		tmp_quantity = shm_demand_get_quantity(state.general, state.demand, state.id, cargo_id);
-		if (tmp_quantity == 0) {
-			msg = msg_commerce_create(sender_id, state.id, cargo_id,
-						  tmp_quantity, 0,
-						  STATUS_REFUSED);
-		} else if (tmp_quantity >= quantity) {
-			msg = msg_commerce_create(sender_id, state.id, cargo_id,
-						  quantity, 0,
-						  STATUS_ACCEPTED);
-			shm_demand_remove(state.demand, state.general, state.id, cargo_id,
-					  quantity);
-		} else {
-			msg = msg_commerce_create(sender_id, state.id, cargo_id,
-						  tmp_quantity, 0,
-						  STATUS_ACCEPTED);
-			shm_demand_remove(state.demand, state.general, state.id, cargo_id,
-					  tmp_quantity);
+	int exchanged_amount;
+
+	if (status == STATUS_SELL) { /* Port is buying */
+		port_amount = shm_demand_get_quantity(state.general, state.demand, state.id, cargo_type);
+		exchanged_amount = MIN(amount, port_amount);
+		shm_demand_remove_quantity(state.demand, state.general, state.id, cargo_type, exchanged_amount);
+		msg = msg_commerce_create(ship_id, state.id, cargo_type, exchanged_amount, -1, STATUS_ACCEPTED);
+		msg_commerce_send(msg_out_id, &msg);
+
+	} else if (status == STATUS_BUY) { /* Port is selling */
+		port_amount = shm_offer_get_quantity(state.general, state.offer, state.id, cargo_type);
+		if (port_amount <= 0) {
+			msg = msg_commerce_create(ship_id, state.id, -1, -1, -1, STATUS_REFUSED);
+			msg_commerce_send(msg_out_id, &msg);
+			return;
 		}
-
-		msg_commerce_send(msg_out_get_id(state.general), &msg);
-		break;
-	case STATUS_SELLING:
-
-		break;
-	case STATUS_MISSING:
-	case STATUS_DEAD:
-		shm_demand_set(state.demand, state.general, state.id, cargo_id, quantity);
-		break;
-	case STATUS_LOAD_REQUEST:
-		*//* Getting order from capacity *//*
-		order = shm_offer_get_order(state.offer, state.general,
-					    state.id, capacity);
-		*//* Getting order expires *//*
-		order_expires = shm_offer_get_order_expires(state.cargo_hold, order,
-							    state.general);
-		while ((exp_node = cargo_list_pop_order(
-				order_expires, state.general)) != NULL) {
-			*//* Sending items *//*
-			msg = msg_commerce_create(sender_id, state.id,
-						  exp_node->id,
-						  exp_node->quantity,
-						  exp_node->expire,
-						  STATUS_LOAD_ACCEPTED);
-			msg_commerce_send(msg_out_get_id(state.general), &msg);
-			*//* Updating dump of sent items *//*
-
-
-			free(exp_node);
+		exchanged_amount = MIN(amount, port_amount);
+		dprintf(1, "requested_amount: %d, port_amount: %d, exchanged_amount: %d\n", amount, port_amount, exchanged_amount);
+		shm_offer_remove_quantity(state.offer, state.general, state.id, cargo_type, exchanged_amount);
+		cargo = cargo_list_pop_needed(state.cargo_hold[cargo_type], exchanged_amount);
+		dprintf(1, "after pop_needed\n");
+		cargo_list_print_all(cargo);
+		while (exchanged_amount > 0) {
+			cargo_list_pop(cargo, &quantity, &expiration_date);
+			if (quantity != -1)
+				dprintf(1, "port %d: - quantity: %d, exp_date: %d\n", state.id, quantity, expiration_date);
+			exchanged_amount -= quantity;
+			status = exchanged_amount <= 0 ? STATUS_ACCEPTED : STATUS_PARTIAL;
+			msg = msg_commerce_create(ship_id, state.id, cargo_type, quantity, expiration_date, status);
+			msg_commerce_send(msg_out_id, &msg);
 		}
-
-		cargo_list_delete(order_expires, state.general);
-		shm_offer_delete(order);
-		break;
-	default:
-		break;
+	} else {
+		msg = msg_commerce_create(ship_id, state.id, -1, -1, -1, STATUS_REFUSED);
+		msg_commerce_send(msg_out_id, &msg);
 	}
-}*/
+}
 
 void generate_coordinates(void)
 {
@@ -250,9 +230,7 @@ void signal_handler(int signal)
 		shm_port_set_is_in_swell(state.port, state.id, FALSE);
 		break;
 	case SIGSEGV:
-		dprintf(1, "Received SIGSEGV signal.\n");
-		dprintf(2, "port.c: id: %d: Segmentation fault. Terminating.\n",
-			state.id);
+		dprintf(1, "port.c: id: %d: Received SIGSEGV signal.\n", state.id);
 	case SIGINT:
 		close_all();
 	default:
