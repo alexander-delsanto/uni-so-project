@@ -90,8 +90,8 @@ void loop(void)
 		if (state.current_day < day) {
 			state.current_day = day;
 			/* Dumping expired stuff */
-			qt_expired = cargo_list_remove_expired(state.cargo_hold,
-							    state.general);
+			qt_expired = cargo_list_port_remove_expired(state.cargo_hold,
+							    state.general, state.cargo);
 			tot_expired += qt_expired;
 /*			for (i = 0; i < get_merci(state.general); i++) {
 				port_shm_set_dump_expired(state.port, state.id,

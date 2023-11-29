@@ -106,7 +106,13 @@ void loop(void) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
 			state.current_day = day;
-			cargo_list_remove_expired(state.cargo_hold, state.general);
+			cargo_list_ship_remove_expired(state.cargo_hold,state.general, state.cargo);
+		}
+
+		if(cargo_list_get_quantity(state.cargo_hold, state.general) == 0) {
+			shm_ship_set_dump_with_cargo(state.ship, state.id, FALSE);
+		} else {
+			shm_ship_set_dump_with_cargo(state.ship, state.id, TRUE);
 		}
 /*		id_dest_port = find_new_destination_port();
 		move(id_dest_port);
@@ -121,7 +127,7 @@ void handle_message(void)
 
 	if (!msg_commerce_receive(get_msg_out_id(state.general), state.id,
 				  &sender_id, &cargo_id, &quantity,
-				  &expiry_date, NULL, &status, FALSE)) {
+				  &expiry_date, NULL, &status, FALSE)) {	/* TODO: a cosa si riferisce NULL? C'è un parametro di troppo. */
 		return;
 	}
 	switch (status) {
@@ -254,7 +260,7 @@ int sell(int cargo_type)
 	msg_port_in_id = get_msg_in_id(state.general);
 	msg_port_out_id = get_msg_out_id(state.general);
 
-	available_in_ship = cargo_list_get_quantity(state.cargo_hold, cargo_type);
+	available_in_ship = cargo_list_get_quantity_by_id(state.cargo_hold, cargo_type);
 	port_demand = shm_demand_get_quantity(state.general, state.demand, state.curr_port_id, cargo_type);
 	amount_to_sell = MIN(available_in_ship, port_demand);
 	if (amount_to_sell <= 0) return 0;

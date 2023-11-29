@@ -20,7 +20,7 @@ int shm_cargo_get_life(shm_cargo_t *c, int id);
 int shm_cargo_get_min_size_id(shm_cargo_t *c, shm_general_t *g);
 
 int shm_cargo_get_dump_total_generated(shm_cargo_t *c, int id);
-int shm_cargo_get_dump_stayed_in_port(shm_cargo_t *c, int id);
+int shm_cargo_get_dump_unsold_in_port(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_expired_in_port(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_expired_on_ship(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_received_in_port(shm_cargo_t *c, int id);
@@ -28,10 +28,12 @@ int shm_cargo_get_dump_available_in_port(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_available_on_ship(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_daily_expired_in_port(shm_cargo_t *c, int id);
 int shm_cargo_get_dump_daily_expired_on_ship(shm_cargo_t *c, int id);
+int shm_cargo_get_dump_port_max_demand(shm_cargo_t *c, int cargo_id);
+int shm_cargo_get_dump_port_max_offer(shm_cargo_t *c, int cargo_id);
 
 /* Setters */
 void shm_cargo_set_dump_total_generated(shm_cargo_t *c, int id, int quantity);
-void shm_cargo_set_dump_stayed_in_port(shm_cargo_t *c, int id, int quantity);
+void shm_cargo_set_dump_unsold_in_port(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_expired_in_port(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_expired_on_ship(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_received_in_port(shm_cargo_t *c, int id, int quantity);
@@ -39,6 +41,8 @@ void shm_cargo_set_dump_available_in_port(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_available_on_ship(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_daily_expired_in_port(shm_cargo_t *c, int id, int quantity);
 void shm_cargo_set_dump_daily_expired_on_ship(shm_cargo_t *c, int id, int quantity);
+void shm_cargo_set_dump_port_max_offer(shm_cargo_t *c, int cargo_id, int port_id, int quantity);
+void shm_cargo_set_dump_port_max_demand(shm_cargo_t *c, int cargo_id, int port_id, int quantity);
 
 
 #endif

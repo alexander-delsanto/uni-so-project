@@ -3,7 +3,7 @@
 
 #include "include/shm_general.h"
 #include "include/cargo_list.h"
-#include "include/shm_cargo.h"
+#include "include/types.h"
 
 struct node {
 	int quantity;
@@ -17,6 +17,7 @@ struct o_list {
 
 static struct node *create_node(int quantity, int expire);
 void cargo_list_add_node(o_list_t *list, int type, struct node *node);
+int cargo_list_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c, bool_t source);
 
 o_list_t *cargo_list_create(shm_general_t *g)
 {
@@ -104,7 +105,7 @@ void cargo_list_add_node(o_list_t *list, int type, struct node *node)
 	}
 }
 
-int cargo_list_remove_expired(o_list_t *list, shm_general_t *g)
+int cargo_list_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c, bool_t source)
 {
 	struct node *tmp;
 	int i, n_merci, expire_day, qt = 0;
@@ -125,6 +126,8 @@ int cargo_list_remove_expired(o_list_t *list, shm_general_t *g)
 			tmp = list[i].head;
 			list[i].head = tmp->next;
 			free(tmp);
+			if(source) shm_cargo_set_dump_daily_expired_in_port(c, i, qt);
+			else shm_cargo_set_dump_daily_expired_on_ship(c, i, qt);
 		}
 	}
 
@@ -171,7 +174,7 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *g, int id,
 	return output;
 }
 
-int cargo_list_get_quantity(o_list_t *list, int id)
+int cargo_list_get_quantity_by_id(o_list_t *list, int id)
 {
 	struct node *tmp;
 	int cnt;
@@ -188,6 +191,27 @@ int cargo_list_get_quantity(o_list_t *list, int id)
 		tmp = tmp->next;
 	}
 
+	return cnt;
+}
+
+int cargo_list_get_quantity(o_list_t *list, shm_general_t *g)
+{
+	struct node *tmp;
+	int cnt;
+	int id = 0;
+
+	if (list == NULL) {
+		return -1;
+	}
+
+	tmp = list[id].head;
+	cnt = 0;
+	for(id = 0; id < get_merci(g); id++) {
+		while (tmp->next != NULL) {
+			cnt += tmp->quantity;
+			tmp = tmp->next;
+		}
+	}
 	return cnt;
 }
 
@@ -313,4 +337,15 @@ int get_not_expired_by_day(o_list_t *list, int cargo_type, int day)
 		}
 	}
 	return res;
+}
+
+/* wrappers */
+int cargo_list_port_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c)
+{
+	return cargo_list_remove_expired(list, g, c, TRUE);
+}
+
+int cargo_list_ship_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c)
+{
+	return cargo_list_remove_expired(list, g, c, FALSE);
 }

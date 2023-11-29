@@ -189,7 +189,6 @@ void print_daily_report(void) {
 			shm_cargo_get_dump_daily_expired_on_ship(state.cargo, type));
 	}
 
-
 	dprintf(1, "**********SHIPS**********\n");
 	dprintf(1, "Number of ships at sea with cargo: %d\n",
 		shm_ship_get_dump_with_cargo(state.ships, n_ship));
@@ -203,9 +202,9 @@ void print_daily_report(void) {
 		dprintf(1, "Port %d:\n", i);
 		dprintf(1, "\t%d goods available;\n",
 			shm_port_get_dump_cargo_available(state.ports, i));
-		dprintf(1, "\t%d goods shipped;\n",
+		dprintf(1, "\t%d goods shipped until now;\n",
 			shm_port_get_dump_cargo_shipped(state.ports, i));
-		dprintf(1, "\t%d goods received;\n",
+		dprintf(1, "\t%d goods received until now;\n",
 			shm_port_get_dump_cargo_received(state.ports, i));
 		dprintf(1, "\tDocks used: %d/%d\n",
 			shm_port_get_dump_used_docks(state.ports, i), shm_port_get_docks(state.ports, i));
@@ -245,7 +244,7 @@ void print_final_report(void) {
 		dprintf(1, "\t%d generated since the beginning;\n",
 			shm_cargo_get_dump_total_generated(state.cargo, type));
 		dprintf(1, "\t%d always in port;\n",
-			shm_cargo_get_dump_stayed_in_port(state.cargo, type));
+			shm_cargo_get_dump_unsold_in_port(state.cargo, type));
 		dprintf(1, "\t%d expired in ports;\n",
 			shm_cargo_get_dump_expired_in_port(state.cargo, type));
 		dprintf(1, "\t%d expired on ships;\n",
@@ -264,7 +263,6 @@ void print_final_report(void) {
 		dprintf(1, "\t%d goods received;\n",
 			shm_port_get_dump_cargo_received(state.ports, i));
 	}
-
 
 	/* TODO: Indicate the port that has offered the most goods and the one that has requested the most goods. */
 

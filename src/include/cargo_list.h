@@ -1,6 +1,8 @@
 #ifndef OS_PROJECT_LIST_H
 #define OS_PROJECT_LIST_H
 
+#include "shm_cargo.h"
+
 struct node_msg {
 	int id;
 	int quantity;
@@ -26,12 +28,20 @@ o_list_t *cargo_list_create(shm_general_t *g);
 void cargo_list_add(o_list_t *list, int type, int quantity, int expire);
 
 /**
- * @brief removes a node with a specific expiration date from the list.
+ * @brief removes a node with a specific expiration date from the list of a port.
  * @param list the list of cargoes
  * @param g pointer to general SHM
  * @return the quantity of goods removed
  */
-int cargo_list_remove_expired(o_list_t *list, shm_general_t *g);
+int cargo_list_port_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c);
+
+/**
+ * @brief removes a node with a specific expiration date from the list of a ship.
+ * @param list the list of cargoes
+ * @param g pointer to general SHM
+ * @return the quantity of goods removed
+ */
+int cargo_list_ship_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c);
 
 /**
  * @brief pops the expires of needed quantity for element id
@@ -50,7 +60,15 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, shm_general_t *g, int id,
  * @param id
  * @return quantity of the element id; -1 if error
  */
-int cargo_list_get_quantity(o_list_t *list, int id);
+int cargo_list_get_quantity_by_id(o_list_t *list, int id);
+
+/**
+ * @brief get number of elements of the list
+ * @param list
+ * @param g
+ * @return quantity of the list; -1 if error
+ */
+int cargo_list_get_quantity(o_list_t *list, shm_general_t *g);
 
 /**
  * @brief get first expire of the element id
