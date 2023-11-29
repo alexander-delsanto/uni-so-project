@@ -138,4 +138,6 @@ int shm_ship_get_dump_is_dead(shm_ship_t *s, int n_ships);
 int shm_ship_get_dump_present_by_id(shm_ship_t *s, int id, int type);
 int shm_ship_get_dump_expired_by_id(shm_ship_t *s, int id, int type);
 
+void shm_ship_update_capacity(shm_ship_t *s, int ship_id, int update_value);
+
 #endif

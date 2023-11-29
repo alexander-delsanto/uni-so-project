@@ -15,6 +15,7 @@
 
 struct shm_ship {
 	pid_t pid;
+	int capacity;
 
 	bool_t is_dead;			/* == dump_had_maelstorm */
 	bool_t is_moving;
@@ -30,7 +31,7 @@ struct shm_ship {
 shm_ship_t *shm_ship_initialize(shm_general_t *g)
 {
 	shm_ship_t *ships;
-	int n_ships, id;
+	int i, n_ships, id;
 	size_t size;
 
 	n_ships = get_navi(g);
@@ -44,6 +45,9 @@ shm_ship_t *shm_ship_initialize(shm_general_t *g)
 
 	ships = shm_attach(id);
 	bzero(ships, size);
+	for (i = 0; i < n_ships; i++) {
+		ships[i].capacity = get_capacity(g);
+	}
 	shm_ship_set_id(g, id);
 	return ships;
 }
@@ -86,7 +90,6 @@ void shm_ship_set_is_at_dock(shm_ship_t *s, int id, bool_t value){s[id].is_at_do
 /* Dump setters */
 void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value){s[id].dump_with_cargo = value;}
 void shm_ship_set_dump_had_storm(shm_ship_t *s, int id){s[id].dump_had_storm = TRUE;}
-
 
 /* Getters */
 pid_t shm_ship_get_pid(shm_ship_t *s, int id){return s[id].pid;}
@@ -169,4 +172,4 @@ int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
 	return cnt;
 }
 
-
+void shm_ship_update_capacity(shm_ship_t *s, int ship_id, int update_value){s[ship_id].capacity += update_value;}
