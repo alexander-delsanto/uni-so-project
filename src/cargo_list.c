@@ -207,7 +207,7 @@ int cargo_list_get_quantity(o_list_t *list, shm_general_t *g)
 	tmp = list[id].head;
 	cnt = 0;
 	for(id = 0; id < get_merci(g); id++) {
-		while (tmp->next != NULL) {
+		while (tmp != NULL) {
 			cnt += tmp->quantity;
 			tmp = tmp->next;
 		}
