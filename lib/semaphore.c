@@ -36,6 +36,15 @@ void sem_setval(id_t sem_id, int sem_index, int value)
 	}
 }
 
+int sem_getval(id_t sem_id, int sem_index)
+{
+	int val;
+	if ((val = semctl(sem_id, sem_index, GETVAL)) < 0) {
+		dprintf(2, "semaphore.c - sem_getval: Failed to get semaphore value\n");
+	}
+	return val;
+}
+
 void sem_execute_semop(id_t sem_id, int sem_index, int op_val, int flags)
 {
 	struct sembuf operation;

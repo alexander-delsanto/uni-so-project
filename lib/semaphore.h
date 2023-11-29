@@ -34,6 +34,14 @@ int sem_get_id(key_t key);
 void sem_setval(id_t sem_id, int sem_index, int value);
 
 /**
+ * @brief Returns the current value of a semaphore.
+ * @param sem_id the id of the semaphore array.
+ * @param sem_index the index of the semaphore.
+ * @return the value of the semaphore.
+ */
+int sem_getval(id_t sem_id, int sem_index);
+
+/**
 * @brief
 *
 * @param sem_id the id of the semaphore array.
