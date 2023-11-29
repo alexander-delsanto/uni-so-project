@@ -84,9 +84,6 @@ void loop(void)
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
-			tot_demand = 0;
-			dprintf(1, "day %d\n", day);
-			/* TODO: new day operations */
 			state.current_day = day;
 			/* Dumping expired stuff */
 			qt_expired = cargo_list_remove_expired(state.cargo_hold,
@@ -102,13 +99,8 @@ void loop(void)
 			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
 						  state.cargo, state.general);
-			for (i = 0; i < n_merci; i++) {
-				tot_demand += shm_demand_get_quantity(state.general, state.demand, state.id, i);
-			}
-			dprintf(1, "port %d: tot_expired %d, tot_demand %d, total: %d\n", state.id, tot_expired, tot_demand, tot_expired + tot_demand);
 		}
-
-		/*handle_message();*/
+		handle_message();
 	}
 }
 
