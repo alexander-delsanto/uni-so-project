@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
 
 void loop(void)
 {
+	int sem_dump_id;
 	int qt_expired;
 	int i, day;
 	int tot_expired = 0;
@@ -84,10 +85,13 @@ void loop(void)
 	int n_merci;
 	int tot_demand;
 	n_merci = get_merci(state.general);
+	sem_dump_id = sem_dump_get_id(state.general);
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
+			tot_demand = 0;
 			state.current_day = day;
+			dprintf(1, "port %d: daily update\n", state.id);
 			/* Dumping expired stuff */
 			qt_expired = cargo_list_port_remove_expired(state.cargo_hold,
 							    state.general, state.cargo);
@@ -95,6 +99,7 @@ void loop(void)
 			shm_port_set_dump_cargo_available(state.port, state.id,
 							  shm_offer_get_tot_quantity(state.general, state.offer, state.id));
 			/* Generation of new demand/offer */
+
 			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
 						  state.cargo, state.general);
@@ -103,11 +108,13 @@ void loop(void)
 			}
 			dprintf(1, "port %d: tot_expired: %d, tot_demand: %d, tot: %d\n", state.id, tot_expired, tot_demand, tot_expired + tot_demand);*/
 		}
-		handle_message();
+
+		/* TODO fix handle_message() */
+		/*handle_message();*/
 	}
 }
 
-void handle_message(void)
+/*void handle_message(void)
 {
 	shm_offer_t *order;
 	o_list_t *order_expires;
@@ -154,22 +161,22 @@ void handle_message(void)
 		shm_demand_set(state.demand, state.general, state.id, cargo_id, quantity);
 		break;
 	case STATUS_LOAD_REQUEST:
-		/* Getting order from capacity */
+		*//* Getting order from capacity *//*
 		order = shm_offer_get_order(state.offer, state.general,
 					    state.id, capacity);
-		/* Getting order expires */
+		*//* Getting order expires *//*
 		order_expires = shm_offer_get_order_expires(state.cargo_hold, order,
 							    state.general);
 		while ((exp_node = cargo_list_pop_order(
 				order_expires, state.general)) != NULL) {
-			/* Sending items */
+			*//* Sending items *//*
 			msg = msg_commerce_create(sender_id, state.id,
 						  exp_node->id,
 						  exp_node->quantity,
 						  exp_node->expire,
 						  STATUS_LOAD_ACCEPTED);
 			msg_commerce_send(msg_out_get_id(state.general), &msg);
-			/* Updating dump of sent items */
+			*//* Updating dump of sent items *//*
 
 
 			free(exp_node);
@@ -181,7 +188,7 @@ void handle_message(void)
 	default:
 		break;
 	}
-}
+}*/
 
 void generate_coordinates(void)
 {

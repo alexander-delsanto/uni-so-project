@@ -29,6 +29,9 @@ void init_location(void);
 int pick_first_destination_port(void);
 void trade(void);
 int sell(int cargo_type);
+int ship_sell(int amount_to_sell, int cargo_type);
+int buy(int cargo_type);
+int ship_buy(int cargo_type, int amount_to_buy, int expiration_date);
 void move(int port_id);
 
 void close_all(void);
@@ -43,10 +46,10 @@ struct state {
 	shm_cargo_t *cargo;
 
 	shm_demand_t *demand;
+	shm_offer_t *offer;
 	o_list_t *cargo_hold;
 
 	int curr_port_id;
-	int current_day;
 };
 
 struct state state;
@@ -70,6 +73,7 @@ int main(int argc, char *argv[])
 	state.ship = shm_ship_attach(state.general);
 	state.cargo = shm_cargo_attach(state.general);
 	state.demand = shm_demand_init(state.general);
+	state.offer = shm_offer_ports_attach(state.general);
 
 	state.cargo_hold = cargo_list_create(state.general);
 
@@ -95,48 +99,21 @@ void loop(void) {
 
 	id_dest_port = pick_first_destination_port();
 	move(id_dest_port);
-	/*trade();*/
+	trade();
 
 	/*receiver_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
 	dprintf(1, "ship %d: sending message to port %d\n", state.id, receiver_port);
 	msg = msg_commerce_create(receiver_port, state.id, 1, 10, 8, 0);
 	msg_commerce_send(get_msg_in_id(state.general), &msg);*/
 	while (1) {
-		day = get_current_day(state.general);
-		if (state.current_day < day) {
-			state.current_day = day;
-			cargo_list_ship_remove_expired(state.cargo_hold,state.general, state.cargo);
-		}
-		if(cargo_list_get_quantity(state.cargo_hold, state.general) == 0) {
+/*		if(capacity == get_capacity(state.general)) {
 			shm_ship_set_dump_with_cargo(state.ship, state.id, FALSE);
 		} else {
 			shm_ship_set_dump_with_cargo(state.ship, state.id, TRUE);
-		}
-/*		id_dest_port = find_new_destination_port();
+		}*/
+		id_dest_port = find_new_destination_port();
 		move(id_dest_port);
-		trade();*/
-	}
-}
-
-void handle_message(void)
-{
-	struct commerce_msg msg;
-	int sender_id, cargo_id, quantity, expiry_date, status;
-
-	if (!msg_commerce_receive(msg_out_get_id(state.general), state.id,
-				  &sender_id, &cargo_id, &quantity,
-				  &expiry_date, &status, FALSE)) {	/* TODO: a cosa si riferisce NULL? C'è un parametro di troppo. */
-		return;
-	}
-	switch (status) {
-	case STATUS_ACCEPTED:
-		/* Struttura per salvare il trading da fare con la barca */
-		break;
-	case STATUS_LOAD_ACCEPTED:
-		cargo_list_add(state.cargo_hold, cargo_id, quantity, expiry_date);
-	case STATUS_REFUSED:
-	default:
-		break;
+		trade();
 	}
 }
 
@@ -201,7 +178,7 @@ int find_new_destination_port(void)
 
 		sale_amount = 0;
 		for (cargo_type = 0; cargo_type < get_merci(state.general); cargo_type++) {
-			amount_not_expired = get_not_expired_by_day(state.cargo_hold, cargo_type, state.current_day + (int) time_required);
+			amount_not_expired = get_not_expired_by_day(state.cargo_hold, cargo_type, get_current_day(state.general) + (int) time_required);
 			port_demand = shm_demand_get_quantity(state.general, state.demand, port, cargo_type);
 			sale_amount += MIN(amount_not_expired, port_demand);
 		}
@@ -218,7 +195,7 @@ int find_new_destination_port(void)
 
 void trade(void)
 {
-	int i, n_cargo, sem_docks_id;
+	int i, n_cargo, cargo_type, sem_docks_id;
 	int load_speed, tons_moved;
 	sigset_t mask;
 	load_speed = get_load_speed(state.general);
@@ -233,12 +210,29 @@ void trade(void)
 	shm_ship_set_is_at_dock(state.ship, state.id, TRUE);
 
 	/* Selling */
+	if (shm_ship_get_capacity(state.ship, state.id) < get_capacity(state.general)) {
+		for (i = 0; i < n_cargo; i++) {
+			cargo_list_ship_remove_expired(state.cargo_hold, state.general, state.cargo);
+			sigprocmask(SIG_BLOCK, &mask, NULL);
+			tons_moved = sell(i);
+			sigprocmask(SIG_UNBLOCK, &mask, NULL);
+			convert_and_sleep(tons_moved / (double)load_speed);
+		}
+	}
+
+	/* Buying */
+	cargo_type = RANDOM_INTEGER(0, n_cargo -1);
 	for (i = 0; i < n_cargo; i++) {
+		cargo_list_ship_remove_expired(state.cargo_hold, state.general, state.cargo);
+
+		cargo_type = (cargo_type + i) % n_cargo;
+		if (shm_offer_get_quantity(state.general, state.offer, state.curr_port_id, cargo_type) <= 0)
+			continue;
 		sigprocmask(SIG_BLOCK, &mask, NULL);
-		tons_moved = sell(i);
+		tons_moved = buy(cargo_type);
 		sigprocmask(SIG_UNBLOCK, &mask, NULL);
 
-		convert_and_sleep((tons_moved / load_speed) / 24.0);
+		convert_and_sleep(tons_moved / (double)load_speed);
 	}
 
 	/* Releasing dock */
@@ -250,24 +244,69 @@ void trade(void)
 int sell(int cargo_type)
 {
 	struct commerce_msg msg;
-	int available_in_ship, port_demand;
-	int amount_to_sell, tons_moved;
-	int msg_port_in_id, msg_port_out_id;
-	int quantity, expire_date, status;
-
-	msg_port_in_id = msg_in_get_id(state.general);
-	msg_port_out_id = msg_out_get_id(state.general);
+	int available_in_ship, port_demand, amount_to_sell;
+	int quantity, status;
 
 	available_in_ship = cargo_list_get_quantity_by_id(state.cargo_hold, cargo_type);
 	port_demand = shm_demand_get_quantity(state.general, state.demand, state.curr_port_id, cargo_type);
 	amount_to_sell = MIN(available_in_ship, port_demand);
 	if (amount_to_sell <= 0) return 0;
 
-	msg_commerce_create(state.curr_port_id, state.id, cargo_type, amount_to_sell, 0, -1);
-	msg_commerce_send(msg_port_in_id, &msg);
-	msg_commerce_receive(msg_port_out_id, state.id, 0, 0, &quantity, 0, &status, TRUE);
+	msg = msg_commerce_create(state.curr_port_id, state.id, cargo_type, amount_to_sell, -1, STATUS_SELL);
+	msg_commerce_send(msg_in_get_id(state.general), &msg);
+	msg_commerce_receive(msg_out_get_id(state.general), state.id, NULL, NULL, &quantity, NULL, &status, TRUE);
 
-	/* TODO check for status and act accordingly */
+	if (status == STATUS_ACCEPTED && quantity > 0) {
+		return ship_sell(quantity, cargo_type);
+	}
+	return 0;
+}
+
+int ship_sell(int amount_to_sell, int cargo_type)
+{
+	int tons_sold;
+	cargo_list_pop_needed(state.cargo_hold, state.general, cargo_type, amount_to_sell);
+
+	tons_sold = amount_to_sell * shm_cargo_get_size(state.cargo, cargo_type);
+
+	shm_ship_update_capacity(state.ship, state.id, tons_sold);
+	/*shm_cargo_set_dump_received_in_port(state.cargo, cargo_type, amount_to_sell);*/
+	return tons_sold;
+}
+
+int buy(int cargo_type)
+{
+	struct commerce_msg msg;
+	int msg_out_id;
+	int available_ship_capacity, n_in_capacity, amount_to_buy;
+	int tons_bought;
+	int quantity, expiration_date, status;
+	available_ship_capacity = shm_ship_get_capacity(state.ship, state.id);
+	n_in_capacity = available_ship_capacity / shm_cargo_get_size(state.cargo, cargo_type);
+	amount_to_buy = RANDOM_INTEGER(1, n_in_capacity);
+	msg = msg_commerce_create(state.curr_port_id, state.id, cargo_type, amount_to_buy, -1, STATUS_BUY);
+	msg_commerce_send(msg_in_get_id(state.general), &msg);
+
+	msg_out_id = msg_out_get_id(state.general);
+	do {
+		msg_commerce_receive(msg_out_id, state.id, NULL, NULL, &quantity, &expiration_date, &status, TRUE);
+		if (status == STATUS_PARTIAL || status == STATUS_ACCEPTED) {
+			tons_bought += ship_buy(cargo_type, quantity, expiration_date);
+		}
+
+	} while (status == STATUS_PARTIAL);
+
+	return tons_bought;
+}
+
+int ship_buy(int cargo_type, int amount_to_buy, int expiration_date)
+{
+	int tons_bought;
+	cargo_list_add(state.cargo_hold, cargo_type, amount_to_buy, expiration_date);
+
+	tons_bought = amount_to_buy * shm_cargo_get_size(state.cargo, cargo_type);
+	shm_ship_update_capacity(state.ship, state.id, -tons_bought);
+	return tons_bought;
 
 }
 
@@ -295,6 +334,7 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
+	/* TODO detach offer and demand */
 	cargo_list_delete(state.cargo_hold, state.general);
 	shm_port_detach(state.port);
 	shm_ship_detach(state.ship);

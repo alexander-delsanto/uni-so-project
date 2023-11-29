@@ -291,18 +291,17 @@ void signal_handler(int signal)
 	case SIGINT:
 		close_all();
 	case SIGALRM:
-		/* TODO: gestire semafori */
 		/*print_daily_report();*/
 		if (check_ships_all_dead()) {
 			dprintf(1, "All ships are dead. Terminating...\n");
 			close_all();
 		}
-
 		if (get_current_day(state.general) + 1 == get_days(state.general) + 1) {
 			dprintf(1,
 				"Reached last day of simulation. Terminating...\n");
 			close_all();
 		}
+
 		increase_day(state.general);
 		kill(state.weather, SIGDAY);
 		alarm(1);
@@ -321,8 +320,8 @@ void close_all(void)
 	shm_port_send_signal_to_all_ports(state.ports, state.general, SIGINT);
 	while (wait(NULL) > 0);
 
-	msgctl(msg_commerce_in_port_get_id(), IPC_RMID, NULL);
-	msgctl(msg_commerce_out_port_get_id(), IPC_RMID, NULL);
+	msgctl(msg_in_get_id(state.general), IPC_RMID, NULL);
+	msgctl(msg_out_get_id(state.general), IPC_RMID, NULL);
 
 	sem_delete(sem_start_get_id(state.general));
 	sem_delete(sem_port_init_get_id(state.general));
