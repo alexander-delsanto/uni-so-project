@@ -134,7 +134,7 @@ void shm_offer_demand_delete(shm_general_t *g);
  * @param c pointer to cargo SHM
  * @param g pointer to general SHM
  */
-void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
+void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 			       int id, shm_cargo_t *c, shm_general_t *g);
 
 int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id);
