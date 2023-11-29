@@ -26,7 +26,6 @@ struct shm_port {
 	int dump_cargo_available;
 	int dump_cargo_shipped;
 	int dump_cargo_received;
-	int dump_ships_arrived;
 };
 
 /* Ports shared memory */
@@ -87,33 +86,30 @@ void shm_port_send_signal_to_all_ports(shm_port_t *p, shm_general_t *g,
 	}
 }
 
-void shm_port_send_signal_to_port(shm_port_t *p, int id, int signal){kill(p[id].pid, signal);}
+void shm_port_send_signal_to_port(shm_port_t *p, int port_id, int signal){kill(p[port_id].pid, signal);}
 
 /* Setters */
-void shm_port_set_pid(shm_port_t *p, int id, pid_t pid){p[id].pid = pid;}
-void shm_port_set_coordinates(shm_port_t *p, int id, struct coord coord){p[id].coord = coord;}
-void shm_port_set_docks(shm_port_t *p, int id, int n){p[id].num_docks = n;}
+void shm_port_set_pid(shm_port_t *p, int port_id, pid_t pid){p[port_id].pid = pid;}
+void shm_port_set_coordinates(shm_port_t *p, int port_id, struct coord coord){p[port_id].coord = coord;}
+void shm_port_set_docks(shm_port_t *p, int port_id, int n){p[port_id].num_docks = n;}
 
-void shm_port_set_is_in_swell(shm_port_t *p, int id, bool_t value)
+void shm_port_set_is_in_swell(shm_port_t *p, int port_id, bool_t value)
 {
-	if (p[id].dump_had_swell == FALSE && value == TRUE)
-		p[id].dump_had_swell = TRUE;
-	p[id].is_in_swell = value;
+	if (p[port_id].dump_had_swell == FALSE && value == TRUE)
+		p[port_id].dump_had_swell = TRUE;
+	p[port_id].is_in_swell = value;
 }
 
-void shm_port_set_dump_ships_arrived(shm_port_t *p, int id, int n){p[id].dump_ships_arrived += n;}
-
-void shm_port_set_dump_cargo_available(shm_port_t *p, int id, int n){p[id].dump_cargo_available += n;}
-void shm_port_set_dump_cargo_shipped(shm_port_t *p, int id, int n){p[id].dump_cargo_shipped += n;}
-void shm_port_set_dump_cargo_received(shm_port_t *p, int id, int n){p[id].dump_cargo_received += n;}
+void shm_port_set_dump_cargo_available(shm_port_t *p, int port_id, int n){p[port_id].dump_cargo_available += n;}
+void shm_port_set_dump_cargo_shipped(shm_port_t *p, int port_id, int n){p[port_id].dump_cargo_shipped += n;}
+void shm_port_set_dump_cargo_received(shm_port_t *p, int port_id, int n){p[port_id].dump_cargo_received += n;}
 
 /* Getters */
-struct coord shm_port_get_coordinates(shm_port_t *p, int id){return p[id].coord;}
-int shm_port_get_docks(shm_port_t *p, int id){return p[id].num_docks;}
+struct coord shm_port_get_coordinates(shm_port_t *p, int port_id){return p[port_id].coord;}
+int shm_port_get_docks(shm_port_t *p, int port_id){return p[port_id].num_docks;}
 int shm_port_get_sem_docks_id(shm_port_t *p){return p->sem_docks_id;}
-pid_t shm_port_get_pid(shm_port_t *p, int id){return p[id].pid;}
-int shm_port_get_dump_used_docks(shm_port_t *p, int id){return p[id].num_docks - sem_getval(p->sem_docks_id, id);}
-int shm_port_get_dump_ships_arrived(shm_port_t *p, int id){return p[id].dump_ships_arrived;}
+pid_t shm_port_get_pid(shm_port_t *p, int port_id){return p[port_id].pid;}
+int shm_port_get_dump_used_docks(shm_port_t *p, int port_id){return p[port_id].num_docks - sem_getval(p->sem_docks_id, port_id);}
 
 int shm_port_get_dump_had_swell(shm_port_t *p, int n_ports)
 {
@@ -124,9 +120,9 @@ int shm_port_get_dump_had_swell(shm_port_t *p, int n_ports)
 	return cnt;
 }
 
-bool_t shm_port_get_dump_having_swell(shm_port_t *p, int id){return p[id].is_in_swell;}
-bool_t shm_port_get_dump_swell_final(shm_port_t *p, int id){return p[id].dump_had_swell;}
+bool_t shm_port_get_dump_having_swell(shm_port_t *p, int port_id){return p[port_id].is_in_swell;}
+bool_t shm_port_get_dump_swell_final(shm_port_t *p, int port_id){return p[port_id].dump_had_swell;}
 
-int shm_port_get_dump_cargo_available(shm_port_t *p, int id){return p[id].dump_cargo_available;}
-int shm_port_get_dump_cargo_shipped(shm_port_t *p, int id){return p[id].dump_cargo_shipped;}
-int shm_port_get_dump_cargo_received(shm_port_t *p, int id){return p[id].dump_cargo_received;}
+int shm_port_get_dump_cargo_available(shm_port_t *p, int port_id){return p[port_id].dump_cargo_available;}
+int shm_port_get_dump_cargo_shipped(shm_port_t *p, int port_id){return p[port_id].dump_cargo_shipped;}
+int shm_port_get_dump_cargo_received(shm_port_t *p, int port_id){return p[port_id].dump_cargo_received;}
