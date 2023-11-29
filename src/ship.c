@@ -27,8 +27,8 @@ void signal_handler(int signal);
 void init_location(void);
 int pick_first_destination_port(void);
 void trade(void);
+int sell(int cargo_type);
 void move(int port_id);
-void send_commerce_mgs(int port_id, struct commerce_msg *msg);
 
 void close_all(void);
 void loop(void);
@@ -214,25 +214,56 @@ int find_new_destination_port(void)
 
 void trade(void)
 {
-	int sem_docks_id;
+	int i, n_cargo, sem_docks_id;
+	int load_speed, tons_moved;
 	sigset_t mask;
+	load_speed = get_load_speed(state.general);
+	n_cargo = get_merci(state.general);
+
 	sem_docks_id = shm_port_get_sem_docks_id(state.port);
-	sigfillset(&mask);
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGMAELSTROM);
 
 	/* Requesting dock */
-
-	dprintf(1, "ship %d: requesting dock at port %d\n", state.id, state.curr_port_id);
 	sem_execute_semop(sem_docks_id, state.curr_port_id, -1, 0);
 	shm_ship_set_is_at_dock(state.ship, state.id, TRUE);
-	dprintf(1, "ship %d: got dock at port %d\n", state.id, state.curr_port_id);
-	sigprocmask(SIG_BLOCK, &mask, NULL);
-	convert_and_sleep(5.0);
-	sigprocmask(SIG_UNBLOCK, &mask, NULL);
+
+	/* Selling */
+	for (i = 0; i < n_cargo; i++) {
+		sigprocmask(SIG_BLOCK, &mask, NULL);
+		tons_moved = sell(i);
+		sigprocmask(SIG_UNBLOCK, &mask, NULL);
+
+		convert_and_sleep((tons_moved / load_speed) / 24.0);
+	}
 
 	/* Releasing dock */
 	sem_execute_semop(sem_docks_id, state.curr_port_id, 1, 0);
 	shm_ship_set_is_at_dock(state.ship, state.id, FALSE);
-	dprintf(1, "ship %d: released dock at port %d\n", state.id, state.curr_port_id);
+
+}
+
+int sell(int cargo_type)
+{
+	struct commerce_msg msg;
+	int available_in_ship, port_demand;
+	int amount_to_sell, tons_moved;
+	int msg_port_in_id, msg_port_out_id;
+	int quantity, expire_date, status;
+
+	msg_port_in_id = get_msg_in_id(state.general);
+	msg_port_out_id = get_msg_out_id(state.general);
+
+	available_in_ship = cargo_list_get_quantity(state.cargo_hold, cargo_type);
+	port_demand = shm_demand_get_quantity(state.general, state.demand, state.curr_port_id, cargo_type);
+	amount_to_sell = MIN(available_in_ship, port_demand);
+	if (amount_to_sell <= 0) return 0;
+
+	msg_commerce_create(state.curr_port_id, state.id, cargo_type, amount_to_sell, 0, -1);
+	msg_commerce_send(msg_port_in_id, &msg);
+	msg_commerce_receive(msg_port_out_id, state.id, 0, 0, &quantity, 0, &status, TRUE);
+
+	/* TODO check for status and act accordingly */
 
 }
 
