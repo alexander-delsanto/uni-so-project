@@ -25,14 +25,14 @@
 void signal_handler(int signal);
 
 void init_location(void);
-struct coord pick_first_destination_port(void);
+int pick_first_destination_port(void);
 void trade(void);
-void move(struct coord destination_port);
+void move(int port_id);
 void send_commerce_mgs(int port_id, struct commerce_msg *msg);
 
 void close_all(void);
 void loop(void);
-struct coord find_new_destination_port(void);
+int find_new_destination_port(int curr_port_id);
 
 struct state {
 	int id;
@@ -44,7 +44,6 @@ struct state {
 	shm_demand_t *demand;
 	o_list_t *cargo_hold;
 
-	int curr_port_id;
 	int current_day;
 };
 
@@ -88,6 +87,33 @@ int main(int argc, char *argv[])
 	loop();
 }
 
+void loop(void) {
+	int receiver_port;
+	int day;
+	int id_dest_port;
+	struct coord dest_port_coords;
+	struct commerce_msg msg;
+
+	id_dest_port = pick_first_destination_port();
+	move(id_dest_port);
+	trade();
+
+	/*receiver_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
+	dprintf(1, "ship %d: sending message to port %d\n", state.id, receiver_port);
+	msg = msg_commerce_create(receiver_port, state.id, 1, 10, 8, 0);
+	msg_commerce_send(get_msg_in_id(state.general), &msg);*/
+	while (1) {
+		day = get_current_day(state.general);
+		if (state.current_day < day) {
+			state.current_day = day;
+			cargo_list_remove_expired(state.cargo_hold, state.general);
+		}
+/*		dest_port_coords = find_new_destination_port();
+		move(dest_port_coords);
+		trade();*/
+	}
+}
+
 void handle_message(void)
 {
 	struct commerce_msg msg;
@@ -110,33 +136,6 @@ void handle_message(void)
 	}
 }
 
-void loop(void) {
-	int receiver_port;
-	int day;
-	int id_dest_port;
-	struct coord dest_port_coords;
-	struct commerce_msg msg;
-
-	dest_port_coords = pick_first_destination_port();
-	move(dest_port_coords);
-	trade();
-
-	/*receiver_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
-	dprintf(1, "ship %d: sending message to port %d\n", state.id, receiver_port);
-	msg = msg_commerce_create(receiver_port, state.id, 1, 10, 8, 0);
-	msg_commerce_send(get_msg_in_id(state.general), &msg);*/
-	while (1) {
-		day = get_current_day(state.general);
-		if (state.current_day < day) {
-			/* TODO: new day operations */
-			state.current_day = day;
-		}
-/*		dest_port_coords = find_new_destination_port();
-		move(dest_port_coords);
-		trade();*/
-	}
-}
-
 /**
  * @brief initializes ship's location.
  */
@@ -153,35 +152,32 @@ void init_location(void)
 	 * ship_shm_set_dump_with_cargo(state.ship, state.id, FALSE);*/
 }
 
-struct coord pick_first_destination_port(void)
+int pick_first_destination_port(void)
 {
 	int target_port;
 	target_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
-	state.curr_port_id = target_port;
-	return shm_port_get_coordinates(state.port, target_port);
+	return target_port;
 }
 
 /**
  * @brief simulates the movement of the ship and updates the location.
  */
-void move(struct coord destination_port)
+void move(int port_id)
 {
-	double distance;
+	struct coord dest_coords;
 	double time_required;
-/*	dprintf(1, "ship %d: before x: %lf y: %lf\n", state.id, ship_shm_get_coords(state.ship, state.id).x, ship_shm_get_coords(state.ship, state.id).y);*/
+
+	dest_coords = shm_port_get_coordinates(state.port, port_id);
 	shm_ship_set_is_moving(state.ship, state.id, TRUE);
-	/* calculate distance between actual position and destination */
-	distance = GET_DISTANCE(destination_port);
 	/* calculate time required to arrive (in days) */
-	time_required = distance / get_speed(state.general);
+	time_required = GET_DISTANCE(dest_coords) / get_speed(state.general);
 	convert_and_sleep(time_required);
 	/* set new location */
-	shm_ship_set_coords(state.ship, state.id, destination_port);
-/*	dprintf(1, "ship %d: after x: %lf y: %lf\n", state.id, ship_shm_get_coords(state.ship, state.id).x, ship_shm_get_coords(state.ship, state.id).y);*/
+	shm_ship_set_coords(state.ship, state.id, dest_coords);
 	shm_ship_set_is_moving(state.ship, state.id, FALSE);
 }
 
-struct coord find_new_destination_port(void)
+int find_new_destination_port(int curr_port_id)
 {
 	int cargo_type;
 	int port, best_port = -1;
@@ -189,34 +185,33 @@ struct coord find_new_destination_port(void)
 	int port_demand;
 	int sale_amount, sale_best_amount = 0;
 	int amount_not_expired;
-	double distance, best_distance;
+	double time_required, best_time;
 
 	n_ports = get_porti(state.general);
 	for (port = 0; port < n_ports; port++) {
-		if (port == state.curr_port_id) continue;
+		if (port == curr_port_id) continue;
 
 		/* Check port distance */
-		distance = GET_DISTANCE(shm_port_get_coordinates(state.port, port));
+		time_required = GET_DISTANCE(shm_port_get_coordinates(state.port, port)) / get_speed(state.general);
 
 		sale_amount = 0;
 		for (cargo_type = 0; cargo_type < get_merci(state.general); cargo_type++) {
-			amount_not_expired = get_not_expired_by_day(state.cargo_hold, cargo_type, state.current_day + (int) distance);
+			amount_not_expired = get_not_expired_by_day(state.cargo_hold, cargo_type, state.current_day + (int) time_required);
 			port_demand = shm_demand_get_quantity(state.general, state.demand, port, cargo_type);
 			sale_amount += MIN(amount_not_expired, port_demand);
 		}
 
 		if (best_port == -1 || sale_amount > sale_best_amount
-		    || (sale_best_amount == sale_amount && distance < best_distance)) {
+		    || (sale_best_amount == sale_amount && time_required < best_time)) {
 			best_port = port;
 			sale_best_amount = sale_amount;
-			best_distance = distance;
+			best_time = time_required;
 		}
 	}
 
 	/* Send message to port */
 
-	state.curr_port_id = best_port;
-	return shm_port_get_coordinates(state.port, best_port);
+	return best_port;
 }
 
 void trade(void)
