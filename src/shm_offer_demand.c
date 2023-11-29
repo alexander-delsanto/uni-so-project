@@ -22,7 +22,7 @@ struct shm_demand {
 	int data;
 };
 
-shm_offer_t *offer_shm_ports_get(shm_general_t *g);
+shm_offer_t *shm_offer_get(shm_general_t *g);
 
 /* OFFER */
 shm_offer_t *shm_offer_ports_init(shm_general_t *g)
@@ -52,7 +52,7 @@ shm_offer_t *shm_offer_ports_attach(shm_general_t *g)
 	return offer;
 }
 
-shm_offer_t *offer_shm_ports_get(shm_general_t *g)
+shm_offer_t *shm_offer_get(shm_general_t *g)
 {
 	shm_offer_t *offer;
 
@@ -64,7 +64,7 @@ shm_offer_t *offer_shm_ports_get(shm_general_t *g)
 	return offer;
 }
 
-void offer_shm_set(shm_offer_t *o, shm_general_t *g, int id, int type,
+void shm_offer_add_quantity(shm_offer_t *o, shm_general_t *g, int id, int type,
 		   int quantity)
 {
 	if (o == NULL || quantity == 0) {
@@ -74,7 +74,7 @@ void offer_shm_set(shm_offer_t *o, shm_general_t *g, int id, int type,
 	o[GET_INDEX(id, type, get_merci(g))].data += quantity;
 }
 
-void offer_shm_remove(shm_offer_t *o, shm_general_t *g, int id, int type,
+void shm_offer_remove_quantity(shm_offer_t *o, shm_general_t *g, int id, int type,
 		      int quantity)
 {
 	if (o == NULL || quantity == 0) {
@@ -85,12 +85,12 @@ void offer_shm_remove(shm_offer_t *o, shm_general_t *g, int id, int type,
 }
 
 
-void offer_shm_delete(shm_offer_t *o)
+void shm_offer_delete(shm_offer_t *o)
 {
 	free(o);
 }
 
-void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *g,
+void shm_offer_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *g,
 		     int id)
 {
 	int n, i, index;
@@ -103,7 +103,7 @@ void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *g,
 	}
 }
 
-shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *g, int id,
+shm_offer_t *shm_offer_get_order(shm_offer_t *o, shm_general_t *g, int id,
 				 int capacity)
 {
 	int i, n_merci, cnt, index;
@@ -111,7 +111,7 @@ shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *g, int id,
 
 	cnt = 0;
 	n_merci = get_merci(g);
-	output = offer_shm_ports_get(g);
+	output = shm_offer_get(g);
 
 	for (i = 0; i < n_merci || cnt == capacity; i++) {
 		index = GET_INDEX(id, i, n_merci);
@@ -133,7 +133,7 @@ shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *g, int id,
 	return output;
 }
 
-o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
+o_list_t *shm_offer_get_order_expires(o_list_t *src, shm_offer_t *o,
 				      shm_general_t *g)
 {
 	o_list_t *output;
@@ -148,7 +148,7 @@ o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
 }
 
 /* DEMAND */
-shm_demand_t *demand_shm_init(shm_general_t *g)
+shm_demand_t *shm_demand_init(shm_general_t *g)
 {
 	int shm_id;
 	size_t size;
@@ -168,7 +168,7 @@ shm_demand_t *demand_shm_init(shm_general_t *g)
 	return demand;
 }
 
-void demand_shm_add(shm_demand_t *d, shm_general_t *g, int id, int type,
+void shm_demand_set(shm_demand_t *d, shm_general_t *g, int id, int type,
 		    int quantity)
 {
 	if (d == NULL || quantity == 0) {
@@ -178,7 +178,7 @@ void demand_shm_add(shm_demand_t *d, shm_general_t *g, int id, int type,
 	d[GET_INDEX(id, type, get_merci(g))].data += quantity;
 }
 
-void demand_shm_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
+void shm_demand_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
 		       int quantity)
 {
 	if (d == NULL || quantity == 0) {
@@ -190,13 +190,13 @@ void demand_shm_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
 
 
 /* OFFER + DEMAND */
-void offer_demand_shm_delete(shm_general_t *g)
+void shm_offer_demand_delete(shm_general_t *g)
 {
 	shm_delete(shm_offer_get_id(g));
 	shm_delete(shm_demand_get_id(g));
 }
 
-void offer_demand_shm_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
+void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 			       int id, shm_cargo_t *c, shm_general_t *g)
 {
 	bool_t filled;

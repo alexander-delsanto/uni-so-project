@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 	state.port = shm_port_attach(state.general);
 	state.cargo = shm_cargo_attach(state.general);
 	state.offer = shm_offer_ports_init(state.general);
-	state.demand = demand_shm_init(state.general);
+	state.demand = shm_demand_init(state.general);
 	state.cargo_hold = cargo_list_create(state.general);
 
 	srand(time(NULL) * getpid());
@@ -99,7 +99,7 @@ void loop(void)
 				dprintf(1, "\nCIAO\n");
 			}*/
 			/* Generation of new demand/offer */
-			offer_demand_shm_generate(state.offer, state.demand,
+			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
 						  state.cargo, state.general);
 			for (i = 0; i < n_merci; i++) {
@@ -139,13 +139,13 @@ void handle_message(void)
 			msg = msg_commerce_create(sender_id, state.id, cargo_id,
 						  quantity, 0, 0,
 						  STATUS_ACCEPTED);
-			demand_shm_remove(state.demand, state.general, state.id, cargo_id,
+			shm_demand_remove(state.demand, state.general, state.id, cargo_id,
 					  quantity);
 		} else {
 			msg = msg_commerce_create(sender_id, state.id, cargo_id,
 						  tmp_quantity, 0, 0,
 						  STATUS_ACCEPTED);
-			demand_shm_remove(state.demand, state.general, state.id, cargo_id,
+			shm_demand_remove(state.demand, state.general, state.id, cargo_id,
 					  tmp_quantity);
 		}
 
@@ -156,14 +156,14 @@ void handle_message(void)
 		break;
 	case STATUS_MISSING:
 	case STATUS_DEAD:
-		demand_shm_add(state.demand, state.general, state.id, cargo_id, quantity);
+		shm_demand_set(state.demand, state.general, state.id, cargo_id, quantity);
 		break;
 	case STATUS_LOAD_REQUEST:
 		/* Getting order from capacity */
-		order = offer_shm_get_order(state.offer, state.general,
+		order = shm_offer_get_order(state.offer, state.general,
 					    state.id, capacity);
 		/* Getting order expires */
-		order_expires = offer_shm_get_order_expires(state.cargo_hold, order,
+		order_expires = shm_offer_get_order_expires(state.cargo_hold, order,
 							    state.general);
 		while ((exp_node = cargo_list_pop_order(
 				order_expires, state.general)) != NULL) {
@@ -181,7 +181,7 @@ void handle_message(void)
 		}
 
 		cargo_list_delete(order_expires, state.general);
-		offer_shm_delete(order);
+		shm_offer_delete(order);
 		break;
 	default:
 		break;

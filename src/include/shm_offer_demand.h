@@ -27,37 +27,37 @@ shm_offer_t *shm_offer_ports_attach(shm_general_t *g);
 /**
  * @brief Adds a specified quantity to the offer data in shared memory.
  * @param o pointer to the array of offers
- * @param id the id of the entity for which the offer data is updated
+ * @param id the id of the port for which the offer data is updated
  * @param type the type of the offer data to be updated
  * @param quantity quantity to be added to the offer data
  */
-void offer_shm_set(shm_offer_t *o, shm_general_t *g, int id, int type,
+void shm_offer_add_quantity(shm_offer_t *o, shm_general_t *g, int id, int type,
 		   int quantity);
 
 /**
  * @brief Removes a specified quantity from the offer data in shared memory.
  * @param o pointer to the array of offers in shared memory
- * @param id identifier of the entity for which the offer data is updated
+ * @param id identifier of the port for which the offer data is updated
  * @param type type of the offer data to be updated
  * @param quantity quantity to be subtracted from the offer data
  */
-void offer_shm_remove(shm_offer_t *o, shm_general_t *g, int id, int type,
+void shm_offer_remove_quantity(shm_offer_t *o, shm_general_t *g, int id, int type,
 		      int quantity);
 
 /**
  * @brief Delete a shared memory offer structure, freeing allocated memory.
  * @param o Pointer to the shared memory offer structure to be deleted.
  */
-void offer_shm_delete(shm_offer_t *o);
+void shm_offer_delete(shm_offer_t *o);
 
 /**
- * @brief Removes a specified quantity from the demand data in shared memory.
+ * @brief Combines data from two arrays of shm_offer_t structures
  * @param src Pointer to the array of source offers in shared memory.
  * @param merge Pointer to local array of offers to be merged.
  * @param c pointer to general SHM
- * @param id Identifier of the entity for which the demand data is updated.
+ * @param id Identifier of the port for which the demand data is updated.
  */
-void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
+void shm_offer_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
 		     int id);
 
 /**
@@ -69,7 +69,7 @@ void offer_shm_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
  *
  * @return A pointer to a new shared memory offer containing the retrieved goods.
  */
-shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *g, int id,
+shm_offer_t *shm_offer_get_order(shm_offer_t *o, shm_general_t *g, int id,
 				 int capacity);
 /**
  * @brief Gets expired goods from a source offer list.
@@ -78,7 +78,7 @@ shm_offer_t *offer_shm_get_order(shm_offer_t *o, shm_general_t *g, int id,
  * @param g Pointer to the shared memory structure containing general information.
  * @return A pointer to a new offer list containing the retrieved expired goods.
  */
-o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
+o_list_t *shm_offer_get_order_expires(o_list_t *src, shm_offer_t *o,
 				      shm_general_t *g);
 
 /**
@@ -86,28 +86,28 @@ o_list_t *offer_shm_get_order_expires(o_list_t *src, shm_offer_t *o,
  * @param g pointer to general SHM
  * @return Pointer to the attached demand data structure or NULL on failure.
  */
-shm_demand_t *demand_shm_init(shm_general_t *g);
+shm_demand_t *shm_demand_init(shm_general_t *g);
 
 /**
- * @brief Sets the demand data in shared memory for a specific entity and type.
+ * @brief Sets the demand data in shared memory for a specific port.
  * @param o pointer to the array of demands
  * @param g pointer to general SHM
- * @param id the id of the entity for which the demand data is updated
+ * @param id the id of the port for which the demand data is updated
  * @param type the type of the demand data to be updated
  * @param quantity quantity to be added to the demand data
  */
-void demand_shm_add(shm_demand_t *d, shm_general_t *g, int id, int type,
+void shm_demand_set(shm_demand_t *d, shm_general_t *g, int id, int type,
 		    int quantity);
 
 /**
  * @brief Removes a specified quantity from the demand data in shared memory.
  * @param d Pointer to the array of demands in shared memory.
  * @param g pointer to general SHM
- * @param id Identifier of the entity for which the demand data is updated.
+ * @param id Identifier of the port for which the demand data is updated.
  * @param type Type of the demand data to be updated.
  * @param quantity Quantity to be subtracted from the demand data.
  */
-void demand_shm_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
+void shm_demand_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
 		       int quantity);
 
 /**
@@ -123,7 +123,7 @@ void demand_shm_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
  * Delete offer and demand shared memory
  * @param g pointer to general SHM
  */
-void offer_demand_shm_delete(shm_general_t *g);
+void shm_offer_demand_delete(shm_general_t *g);
 
 /**
  * @brief Generates random offers and demands

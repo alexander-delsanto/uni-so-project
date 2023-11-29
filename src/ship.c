@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 	state.port = shm_port_attach(state.general);
 	state.ship = shm_ship_attach(state.general);
 	state.cargo = shm_cargo_attach(state.general);
-	state.demand = demand_shm_init(state.general);
+	state.demand = shm_demand_init(state.general);
 
 	state.cargo_hold = cargo_list_create(state.general);
 

@@ -346,7 +346,7 @@ void close_all(void)
 
 	shm_port_delete(state.general);
 	shm_ship_delete(state.general);
-	offer_demand_shm_delete(state.general);
+	shm_offer_demand_delete(state.general);
 	cargo_shm_delete(state.general);
 
 	shm_general_delete(shm_general_get_id(state.general));
