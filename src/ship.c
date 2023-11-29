@@ -90,7 +90,8 @@ int main(int argc, char *argv[])
 	loop();
 }
 
-void loop(void) {
+void loop(void)
+{
 	int receiver_port;
 	int day;
 	int id_dest_port;
@@ -106,7 +107,7 @@ void loop(void) {
 	msg = msg_commerce_create(receiver_port, state.id, 1, 10, 8, 0);
 	msg_commerce_send(get_msg_in_id(state.general), &msg);*/
 	while (1) {
-/*		if(capacity == get_capacity(state.general)) {
+		/*		if(capacity == get_capacity(state.general)) {
 			shm_ship_set_dump_with_cargo(state.ship, state.id, FALSE);
 		} else {
 			shm_ship_set_dump_with_cargo(state.ship, state.id, TRUE);
