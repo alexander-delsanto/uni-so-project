@@ -120,9 +120,6 @@ void shm_cargo_set_id(shm_general_t *g, int id){g->cargo_shm_id = id;}
 void shm_offer_set_id(shm_general_t *g, int id){g->offer_shm_id = id;}
 void shm_demand_set_id(shm_general_t *g, int id){g->demand_shm_id = id;}
 
-void set_msg_in_id(shm_general_t *g, int id){g->msg_in_id = id;}
-void set_msg_out_id(shm_general_t *g, int id){g->msg_out_id = id;}
-
 /* Getters */
 int shm_general_get_id(shm_general_t *g){ return g->general_shm_id; }
 int shm_ship_get_id(shm_general_t *g){return g->ship_shm_id;}

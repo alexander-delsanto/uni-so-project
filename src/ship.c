@@ -81,10 +81,8 @@ int main(int argc, char *argv[])
 	sigaction(SIGSTORM, &sa, NULL);
 	sigaction(SIGMAELSTROM, &sa, NULL);
 
-	sem_execute_semop(get_sem_port_init_id(), 0, 0, 0);
-	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
-
-	dprintf(1, "ship %d: reached loop\n", state.id);
+	sem_execute_semop(sem_port_init_get_id(state.general), 0, 0, 0);
+	sem_execute_semop(sem_start_get_id(state.general), 0, 0, 0);
 	loop();
 }
 
@@ -125,7 +123,7 @@ void handle_message(void)
 	struct commerce_msg msg;
 	int sender_id, cargo_id, quantity, expiry_date, status;
 
-	if (!msg_commerce_receive(get_msg_out_id(state.general), state.id,
+	if (!msg_commerce_receive(msg_out_get_id(state.general), state.id,
 				  &sender_id, &cargo_id, &quantity,
 				  &expiry_date, &status, FALSE)) {	/* TODO: a cosa si riferisce NULL? C'è un parametro di troppo. */
 		return;
@@ -257,8 +255,8 @@ int sell(int cargo_type)
 	int msg_port_in_id, msg_port_out_id;
 	int quantity, expire_date, status;
 
-	msg_port_in_id = get_msg_in_id(state.general);
-	msg_port_out_id = get_msg_out_id(state.general);
+	msg_port_in_id = msg_in_get_id(state.general);
+	msg_port_out_id = msg_out_get_id(state.general);
 
 	available_in_ship = cargo_list_get_quantity_by_id(state.cargo_hold, cargo_type);
 	port_demand = shm_demand_get_quantity(state.general, state.demand, state.curr_port_id, cargo_type);

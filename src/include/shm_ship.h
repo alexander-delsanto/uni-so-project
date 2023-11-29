@@ -11,6 +11,7 @@ typedef struct shm_ship shm_ship_t;
  * @return Pointer to the attached ship data structure or NULL on failure.
  */
 shm_ship_t *shm_ship_initialize(shm_general_t *g);
+
 /**
  * @brief Attaches the process to the shared memory segment for ship data.
  * @param g Pointer to the general shared memory structure.

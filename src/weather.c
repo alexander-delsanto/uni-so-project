@@ -10,7 +10,6 @@
 #include "../lib/semaphore.h"
 
 #include "include/utils.h"
-#include "include/sem.h"
 #include "include/const.h"
 #include "include/shm_general.h"
 #include "include/shm_port.h"
@@ -45,7 +44,7 @@ int main(int argc, char *argv[])
 
 	srand(getpid() * time(NULL));
 
-	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
+	sem_execute_semop(sem_start_get_id(state.general), 0, 0, 0);
 
 	start_timer(get_maelstrom(state.general) / 24.0);
 

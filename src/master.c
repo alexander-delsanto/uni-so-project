@@ -324,9 +324,10 @@ void close_all(void)
 	msgctl(msg_commerce_in_port_get_id(), IPC_RMID, NULL);
 	msgctl(msg_commerce_out_port_get_id(), IPC_RMID, NULL);
 
-	sem_delete(get_sem_start_id());
-	sem_delete(get_sem_port_init_id());
-	sem_delete(get_sem_port_id());
+	sem_delete(sem_start_get_id(state.general));
+	sem_delete(sem_port_init_get_id(state.general));
+	sem_delete(shm_port_get_sem_docks_id(state.ports));
+	sem_delete(sem_dump_get_id(state.general));
 
 	shm_port_delete(state.general);
 	shm_ship_delete(state.general);

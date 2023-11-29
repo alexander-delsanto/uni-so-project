@@ -14,6 +14,14 @@ typedef struct shm_port shm_port_t;
  * @return Pointer to the attached port data structure or NULL on failure.
  */
 shm_port_t *shm_port_initialize(shm_general_t *g);
+
+/**
+ * @brief Initializes ipc related to port shm.
+ * @param g Pointer to general shared memory structure.
+ * @param p Pointer to port share memory structure.
+ */
+void shm_port_ipc_init(shm_general_t *g, shm_port_t *p);
+
 /**
  * @brief Attaches the process to the shared memory segment for port data.
  * @param g Pointer to the general shared memory structure.

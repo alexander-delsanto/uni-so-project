@@ -119,7 +119,7 @@ void handle_message(void)
 	int tmp_quantity;
 	int sender_id, cargo_id, quantity, expiry_date, capacity, status;
 
-	if (!msg_commerce_receive(get_msg_in_id(state.general), state.id,
+	if (!msg_commerce_receive(msg_in_get_id(state.general), state.id,
 				  &sender_id, &cargo_id, &quantity,
 				  &expiry_date, &status, FALSE)) {
 		return;
@@ -145,7 +145,7 @@ void handle_message(void)
 					  tmp_quantity);
 		}
 
-		msg_commerce_send(get_msg_out_id(state.general), &msg);
+		msg_commerce_send(msg_out_get_id(state.general), &msg);
 		break;
 	case STATUS_SELLING:
 
@@ -169,7 +169,7 @@ void handle_message(void)
 						  exp_node->quantity,
 						  exp_node->expire,
 						  STATUS_LOAD_ACCEPTED);
-			msg_commerce_send(get_msg_out_id(state.general), &msg);
+			msg_commerce_send(msg_out_get_id(state.general), &msg);
 			/* Updating dump of sent items */
 
 

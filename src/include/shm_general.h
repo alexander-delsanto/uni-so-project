@@ -42,10 +42,6 @@ void shm_cargo_set_id(shm_general_t *g, int id);
 void shm_offer_set_id(shm_general_t *g, int id);
 void shm_demand_set_id(shm_general_t *g, int id);
 
-/* message setters */
-void set_msg_in_id(shm_general_t *g, int id);
-void set_msg_out_id(shm_general_t *g, int id);
-
 /* SHM id getters */
 int shm_general_get_id(shm_general_t *g);
 int shm_ship_get_id(shm_general_t *g);
