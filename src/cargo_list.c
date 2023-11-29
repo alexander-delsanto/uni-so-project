@@ -186,7 +186,7 @@ int cargo_list_get_quantity_by_id(o_list_t *list, int id)
 	tmp = list[id].head;
 	cnt = 0;
 
-	while (tmp->next != NULL) {
+	while (tmp != NULL) {
 		cnt += tmp->quantity;
 		tmp = tmp->next;
 	}

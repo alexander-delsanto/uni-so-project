@@ -1,6 +1,8 @@
 #ifndef OS_PROJECT_UTILS_H
 #define OS_PROJECT_UTILS_H
 
+#include <stdlib.h>
+
 /**
  * @return a random integer between min and max (included).
  */

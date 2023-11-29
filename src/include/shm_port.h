@@ -65,14 +65,6 @@ void shm_port_set_pid(shm_port_t *p, int port_id, pid_t pid);
 void shm_port_set_coordinates(shm_port_t *p, int port_id, struct coord coord);
 
 /**
- * @brief Sets the number of docks for a specific port.
- * @param p Pointer to the array of port data in shared memory.
- * @param port_id Identifier of the port.
- * @param n Number of docks to set.
- */
-void shm_port_set_docks(shm_port_t *p, int port_id, int n);
-
-/**
  * @brief Sets is_in_swell to value when port receive SIGSWELL
  * @param p Pointer to the array of port data in shared memory.
  * @param port_id Identifier of the port.

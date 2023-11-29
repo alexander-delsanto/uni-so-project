@@ -7,6 +7,8 @@
 #include <time.h>
 #include <sys/time.h>
 
+#include "../lib/semaphore.h"
+
 #include "include/utils.h"
 #include "include/sem.h"
 #include "include/const.h"

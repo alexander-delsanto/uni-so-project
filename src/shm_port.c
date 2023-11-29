@@ -7,6 +7,7 @@
 #include "../lib/shm.h"
 #include "../lib/semaphore.h"
 
+#include "include/utils.h"
 #include "include/const.h"
 #include "include/shm_general.h"
 #include "include/types.h"
@@ -17,15 +18,13 @@ struct shm_port {
 	struct coord coord;
 	int num_docks;
 
-	int sem_docks_id;
-
 	bool_t is_in_swell;
-
 	bool_t dump_had_swell;
 
 	int dump_cargo_available;
 	int dump_cargo_shipped;
 	int dump_cargo_received;
+	int sem_docks_id;
 };
 
 /* Ports shared memory */
@@ -50,9 +49,25 @@ shm_port_t *shm_port_initialize(shm_general_t *g)
 	bzero(ports, size);
 	shm_port_set_id(g, shm_id);
 
-	ports->sem_docks_id = sem_create(SEM_PORT_KEY, n_ports);
+
 
 	return ports;
+}
+
+void shm_port_ipc_init(shm_general_t *g, shm_port_t *p)
+{
+	int i, n_ports, n_docks, rand_docks, sem_docks_id;
+	n_ports = get_porti(g);
+	n_docks = get_banchine(g);
+
+	/* Semaphores */
+	sem_docks_id = sem_create(SEM_DOCK_KEY, n_ports);
+	for (i = 0; i < n_ports; i++) {
+		p[i].sem_docks_id = sem_docks_id;
+		rand_docks = RANDOM_INTEGER(1,n_docks);
+		sem_setval(p[i].sem_docks_id, i, rand_docks);
+		p[i].num_docks = rand_docks;
+	}
 }
 
 shm_port_t *shm_port_attach(shm_general_t *g)
@@ -91,7 +106,6 @@ void shm_port_send_signal_to_port(shm_port_t *p, int port_id, int signal){kill(p
 /* Setters */
 void shm_port_set_pid(shm_port_t *p, int port_id, pid_t pid){p[port_id].pid = pid;}
 void shm_port_set_coordinates(shm_port_t *p, int port_id, struct coord coord){p[port_id].coord = coord;}
-void shm_port_set_docks(shm_port_t *p, int port_id, int n){p[port_id].num_docks = n;}
 
 void shm_port_set_is_in_swell(shm_port_t *p, int port_id, bool_t value)
 {

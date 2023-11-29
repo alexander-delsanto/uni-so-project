@@ -10,16 +10,25 @@ typedef struct shm_general shm_general_t;
  * @return Pointer to the updated general shared memory structure or NULL on failure.
  */
 shm_general_t *read_from_path(char *path, shm_general_t **g);
+
+/**
+ * @brief Initializes ipc related to general shm.
+ * @param g pointer to general shm struct.
+ */
+void shm_general_ipc_init(shm_general_t *g);
+
 /**
  * @brief Attaches the process to the shared memory segment for the general structure.
  * @param g Pointer to the pointer of the general shared memory structure.
  */
 void shm_general_attach(shm_general_t **g);
+
 /**
  * @brief Detaches the process from the shared memory segment for the general structure.
  * @param g Pointer to the general shared memory structure.
  */
 void shm_general_detach(shm_general_t *g);
+
 /**
  * @brief Deletes the shared memory segment with the specified ID.
  * @param id Shared memory ID to be deleted.
@@ -45,9 +54,14 @@ int shm_cargo_get_id(shm_general_t *g);
 int shm_offer_get_id(shm_general_t *g);
 int shm_demand_get_id(shm_general_t *g);
 
-/* message setters */
-int get_msg_in_id(shm_general_t *g);
-int get_msg_out_id(shm_general_t *g);
+/* Semaphores id getters */
+int sem_start_get_id(shm_general_t *g);
+int sem_port_init_get_id(shm_general_t *g);
+int sem_dump_get_id(shm_general_t *g);
+
+/* Message queues id getters */
+int msg_in_get_id(shm_general_t *g);
+int msg_out_get_id(shm_general_t *g);
 
 double get_lato(shm_general_t *g);
 int get_days(shm_general_t *g);

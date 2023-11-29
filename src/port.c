@@ -7,8 +7,9 @@
 #include <signal.h>
 #include <time.h>
 
+#include "../lib/semaphore.h"
+
 #include "include/const.h"
-#include "include/sem.h"
 #include "include/shm_general.h"
 #include "include/types.h"
 #include "include/utils.h"
@@ -36,7 +37,6 @@ void signal_handler_init(void);
 void loop(void);
 
 void generate_coordinates(void);
-void generate_docks(void);
 void handle_message(void);
 
 void close_all(void);
@@ -63,14 +63,13 @@ int main(int argc, char *argv[])
 
 	srand(time(NULL) * getpid());
 	generate_coordinates();
-	generate_docks();
 
 	dprintf(1, "port %d: n_docks: %d, sem_docks_val: %d\n", state.id,
 		shm_port_get_docks(state.port, state.id),
 		sem_getval(shm_port_get_sem_docks_id(state.port), state.id));
 
-	sem_execute_semop(get_sem_port_init_id(), 0, -1, 0);
-	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
+	sem_execute_semop(sem_port_init_get_id(state.general), 0, -1, 0);
+	sem_execute_semop(sem_start_get_id(state.general), 0, 0, 0);
 
 	dprintf(1, "port %d: reached loop\n", state.id);
 	loop();
@@ -122,7 +121,7 @@ void handle_message(void)
 
 	if (!msg_commerce_receive(get_msg_in_id(state.general), state.id,
 				  &sender_id, &cargo_id, &quantity,
-				  &expiry_date, &capacity, &status, FALSE)) {
+				  &expiry_date, &status, FALSE)) {
 		return;
 	}
 	switch (status) {
@@ -130,17 +129,17 @@ void handle_message(void)
 		tmp_quantity = shm_demand_get_quantity(state.general, state.demand, state.id, cargo_id);
 		if (tmp_quantity == 0) {
 			msg = msg_commerce_create(sender_id, state.id, cargo_id,
-						  tmp_quantity, 0, 0,
+						  tmp_quantity, 0,
 						  STATUS_REFUSED);
 		} else if (tmp_quantity >= quantity) {
 			msg = msg_commerce_create(sender_id, state.id, cargo_id,
-						  quantity, 0, 0,
+						  quantity, 0,
 						  STATUS_ACCEPTED);
 			shm_demand_remove(state.demand, state.general, state.id, cargo_id,
 					  quantity);
 		} else {
 			msg = msg_commerce_create(sender_id, state.id, cargo_id,
-						  tmp_quantity, 0, 0,
+						  tmp_quantity, 0,
 						  STATUS_ACCEPTED);
 			shm_demand_remove(state.demand, state.general, state.id, cargo_id,
 					  tmp_quantity);
@@ -168,7 +167,7 @@ void handle_message(void)
 			msg = msg_commerce_create(sender_id, state.id,
 						  exp_node->id,
 						  exp_node->quantity,
-						  exp_node->expire, 0,
+						  exp_node->expire,
 						  STATUS_LOAD_ACCEPTED);
 			msg_commerce_send(get_msg_out_id(state.general), &msg);
 			/* Updating dump of sent items */
@@ -216,17 +215,6 @@ void generate_coordinates(void)
 	}
 
 	shm_port_set_coordinates(state.port, state.id, coordinates);
-}
-
-void generate_docks(void)
-{
-	int sem_docks_id, n_docks;
-
-	sem_docks_id = shm_port_get_sem_docks_id(state.port);
-	n_docks = RANDOM_INTEGER(1, get_banchine(state.general));
-
-	sem_setval(sem_docks_id, state.id, n_docks);
-	shm_port_set_docks(state.port, state.id, n_docks);
 }
 
 void signal_handler_init(void)

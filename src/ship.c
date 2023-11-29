@@ -8,8 +8,9 @@
 #include <time.h>
 #include <signal.h>
 
+#include "../lib/semaphore.h"
+
 #include "include/const.h"
-#include "include/sem.h"
 #include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
@@ -96,7 +97,7 @@ void loop(void) {
 
 	id_dest_port = pick_first_destination_port();
 	move(id_dest_port);
-	trade();
+	/*trade();*/
 
 	/*receiver_port = RANDOM_INTEGER(0, get_porti(state.general) - 1);
 	dprintf(1, "ship %d: sending message to port %d\n", state.id, receiver_port);
@@ -108,7 +109,6 @@ void loop(void) {
 			state.current_day = day;
 			cargo_list_ship_remove_expired(state.cargo_hold,state.general, state.cargo);
 		}
-
 		if(cargo_list_get_quantity(state.cargo_hold, state.general) == 0) {
 			shm_ship_set_dump_with_cargo(state.ship, state.id, FALSE);
 		} else {
@@ -127,7 +127,7 @@ void handle_message(void)
 
 	if (!msg_commerce_receive(get_msg_out_id(state.general), state.id,
 				  &sender_id, &cargo_id, &quantity,
-				  &expiry_date, NULL, &status, FALSE)) {	/* TODO: a cosa si riferisce NULL? C'è un parametro di troppo. */
+				  &expiry_date, &status, FALSE)) {	/* TODO: a cosa si riferisce NULL? C'è un parametro di troppo. */
 		return;
 	}
 	switch (status) {

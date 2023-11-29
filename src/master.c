@@ -9,13 +9,14 @@
 #include <sys/wait.h>
 #include <time.h>
 
+#include "../lib/semaphore.h"
+
 #include "include/const.h"
 #include "include/shm_general.h"
 #include "include/shm_port.h"
 #include "include/shm_ship.h"
 #include "include/shm_cargo.h"
 #include "include/shm_offer_demand.h"
-#include "include/sem.h"
 #include "include/msg_commerce.h"
 
 struct state {
@@ -45,8 +46,6 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
-	int id_sem_start;
-
 	signal_handler_init();
 
 	srand(time(NULL) * getpid());
@@ -54,11 +53,13 @@ int main(int argc, char *argv[])
 	if (state.general == NULL) {
 		exit(1);
 	}
+	shm_general_ipc_init(state.general);
 
 	state.ports = shm_port_initialize(state.general);
 	if (state.ports == NULL) {
 		exit(1);
 	}
+	shm_port_ipc_init(state.general, state.ports);
 
 	state.ships = shm_ship_initialize(state.general);
 	if (state.ships == NULL) {
@@ -70,19 +71,13 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	id_sem_start = sem_create(SEM_START_KEY, 1);
-	sem_setval(id_sem_start, 0, 1);
-
-	/* Initialize message queues and set ids in shm */
-	set_msg_in_id(state.general, msg_commerce_in_port_init());
-	set_msg_out_id(state.general, msg_commerce_out_port_init());
 
 	run_ports();
 	run_ships();
 	run_weather();
 
-	sem_execute_semop(get_sem_port_init_id(), 0, 0, 0);
-	sem_execute_semop(id_sem_start, 0, -1, 0);
+	sem_execute_semop(sem_port_init_get_id(state.general), 0, 0, 0);
+	sem_execute_semop(sem_start_get_id(state.general), 0, -1, 0);
 
 
 	alarm(1);
@@ -115,10 +110,6 @@ void run_ports(void)
 	pid_t pid;
 
 	n_port = get_porti(state.general);
-
-	sem_id = sem_create(SEM_PORTS_INITIALIZED_KEY, n_port);
-	sem_setval(sem_id, 0, n_port);
-
 	for (i = 0; i < n_port; i++) {
 		pid = run_process("./port", i);
 		shm_port_set_pid(state.ports, i, pid);
@@ -301,7 +292,7 @@ void signal_handler(int signal)
 		close_all();
 	case SIGALRM:
 		/* TODO: gestire semafori */
-		print_daily_report();
+		/*print_daily_report();*/
 		if (check_ships_all_dead()) {
 			dprintf(1, "All ships are dead. Terminating...\n");
 			close_all();

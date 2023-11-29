@@ -7,6 +7,8 @@
 
 #include "include/const.h"
 #include "include/shm_general.h"
+#include "include/msg_commerce.h"
+#include "../lib/semaphore.h"
 
 struct shm_general {
 	double so_lato;
@@ -21,6 +23,7 @@ struct shm_general {
 	int general_shm_id, ship_shm_id, port_shm_id, cargo_shm_id;
 	int offer_shm_id, demand_shm_id;
 	int msg_in_id, msg_out_id;
+	int sem_start_id, sem_port_init_id, sem_dump_id;
 };
 
 static void shm_general_set_id(shm_general_t *g);
@@ -79,6 +82,21 @@ shm_general_t *read_from_path(char *path, shm_general_t **g)
 	return data;
 }
 
+void shm_general_ipc_init(shm_general_t *g)
+{
+	/* Semaphores */
+	g->sem_start_id = sem_create(SEM_START_KEY, 1);
+	sem_setval(g->sem_start_id, 0, 1);
+	g->sem_dump_id = sem_create(SEM_DUMP_KEY, 1);
+	sem_setval(g->sem_dump_id, 0, 1);
+	g->sem_port_init_id = sem_create(SEM_PORTS_INITIALIZED_KEY, g->so_porti);
+	sem_setval(g->sem_port_init_id, 0, g->so_porti);
+
+	/* Message queues */
+	g->msg_in_id = msg_commerce_in_port_init();
+	g->msg_out_id = msg_commerce_out_port_init();
+}
+
 /* General shared memory */
 void shm_general_attach(shm_general_t **g)
 {
@@ -113,8 +131,12 @@ int shm_cargo_get_id(shm_general_t *g){return g->cargo_shm_id;}
 int shm_offer_get_id(shm_general_t *g){	return g->offer_shm_id;}
 int shm_demand_get_id(shm_general_t *g){return g->demand_shm_id;}
 
-int get_msg_in_id(shm_general_t *g){return g->msg_in_id;}
-int get_msg_out_id(shm_general_t *g){return g->msg_out_id;}
+int sem_start_get_id(shm_general_t *g){return g->sem_start_id;}
+int sem_port_init_get_id(shm_general_t *g){return g->sem_port_init_id;}
+int sem_dump_get_id(shm_general_t *g){return g->sem_dump_id;}
+
+int msg_in_get_id(shm_general_t *g){return g->msg_in_id;}
+int msg_out_get_id(shm_general_t *g){return g->msg_out_id;}
 
 
 /* Getters for simulation costants */
