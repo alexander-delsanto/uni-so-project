@@ -77,7 +77,6 @@ int main(int argc, char *argv[])
 
 	sigemptyset(&mask);
 	sa.sa_mask = mask;
-	sigaction(SIGDAY, &sa, NULL);
 	sigaction(SIGSTORM, &sa, NULL);
 	sigaction(SIGMAELSTROM, &sa, NULL);
 
@@ -240,8 +239,6 @@ void trade(void)
 void signal_handler(int signal)
 {
 	switch (signal) {
-	case SIGDAY:
-		break;
 	case SIGSTORM:
 		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", state.id);
 		shm_ship_set_dump_had_storm(state.ship, state.id);

@@ -238,15 +238,12 @@ void signal_handler_init(void)
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
 
-	sigaction(SIGDAY, &sa, NULL);
 	sigaction(SIGSWELL, &sa, NULL);
 }
 
 void signal_handler(int signal)
 {
 	switch (signal) {
-	case SIGDAY:
-		break;
 	case SIGSWELL:
 		shm_port_set_is_in_swell(state.port, state.id, TRUE);
 		convert_and_sleep(get_swell_duration(state.general) / 24.0);

@@ -315,10 +315,6 @@ void signal_handler(int signal)
 			close_all();
 		}
 		increase_day(state.general);
-		shm_port_send_signal_to_all_ports(
-			state.ports, state.general, SIGDAY);
-		shm_ship_send_signal_to_all_ships(
-			state.ships, state.general, SIGDAY);
 		kill(state.weather, SIGDAY);
 		alarm(1);
 		break;
