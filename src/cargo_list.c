@@ -122,6 +122,8 @@ int cargo_list_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c, 
 	for (i = 0; i < n_merci; i++) {
 		if (list[i].head != NULL &&
 		    list[i].head->expire == expire_day) {
+			if(source) shm_cargo_set_dump_daily_expired_in_port(c, i, list[i].head->quantity);
+			else shm_cargo_set_dump_daily_expired_on_ship(c, i, list[i].head->quantity);
 			qt += list[i].head->quantity;
 			tmp = list[i].head;
 			list[i].head = tmp->next;

@@ -34,7 +34,6 @@ shm_port_t *shm_port_initialize(shm_general_t *g)
 	int shm_id, n_ports;
 	size_t size;
 
-	dprintf(1, "port init\n");
 	n_ports = get_porti(g);
 
 	size = (sizeof(shm_port_t) + 4 * (sizeof(int) * get_merci(g))) *

@@ -101,8 +101,10 @@ void loop(void)
 			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
 						  state.cargo, state.general);
-			shm_port_set_dump_cargo_available(state.port, state.id,
-							  shm_offer_get_tot_quantity(state.general, state.offer, state.id));
+/*			for (i = 0; i < n_merci; i++) {
+				tot_demand += shm_demand_get_quantity(state.general, state.demand, state.id, i);
+			}
+			dprintf(1, "port %d: tot_expired: %d, tot_demand: %d, tot: %d\n", state.id, tot_expired, tot_demand, tot_expired + tot_demand);*/
 		}
 		handle_message();
 	}
