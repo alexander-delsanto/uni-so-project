@@ -282,3 +282,13 @@ int shm_demand_get_quantity(shm_general_t *g, shm_demand_t *d, int port_id, int 
 {
 	return d[GET_INDEX(port_id,cargo_id, get_merci(g))].data;
 }
+
+int shm_offer_get_tot_quantity(shm_general_t *g, shm_offer_t *o, int port_id)
+{
+	int i, qty = 0;
+	int n_merci = get_merci(g);
+	for(i = 0; i < n_merci; i++) {
+		qty += o[GET_INDEX(port_id, i, n_merci)].data;
+	}
+	return qty;
+}

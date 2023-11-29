@@ -102,6 +102,8 @@ void loop(void)
 			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
 						  state.cargo, state.general);
+			shm_port_set_dump_cargo_available(state.port, state.id,
+							  shm_offer_get_tot_quantity(state.general, state.offer, state.id));
 		}
 		handle_message();
 	}

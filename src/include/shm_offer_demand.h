@@ -139,5 +139,6 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 
 int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id);
 int shm_demand_get_quantity(shm_general_t *g, shm_demand_t *d, int port_id, int cargo_id);
+int shm_offer_get_tot_quantity(shm_general_t *g, shm_offer_t *o, int port_id);
 
 #endif
