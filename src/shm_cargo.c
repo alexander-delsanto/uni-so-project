@@ -119,8 +119,8 @@ int shm_cargo_get_dump_expired_on_ship(shm_cargo_t *c, int id){return c[id].dump
 int shm_cargo_get_dump_received_in_port(shm_cargo_t *c, int id){return c[id].dump_received_in_port;}
 int shm_cargo_get_dump_available_in_port(shm_cargo_t *c, int id){return c[id].dump_available_in_port;}
 int shm_cargo_get_dump_available_on_ship(shm_cargo_t *c, int id){return c[id].dump_available_on_ship;}
-int shm_cargo_get_dump_daily_expired_in_port(shm_cargo_t *c, int id, int quantity){return c[id].dump_daily_expired_in_port;}
-int shm_cargo_get_dump_daily_expired_on_ship(shm_cargo_t *c, int id, int quantity){return c[id].dump_daily_expired_on_ship;}
+int shm_cargo_get_dump_daily_expired_in_port(shm_cargo_t *c, int id){return c[id].dump_daily_expired_in_port;}
+int shm_cargo_get_dump_daily_expired_on_ship(shm_cargo_t *c, int id){return c[id].dump_daily_expired_on_ship;}
 
 /* Setters */
 void shm_cargo_set_dump_total_generated(shm_cargo_t *c, int id, int quantity)
@@ -155,8 +155,10 @@ void shm_cargo_set_dump_available_on_ship(shm_cargo_t *c, int id, int quantity)
 void shm_cargo_set_dump_daily_expired_in_port(shm_cargo_t *c, int id, int quantity)
 {
 	c[id].dump_daily_expired_in_port = quantity;
+	c[id].dump_available_in_port -= quantity;
 }
 void shm_cargo_set_dump_daily_expired_on_ship(shm_cargo_t *c, int id, int quantity)
 {
 	c[id].dump_daily_expired_on_ship = quantity;
+	c[id].dump_available_on_ship -= quantity;
 }
