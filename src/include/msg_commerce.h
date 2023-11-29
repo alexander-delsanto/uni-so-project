@@ -24,7 +24,6 @@ struct commerce_msg {
 	int cargo_id;
 	int quantity;
 	int expiry_date;
-	int capacity;
 
 	int status;
 };
@@ -58,14 +57,12 @@ int msg_commerce_out_port_get_id(void);
  * @param cargo_id Identifier of the cargo.
  * @param quantity Quantity of the cargo.
  * @param expiry_date Expiry date of the cargo.
- * @param capacity Capacity of the cargo.
  * @param status Status of the cargo.
  * @return The created message.
  */
 struct commerce_msg msg_commerce_create(long receiver_id, long sender_id,
 					int cargo_id, int quantity,
-					int expiry_date, int capacity,
-					int status);
+					int expiry_date, int status);
 
 /**
  * @brief Send a commerce message to a message queue.
@@ -82,13 +79,12 @@ void msg_commerce_send(int queue_id, struct commerce_msg *msg);
  * @param cargo_id Pointer to store the cargo identifier.
  * @param quantity Pointer to store the quantity of goods.
  * @param expiry_date Pointer to store the expiry date of goods.
- * @param capacity Pointer to store the capacity of goods.
  * @param status Pointer to store the status of the message.
  * @param restarting Flag indicating whether the system is restarting.
  * @return TRUE if the message is successfully received, FALSE otherwise.
  */
 bool_t msg_commerce_receive(int queue_id, int type, int *sender_id,
 			    int *cargo_id, int *quantity, int *expiry_date,
-			    int *capacity, int *status, bool_t restarting);
+			    int *status, bool_t restarting);
 
 #endif

@@ -43,8 +43,7 @@ int msg_commerce_out_port_get_id(void)
 
 struct commerce_msg msg_commerce_create(long receiver_id, long sender_id,
 					int cargo_id, int quantity,
-					int expiry_date, int capacity,
-					int status)
+					int expiry_date, int status)
 {
 	struct commerce_msg res;
 	res.receiver = MSG_TYPE(receiver_id);
@@ -66,7 +65,7 @@ void msg_commerce_send(int queue_id, struct commerce_msg *msg)
 
 bool_t msg_commerce_receive(int queue_id, int type, int *sender_id,
 			    int *cargo_id, int *quantity, int *expiry_date,
-			    int *capacity, int *status, bool_t restarting)
+			    int *status, bool_t restarting)
 {
 	ssize_t ret;
 	struct commerce_msg msg;
