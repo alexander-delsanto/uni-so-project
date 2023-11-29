@@ -114,6 +114,13 @@ bool_t shm_ship_get_is_moving(shm_ship_t *s, int id);
  */
 struct coord shm_ship_get_coords(shm_ship_t *s, int id);
 /**
+ * @brief Gets the capacity of a specific ship in the shared memory structure.
+ * @param s Pointer to the array of ship data in shared memory.
+ * @param id Identifier of the ship.
+ * @return Capacity of the specified ship.
+ */
+int shm_ship_get_capacity(shm_ship_t *s, int id);
+/**
  * @brief Gets the "is_at_docks" status of a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
  * @param id Identifier of the ship.

@@ -128,8 +128,6 @@ int cargo_list_remove_expired(o_list_t *list, shm_general_t *g, shm_cargo_t *c, 
 			tmp = list[i].head;
 			list[i].head = tmp->next;
 			free(tmp);
-			if(source) shm_cargo_set_dump_daily_expired_in_port(c, i, qt);
-			else shm_cargo_set_dump_daily_expired_on_ship(c, i, qt);
 		}
 	}
 

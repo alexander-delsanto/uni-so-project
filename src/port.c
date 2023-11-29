@@ -91,12 +91,9 @@ void loop(void)
 			/* Dumping expired stuff */
 			qt_expired = cargo_list_port_remove_expired(state.cargo_hold,
 							    state.general, state.cargo);
-			tot_expired += qt_expired;
-/*			for (i = 0; i < get_merci(state.general); i++) {
-				port_shm_set_dump_expired(state.port, state.id,
-							  i, *expired);
-				dprintf(1, "\nCIAO\n");
-			}*/
+			/*tot_expired += qt_expired;*/
+			shm_port_set_dump_cargo_available(state.port, state.id,
+							  shm_offer_get_tot_quantity(state.general, state.offer, state.id));
 			/* Generation of new demand/offer */
 			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,

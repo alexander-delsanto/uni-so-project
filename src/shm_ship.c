@@ -94,13 +94,14 @@ bool_t shm_ship_get_is_dead(shm_ship_t *s, int id){return s[id].is_dead;}
 bool_t shm_ship_get_is_moving(shm_ship_t *s, int id){return s[id].is_moving;}
 bool_t shm_ship_get_is_at_dock(shm_ship_t *s, int id){return s[id].is_at_dock;}
 struct coord shm_ship_get_coords(shm_ship_t *s, int id){return s[id].coords;}
+int shm_ship_get_capacity(shm_ship_t *s, int id){return s[id].capacity;}
 
 /* Dump getters */
 int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++)
-		if(s[id].is_dead == FALSE && (s[id].is_moving == TRUE
+		if(s[id].is_dead == FALSE && (s[id].is_at_dock == FALSE
 					       && s[id].dump_with_cargo == TRUE))
 			cnt++;
 	return cnt;
@@ -109,7 +110,7 @@ int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++)
-		if(s[id].is_dead == FALSE && (s[id].is_moving == TRUE
+		if(s[id].is_dead == FALSE && (s[id].is_at_dock == FALSE
 					       && s[id].dump_with_cargo == FALSE))
 			cnt++;
 	return cnt;
