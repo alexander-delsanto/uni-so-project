@@ -21,14 +21,17 @@ struct shm_cargo {
 	int batch_size;
 	int batch_life;
 
-	/* TODO aggiungere dump cargo */
+	/* for final report */
 	int dump_total_generated;
 	int dump_stayed_in_port;
 	int dump_expired_in_port;
 	int dump_expired_on_ship;
 	int dump_received_in_port;
+	/* for daily report */
 	int dump_available_in_port;
 	int dump_available_on_ship;
+	int dump_daily_expired_on_ship;
+	int dump_daily_expired_in_port;
 };
 
 shm_cargo_t *shm_cargo_initialize(shm_general_t *g)
@@ -95,6 +98,20 @@ void cargo_shm_delete(shm_general_t *c)
 int shm_cargo_get_size(shm_cargo_t *c, int id){return c[id].batch_size;}
 int shm_cargo_get_life(shm_cargo_t *c, int id){return c[id].batch_life;}
 
+int shm_cargo_get_min_size_id(shm_cargo_t *c, shm_general_t *g)
+{
+	int i, min, tmp_batch;
+
+	for(i = 0, tmp_batch = 0; i < get_merci(g); i++){
+		if(c[i].batch_size < tmp_batch || tmp_batch == 0) {
+			min = i;
+			tmp_batch = c[i].batch_size;
+		}
+	}
+	return min;
+}
+
+
 int shm_cargo_get_dump_total_generated(shm_cargo_t *c, int id){return c[id].dump_total_generated;}
 int shm_cargo_get_dump_stayed_in_port(shm_cargo_t *c, int id){return c[id].dump_stayed_in_port;}
 int shm_cargo_get_dump_expired_in_port(shm_cargo_t *c, int id){return c[id].dump_expired_in_port;}
@@ -102,6 +119,8 @@ int shm_cargo_get_dump_expired_on_ship(shm_cargo_t *c, int id){return c[id].dump
 int shm_cargo_get_dump_received_in_port(shm_cargo_t *c, int id){return c[id].dump_received_in_port;}
 int shm_cargo_get_dump_available_in_port(shm_cargo_t *c, int id){return c[id].dump_available_in_port;}
 int shm_cargo_get_dump_available_on_ship(shm_cargo_t *c, int id){return c[id].dump_available_on_ship;}
+int shm_cargo_get_dump_daily_expired_in_port(shm_cargo_t *c, int id, int quantity){return c[id].dump_daily_expired_in_port;}
+int shm_cargo_get_dump_daily_expired_on_ship(shm_cargo_t *c, int id, int quantity){return c[id].dump_daily_expired_on_ship;}
 
 /* Setters */
 void shm_cargo_set_dump_total_generated(shm_cargo_t *c, int id, int quantity)
@@ -133,16 +152,11 @@ void shm_cargo_set_dump_available_on_ship(shm_cargo_t *c, int id, int quantity)
 	c[id].dump_available_on_ship += quantity;
 }
 
-
-int shm_cargo_get_min_size_id(shm_cargo_t *c, shm_general_t *g)
+void shm_cargo_set_dump_daily_expired_in_port(shm_cargo_t *c, int id, int quantity)
 {
-	int i, min, tmp_batch;
-
-	for(i = 0, tmp_batch = 0; i < get_merci(g); i++){
-		if(c[i].batch_size < tmp_batch || tmp_batch == 0) {
-			min = i;
-			tmp_batch = c[i].batch_size;
-		}
-	}
- 	return min;
+	c[id].dump_daily_expired_in_port = quantity;
+}
+void shm_cargo_set_dump_daily_expired_on_ship(shm_cargo_t *c, int id, int quantity)
+{
+	c[id].dump_daily_expired_on_ship = quantity;
 }

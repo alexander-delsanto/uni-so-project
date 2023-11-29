@@ -266,6 +266,7 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 				d[index].data = random_quantity;
 			}
 		}
+		shm_cargo_set_dump_total_generated(c, random_id, random_quantity);
 
 		dprintf(1, "cargo: %d - Aggiunto %d di peso %d\n", random_id, random_quantity, random_quantity * size);
 		current_fill -= random_quantity * size;
