@@ -2,6 +2,7 @@
 #define OS_PROJECT_OFFER_H
 
 #include <stdlib.h>
+
 #include "shm_general.h"
 #include "shm_cargo.h"
 #include "cargo_list.h"
@@ -54,7 +55,7 @@ void shm_offer_delete(shm_offer_t *o);
  * @brief Combines data from two arrays of shm_offer_t structures
  * @param src Pointer to the array of source offers in shared memory.
  * @param merge Pointer to local array of offers to be merged.
- * @param c pointer to general SHM
+ * @param c pointer to general SHMo
  * @param id Identifier of the port for which the demand data is updated.
  */
 void shm_offer_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
@@ -71,16 +72,6 @@ void shm_offer_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *c,
  */
 shm_offer_t *shm_offer_get_order(shm_offer_t *o, shm_general_t *g, int id,
 				 int capacity);
-/**
- * @brief Gets expired goods from a source offer list.
- * @param src Pointer to the source offer list.
- * @param o Pointer to the array of shared memory offers.
- * @param g Pointer to the shared memory structure containing general information.
- * @return A pointer to a new offer list containing the retrieved expired goods.
- */
-o_list_t *shm_offer_get_order_expires(o_list_t *src, shm_offer_t *o,
-				      shm_general_t *g);
-
 /**
  * @brief Initializes and attaches shared memory for demand data.
  * @param g pointer to general SHM
@@ -134,7 +125,7 @@ void shm_offer_demand_delete(shm_general_t *g);
  * @param c pointer to cargo SHM
  * @param g pointer to general SHM
  */
-void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
+void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 			       int port_id, shm_cargo_t *c, shm_general_t *g);
 
 int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id);

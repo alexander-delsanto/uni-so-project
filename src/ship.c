@@ -47,7 +47,7 @@ struct state {
 
 	shm_demand_t *demand;
 	shm_offer_t *offer;
-	o_list_t *cargo_hold;
+	o_list_t **cargo_hold;
 
 	int curr_port_id;
 };
@@ -75,7 +75,10 @@ int main(int argc, char *argv[])
 	state.demand = shm_demand_init(state.general);
 	state.offer = shm_offer_ports_attach(state.general);
 
-	state.cargo_hold = cargo_list_create(state.general);
+	state.cargo_hold = malloc(8 * get_merci(state.general));
+	for (i = 0; i < get_merci(state.general); i++) {
+		state.cargo_hold[i] = cargo_list_create();
+	}
 
 	srand(time(NULL) * getpid());
 	init_location();
@@ -179,7 +182,8 @@ int find_new_destination_port(void)
 
 		sale_amount = 0;
 		for (cargo_type = 0; cargo_type < get_merci(state.general); cargo_type++) {
-			amount_not_expired = get_not_expired_by_day(state.cargo_hold, cargo_type, get_current_day(state.general) + (int) time_required);
+			amount_not_expired = cargo_list_get_not_expired_by_day(state.cargo_hold[cargo_type], get_current_day(state.general) + (int) time_required);
+			/*amount_not_expired = get_not_expired_by_day(state.cargo_hold, cargo_type, get_current_day(state.general) + (int) time_required);*/
 			port_demand = shm_demand_get_quantity(state.general, state.demand, port, cargo_type);
 			sale_amount += MIN(amount_not_expired, port_demand);
 		}
@@ -197,6 +201,7 @@ int find_new_destination_port(void)
 void trade(void)
 {
 	int i, n_cargo, cargo_type, sem_docks_id;
+	int n_expired;
 	int load_speed, tons_moved;
 	sigset_t mask;
 	load_speed = get_load_speed(state.general);
@@ -248,7 +253,10 @@ int sell(int cargo_type)
 	int available_in_ship, port_demand, amount_to_sell;
 	int quantity, status;
 
-	available_in_ship = cargo_list_get_quantity_by_id(state.cargo_hold, cargo_type);
+	available_in_ship = 0;
+	/*available_in_ship = cargo_list_get_quantity_by_id(state.cargo_hold, cargo_type);*/
+	available_in_ship += cargo_list_get_quantity(state.cargo_hold[cargo_type]);
+
 	port_demand = shm_demand_get_quantity(state.general, state.demand, state.curr_port_id, cargo_type);
 	amount_to_sell = MIN(available_in_ship, port_demand);
 	if (amount_to_sell <= 0) return 0;
@@ -266,7 +274,7 @@ int sell(int cargo_type)
 int ship_sell(int amount_to_sell, int cargo_type)
 {
 	int tons_sold;
-	cargo_list_pop_needed(state.cargo_hold, state.general, cargo_type, amount_to_sell);
+	cargo_list_pop_needed(state.cargo_hold[cargo_type], amount_to_sell);
 
 	tons_sold = amount_to_sell * shm_cargo_get_size(state.cargo, cargo_type);
 
@@ -303,7 +311,7 @@ int buy(int cargo_type)
 int ship_buy(int cargo_type, int amount_to_buy, int expiration_date)
 {
 	int tons_bought;
-	cargo_list_add(state.cargo_hold, cargo_type, amount_to_buy, expiration_date);
+	cargo_list_add(state.cargo_hold[cargo_type], amount_to_buy, expiration_date);
 
 	tons_bought = amount_to_buy * shm_cargo_get_size(state.cargo, cargo_type);
 	shm_ship_update_capacity(state.ship, state.id, -tons_bought);
@@ -336,7 +344,13 @@ void signal_handler(int signal)
 void close_all(void)
 {
 	/* TODO detach offer and demand */
-	cargo_list_delete(state.cargo_hold, state.general);
+	int i;
+
+	for (i = 0; i < get_merci(state.general); i++) {
+		cargo_list_delete(state.cargo_hold[i]);
+	}
+	free(state.cargo_hold);
+
 	shm_port_detach(state.port);
 	shm_ship_detach(state.ship);
 	shm_cargo_detach(state.cargo);

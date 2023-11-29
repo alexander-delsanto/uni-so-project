@@ -133,20 +133,6 @@ shm_offer_t *shm_offer_get_order(shm_offer_t *o, shm_general_t *g, int id,
 	return output;
 }
 
-o_list_t *shm_offer_get_order_expires(o_list_t *src, shm_offer_t *o,
-				      shm_general_t *g)
-{
-	o_list_t *output;
-	int i;
-
-	output = cargo_list_create(g);
-	for (i = 0; i < get_merci(g); i++) {
-		cargo_list_merge(output, cargo_list_pop_needed(src, g, i, o[i].data), g);
-	}
-
-	return output;
-}
-
 /* DEMAND */
 shm_demand_t *shm_demand_init(shm_general_t *g)
 {
@@ -196,7 +182,7 @@ void shm_offer_demand_delete(shm_general_t *g)
 	shm_delete(shm_demand_get_id(g));
 }
 
-void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
+void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 			       int port_id, shm_cargo_t *c, shm_general_t *g)
 {
 	bool_t filled;
@@ -254,15 +240,13 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t *l,
 			d[index].data += random_quantity;
 		} else if (o[index].data > 0) {
 			o[index].data += random_quantity;
-			cargo_list_add(l, random_id, random_quantity,
-				       expiration + get_current_day(g));
+			cargo_list_add(l[random_id],random_quantity, expiration + get_current_day(g));
 			shm_cargo_set_dump_total_generated(c, random_id, random_quantity);
 			/*dprintf(1, "cargo %d: %d generated\n", random_id, random_quantity);*/
 		} else {
 			if (RANDOM_BOOL() == TRUE) {
 				o[index].data = random_quantity;
-				cargo_list_add(l, random_id, random_quantity,
-					       expiration + get_current_day(g));
+				cargo_list_add(l[random_id],random_quantity, expiration + get_current_day(g));
 				shm_cargo_set_dump_total_generated(c, random_id, random_quantity);
 				/*dprintf(1, "cargo %d: %d generated\n", random_id, random_quantity);*/
 			} else {

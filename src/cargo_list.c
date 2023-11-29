@@ -309,6 +309,40 @@ struct node_msg *cargo_list_pop_order(o_list_t *list, shm_general_t *g)
 	return output;
 }
 
+int cargo_list_get_not_expired_by_day(o_list_t *list, int expire_day) {
+	struct node *cur;
+	int qty = 0;
+
+	if (list == NULL || list->head == NULL) {
+		return -1;
+	}
+
+	for (cur = list->head; cur != NULL; cur = cur->next) {
+		if (cur->expire > expire_day)
+			qty += cur->quantity;
+	}
+
+	return qty;
+}
+
+int cargo_list_get_quantity(o_list_t *list) {
+	struct node *cur;
+	int qty = 0;
+
+	if (list == NULL || list->head == NULL) {
+		return -1;
+	}
+
+	cur = list->head;
+
+	while (cur != NULL) {
+		qty += cur->quantity;
+		cur = cur->next;
+	}
+
+	return qty;
+}
+
 static struct node *create_node(int quantity, int expire)
 {
 	struct node *node;

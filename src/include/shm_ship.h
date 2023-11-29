@@ -1,7 +1,9 @@
 #ifndef OS_PROJECT_SHM_SHIP_H
 #define OS_PROJECT_SHM_SHIP_H
 
+#include <sys/types.h>
 #include "shm_general.h"
+#include "types.h"
 
 typedef struct shm_ship shm_ship_t;
 

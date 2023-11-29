@@ -45,6 +45,7 @@ struct state state;
 
 int main(int argc, char *argv[])
 {
+	int i;
 	bzero(&state, sizeof(struct state));
 	signal_handler_init();
 
@@ -84,6 +85,7 @@ void loop(void)
 
 	int n_merci;
 	int tot_demand;
+
 	n_merci = get_merci(state.general);
 	sem_dump_id = sem_dump_get_id(state.general);
 	while (1) {
@@ -258,7 +260,12 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
-	cargo_list_delete(state.cargo_hold, state.general);
+	int i;
+
+	for (i = 0; i < get_merci(state.general); i++) {
+		cargo_list_delete(state.cargo_hold[i]);
+	}
+	free(state.cargo_hold);
 	shm_port_detach(state.port);
 	shm_cargo_detach(state.cargo);
 	shm_general_detach(state.general);
