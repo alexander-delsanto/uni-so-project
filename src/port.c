@@ -95,8 +95,10 @@ void loop(void)
 			state.current_day = day;
 			dprintf(1, "port %d: daily update\n", state.id);
 			/* Dumping expired stuff */
-			qt_expired = cargo_list_port_remove_expired(state.cargo_hold,
-							    state.general, state.cargo);
+			for (i = 0; i < n_merci; i++) {
+				qt_expired += cargo_list_remove_expired(state.cargo_hold[i], state.current_day);
+			}
+
 			/*tot_expired += qt_expired;*/
 			shm_port_set_dump_cargo_available(state.port, state.id,
 							  shm_offer_get_tot_quantity(state.general, state.offer, state.id));

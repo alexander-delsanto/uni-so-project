@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <strings.h>
+#include <stdio.h>
 
 #include "../lib/shm.h"
 
@@ -10,7 +11,6 @@
 #include "include/shm_general.h"
 #include "include/shm_offer_demand.h"
 #include "include/cargo_list.h"
-#include <stdio.h>
 
 #define GET_INDEX(port_id,cargo_id,n_cargo) (port_id * n_cargo + cargo_id)
 
@@ -164,7 +164,7 @@ void shm_demand_set(shm_demand_t *d, shm_general_t *g, int id, int type,
 	d[GET_INDEX(id, type, get_merci(g))].data += quantity;
 }
 
-void shm_demand_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
+void shm_demand_remove_quantity(shm_demand_t *d, shm_general_t *g, int id, int type,
 		       int quantity)
 {
 	if (d == NULL || quantity == 0) {

@@ -98,7 +98,7 @@ void shm_demand_set(shm_demand_t *d, shm_general_t *g, int id, int type,
  * @param type Type of the demand data to be updated.
  * @param quantity Quantity to be subtracted from the demand data.
  */
-void shm_demand_remove(shm_demand_t *d, shm_general_t *g, int id, int type,
+void shm_demand_remove_quantity(shm_demand_t *d, shm_general_t *g, int id, int type,
 		       int quantity);
 
 /**

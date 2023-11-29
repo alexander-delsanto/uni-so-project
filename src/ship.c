@@ -57,6 +57,7 @@ struct state state;
 int main(int argc, char *argv[])
 {
 	struct sigaction sa;
+	int i;
 	sigset_t mask;
 	bzero(&state, sizeof (struct state));
 	bzero(&sa, sizeof(sa));
