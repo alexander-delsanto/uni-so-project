@@ -99,6 +99,8 @@ struct coord shm_port_get_coordinates(shm_port_t *p, int id);
  */
 int shm_port_get_docks(shm_port_t *p, int id);
 
+int shm_port_get_sem_docks_id(shm_port_t *p);
+
 /**
  * @brief Gets the process ID of a specific port in the shared memory structure.
  * @param p Pointer to the array of port data in shared memory.
@@ -108,7 +110,6 @@ int shm_port_get_docks(shm_port_t *p, int id);
 pid_t shm_port_get_pid(shm_port_t *p, int id);
 
 /* Dump setters */
-void shm_port_set_dump_used_docks(shm_port_t *p, int id, int n);
 void shm_port_set_dump_ships_arrived(shm_port_t *p, int id, int n);
 
 /* Dump getters */

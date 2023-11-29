@@ -304,7 +304,7 @@ void signal_handler(int signal)
 		close_all();
 	case SIGALRM:
 		/* TODO: gestire semafori */
-		/*print_daily_report();*/
+		print_daily_report();
 		if (check_ships_all_dead()) {
 			dprintf(1, "All ships are dead. Terminating...\n");
 			close_all();

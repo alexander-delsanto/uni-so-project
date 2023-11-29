@@ -55,11 +55,6 @@ shm_cargo_t *shm_cargo_initialize(shm_general_t *g)
 
 	shm_cargo_values_init(g, cargo);
 
-	for (i = 0; i < n_cargo; i++) {
-		dprintf(1, "cargo %d: size: %d, life: %d\n", i,
-			cargo[i].batch_size, cargo[i].batch_life);
-	}
-
 	return cargo;
 }
 

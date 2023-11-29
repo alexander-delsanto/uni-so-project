@@ -18,6 +18,7 @@ struct shm_ship {
 
 	bool_t is_dead;			/* == dump_had_maelstorm */
 	bool_t is_moving;
+	bool_t is_at_dock;
 	struct coord coords;
 
 	bool_t dump_with_cargo;
@@ -80,12 +81,8 @@ void shm_ship_send_signal_to_ship(shm_ship_t *s, int id, int signal) { kill(s[id
 void shm_ship_set_pid(shm_ship_t *s, int id, pid_t pid) { s[id].pid = pid; }
 void shm_ship_set_coords(shm_ship_t *s, int id, struct coord coords) { s[id].coords = coords; }
 void shm_ship_set_is_dead(shm_ship_t *s, int id) { s[id].is_dead = TRUE; }
-
-void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value)
-{
-	s[id].is_moving = value;
-	s[id].dump_on_port = 1 - value;	/* if ship is moving then it's not on port */
-}
+void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value){s[id].is_moving = value;}
+void shm_ship_set_is_at_dock(shm_ship_t *s, int id, bool_t value){s[id].is_at_dock = value;}
 
 /* Dump setters */
 void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value) { s[id].dump_with_cargo = value; }
@@ -93,10 +90,11 @@ void shm_ship_set_dump_had_storm(shm_ship_t *s, int id) { s[id].dump_had_storm =
 
 
 /* Getters */
-pid_t shm_ship_get_pid(shm_ship_t *s, int id) { return s[id].pid; }
-bool_t shm_ship_get_is_dead(shm_ship_t *s, int id) { return s[id].is_dead; }
-bool_t shm_ship_get_is_moving(shm_ship_t *s, int id) { return s[id].is_moving; }
-struct coord shm_ship_get_coords(shm_ship_t *s, int id) { return s[id].coords; }
+pid_t shm_ship_get_pid(shm_ship_t *s, int id){return s[id].pid;}
+bool_t shm_ship_get_is_dead(shm_ship_t *s, int id){return s[id].is_dead;}
+bool_t shm_ship_get_is_moving(shm_ship_t *s, int id){return s[id].is_moving;}
+bool_t shm_ship_get_is_at_dock(shm_ship_t *s, int id){return s[id].is_at_dock;}
+struct coord shm_ship_get_coords(shm_ship_t *s, int id){return s[id].coords;}
 
 /* Dump getters */
 int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships)

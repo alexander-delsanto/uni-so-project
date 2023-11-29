@@ -17,7 +17,7 @@ struct shm_port {
 	struct coord coord;
 	int num_docks;
 
-	int sem_id;
+	int sem_docks_id;
 
 	bool_t is_in_swell;
 
@@ -26,7 +26,6 @@ struct shm_port {
 	int dump_cargo_available;
 	int dump_cargo_shipped;
 	int dump_cargo_received;
-	int dump_used_docks;
 	int dump_ships_arrived;
 };
 
@@ -52,7 +51,7 @@ shm_port_t *shm_port_initialize(shm_general_t *g)
 	bzero(ports, size);
 	shm_port_set_id(g, shm_id);
 
-	ports->sem_id = sem_create(SEM_PORT_KEY, n_ports);
+	ports->sem_docks_id = sem_create(SEM_PORT_KEY, n_ports);
 
 	return ports;
 }
@@ -102,7 +101,6 @@ void shm_port_set_is_in_swell(shm_port_t *p, int id, bool_t value)
 	p[id].is_in_swell = value;
 }
 
-void shm_port_set_dump_used_docks(shm_port_t *p, int id, int n){p[id].dump_used_docks += n;}
 void shm_port_set_dump_ships_arrived(shm_port_t *p, int id, int n){p[id].dump_ships_arrived += n;}
 
 void shm_port_set_dump_cargo_available(shm_port_t *p, int id, int n){p[id].dump_cargo_available += n;}
@@ -112,8 +110,9 @@ void shm_port_set_dump_cargo_received(shm_port_t *p, int id, int n){p[id].dump_c
 /* Getters */
 struct coord shm_port_get_coordinates(shm_port_t *p, int id){return p[id].coord;}
 int shm_port_get_docks(shm_port_t *p, int id){return p[id].num_docks;}
+int shm_port_get_sem_docks_id(shm_port_t *p){return p->sem_docks_id;}
 pid_t shm_port_get_pid(shm_port_t *p, int id){return p[id].pid;}
-int shm_port_get_dump_used_docks(shm_port_t *p, int id){return p[id].dump_used_docks;}
+int shm_port_get_dump_used_docks(shm_port_t *p, int id){return p[id].num_docks - sem_getval(p->sem_docks_id, id);}
 int shm_port_get_dump_ships_arrived(shm_port_t *p, int id){return p[id].dump_ships_arrived;}
 
 int shm_port_get_dump_had_swell(shm_port_t *p, int n_ports)

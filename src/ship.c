@@ -32,7 +32,7 @@ void send_commerce_mgs(int port_id, struct commerce_msg *msg);
 
 void close_all(void);
 void loop(void);
-int find_new_destination_port(int curr_port_id);
+int find_new_destination_port(void);
 
 struct state {
 	int id;
@@ -44,6 +44,7 @@ struct state {
 	shm_demand_t *demand;
 	o_list_t *cargo_hold;
 
+	int curr_port_id;
 	int current_day;
 };
 
@@ -108,8 +109,8 @@ void loop(void) {
 			state.current_day = day;
 			cargo_list_remove_expired(state.cargo_hold, state.general);
 		}
-/*		dest_port_coords = find_new_destination_port();
-		move(dest_port_coords);
+/*		id_dest_port = find_new_destination_port();
+		move(id_dest_port);
 		trade();*/
 	}
 }
@@ -175,9 +176,10 @@ void move(int port_id)
 	/* set new location */
 	shm_ship_set_coords(state.ship, state.id, dest_coords);
 	shm_ship_set_is_moving(state.ship, state.id, FALSE);
+	state.curr_port_id = port_id;
 }
 
-int find_new_destination_port(int curr_port_id)
+int find_new_destination_port(void)
 {
 	int cargo_type;
 	int port, best_port = -1;
@@ -189,7 +191,7 @@ int find_new_destination_port(int curr_port_id)
 
 	n_ports = get_porti(state.general);
 	for (port = 0; port < n_ports; port++) {
-		if (port == curr_port_id) continue;
+		if (port == state.curr_port_id) continue;
 
 		/* Check port distance */
 		time_required = GET_DISTANCE(shm_port_get_coordinates(state.port, port)) / get_speed(state.general);
@@ -208,14 +210,30 @@ int find_new_destination_port(int curr_port_id)
 			best_time = time_required;
 		}
 	}
-
-	/* Send message to port */
-
 	return best_port;
 }
 
 void trade(void)
 {
+	int sem_docks_id;
+	sigset_t mask;
+	sem_docks_id = shm_port_get_sem_docks_id(state.port);
+	sigfillset(&mask);
+
+	/* Requesting dock */
+
+	dprintf(1, "ship %d: requesting dock at port %d\n", state.id, state.curr_port_id);
+	sem_execute_semop(sem_docks_id, state.curr_port_id, -1, 0);
+	shm_ship_set_is_at_dock(state.ship, state.id, TRUE);
+	dprintf(1, "ship %d: got dock at port %d\n", state.id, state.curr_port_id);
+	sigprocmask(SIG_BLOCK, &mask, NULL);
+	convert_and_sleep(5.0);
+	sigprocmask(SIG_UNBLOCK, &mask, NULL);
+
+	/* Releasing dock */
+	sem_execute_semop(sem_docks_id, state.curr_port_id, 1, 0);
+	shm_ship_set_is_at_dock(state.ship, state.id, FALSE);
+	dprintf(1, "ship %d: released dock at port %d\n", state.id, state.curr_port_id);
 
 }
 

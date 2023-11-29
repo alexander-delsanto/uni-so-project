@@ -65,6 +65,10 @@ int main(int argc, char *argv[])
 	generate_coordinates();
 	generate_docks();
 
+	dprintf(1, "port %d: n_docks: %d, sem_docks_val: %d\n", state.id,
+		shm_port_get_docks(state.port, state.id),
+		sem_getval(shm_port_get_sem_docks_id(state.port), state.id));
+
 	sem_execute_semop(get_sem_port_init_id(), 0, -1, 0);
 	sem_execute_semop(get_sem_start_id(), 0, 0, 0);
 
@@ -89,7 +93,6 @@ void loop(void)
 			qt_expired = cargo_list_remove_expired(state.cargo_hold,
 							    state.general);
 			tot_expired += qt_expired;
-			dprintf(1, "port %d: expired: %d\n", state.id, qt_expired);
 /*			for (i = 0; i < get_merci(state.general); i++) {
 				port_shm_set_dump_expired(state.port, state.id,
 							  i, *expired);
@@ -215,13 +218,13 @@ void generate_coordinates(void)
 
 void generate_docks(void)
 {
-	int n;
+	int sem_docks_id, n_docks;
 
-	n = RANDOM_INTEGER(1, get_banchine(state.general));
-	/* TODO: gen semaphore
-	state.sem_id = sem_create(100, n);*/
+	sem_docks_id = shm_port_get_sem_docks_id(state.port);
+	n_docks = RANDOM_INTEGER(1, get_banchine(state.general));
 
-	shm_port_set_docks(state.port, state.id, n);
+	sem_setval(sem_docks_id, state.id, n_docks);
+	shm_port_set_docks(state.port, state.id, n_docks);
 }
 
 void signal_handler_init(void)
