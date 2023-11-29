@@ -24,23 +24,6 @@ int msg_commerce_out_port_init(void)
 	return id;
 }
 
-int msg_commerce_in_port_get_id(void)
-{
-	int id;
-	if ((id = msgget(MSG_IN_PORT_KEY, 0)) < 0)
-		dprintf(2, "msg_commerce.c - msg_commerce_in_port_get_id: Failed to get message queue id.\n");
-
-	return id;
-}
-
-int msg_commerce_out_port_get_id(void)
-{
-	int id;
-	if ((id = msgget(MSG_OUT_PORT_KEY, 0)) < 0)
-		dprintf(2, "msg_commerce.c - msg_commerce_out_port_get_id: Failed to get message queue id.\n");
-	return id;
-}
-
 struct commerce_msg msg_commerce_create(long receiver_id, long sender_id,
 					int cargo_id, int quantity,
 					int expiry_date, int status)

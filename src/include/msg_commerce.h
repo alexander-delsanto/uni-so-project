@@ -6,16 +6,13 @@
 #include "types.h"
 
 enum status {
-	STATUS_DEAD = -1,
 	/* For port to ship messages */
 	STATUS_ACCEPTED,
+	STATUS_PARTIAL,
 	STATUS_REFUSED,
-	STATUS_LOAD_ACCEPTED,
 	/* For ship to port messages */
-	STATUS_REQUEST,
-	STATUS_MISSING,
-	STATUS_LOAD_REQUEST,
-	STATUS_SELLING
+	STATUS_SELL,
+	STATUS_BUY
 };
 
 struct commerce_msg {
@@ -38,17 +35,6 @@ int msg_commerce_in_port_init(void);
  * @return The identifier of the initialized message queue.
  */
 int msg_commerce_out_port_init(void);
-
-/**
- * @brief Get the identifier of an incoming message queue.
- * @return The identifier of the existing message queue.
- */
-int msg_commerce_in_port_get_id(void);
-/**
- * @brief Get the identifier of an outgoing message queue.
- * @return The identifier of the existing message queue.
- */
-int msg_commerce_out_port_get_id(void);
 
 /**
  * @brief Create a commerce message.
