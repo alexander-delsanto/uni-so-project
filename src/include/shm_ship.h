@@ -71,6 +71,12 @@ void shm_ship_set_is_dead(shm_ship_t *s, int id);
  * @param id Identifier of the ship.
  */
 void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value);
+/**
+ * @brief Sets the "is_at_dock" status for a specific ship in the shared memory structure
+ * @param s Pointer to the array of ship data in shared memory.
+ * @param id Identifier of the ship.
+ */
+void shm_ship_set_is_at_dock(shm_ship_t *s, int id, bool_t value);
 
 /* Dump setters */
 void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value);
@@ -106,11 +112,18 @@ bool_t shm_ship_get_is_moving(shm_ship_t *s, int id);
  * @return Coordinates of the specified ship.
  */
 struct coord shm_ship_get_coords(shm_ship_t *s, int id);
+/**
+ * @brief Gets the "is_at_docks" status of a specific ship in the shared memory structure.
+ * @param s Pointer to the array of ship data in shared memory.
+ * @param id Identifier of the ship.
+ * @return TRUE is ship is at dock. FALSE otherwise.
+ */
+bool_t shm_ship_get_is_at_dock(shm_ship_t *s, int id);
 
 /* Dump getters */
 int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships);
 int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships);
-int shm_ship_get_dump_on_port(shm_ship_t *s, int n_ships);
+int shm_ship_get_dump_at_dock(shm_ship_t *s, int n_ships);
 int shm_ship_get_dump_had_storm(shm_ship_t *s, int n_ships);
 int shm_ship_get_dump_had_maelstrom(shm_ship_t *s, int n_ships);
 int shm_ship_get_dump_is_dead(shm_ship_t *s, int n_ships);

@@ -22,7 +22,6 @@ struct shm_ship {
 	struct coord coords;
 
 	bool_t dump_with_cargo;
-	bool_t dump_on_port;
 	bool_t dump_had_storm;
 	bool_t dump_mael_logged;	/* for daily maeltrom */
 	bool_t dump_storm_final;	/* for final report */
@@ -85,8 +84,8 @@ void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value){s[id].is_moving
 void shm_ship_set_is_at_dock(shm_ship_t *s, int id, bool_t value){s[id].is_at_dock = value;}
 
 /* Dump setters */
-void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value) { s[id].dump_with_cargo = value; }
-void shm_ship_set_dump_had_storm(shm_ship_t *s, int id) { s[id].dump_had_storm = TRUE; }
+void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value){s[id].dump_with_cargo = value;}
+void shm_ship_set_dump_had_storm(shm_ship_t *s, int id){s[id].dump_had_storm = TRUE;}
 
 
 /* Getters */
@@ -116,11 +115,11 @@ int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships)
 	return cnt;
 }
 
-int shm_ship_get_dump_on_port(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_at_dock(shm_ship_t *s, int n_ships)
 {
 	int id, cnt = 0;
 	for(id = 0; id < n_ships; id++)
-		if(s[id].is_dead == FALSE && s[id].dump_on_port == TRUE)
+		if(s[id].is_dead == FALSE && s[id].is_at_dock == TRUE)
 			cnt++;
 	return cnt;
 }

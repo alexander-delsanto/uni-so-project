@@ -190,14 +190,13 @@ void print_daily_report(void) {
 	}
 
 
-
 	dprintf(1, "**********SHIPS**********\n");
 	dprintf(1, "Number of ships at sea with cargo: %d\n",
 		shm_ship_get_dump_with_cargo(state.ships, n_ship));
 	dprintf(1, "Number of ships at sea without cargo: %d\n",
 		shm_ship_get_dump_without_cargo(state.ships, n_ship));
-	dprintf(1, "Number of ships at port: %d\n",
-		shm_ship_get_dump_on_port(state.ships, n_ship));
+	dprintf(1, "Number of ships at docks: %d\n",
+		shm_ship_get_dump_at_dock(state.ships, n_ship));
 
 	dprintf(1, "**********PORTS**********\n");
 	for (i = 0; i < n_port; i++) {
@@ -238,8 +237,8 @@ void print_final_report(void) {
 		shm_ship_get_dump_with_cargo(state.ships, n_ship));
 	dprintf(1, "Number of ships at sea without cargo: %d\n",
 		shm_ship_get_dump_without_cargo(state.ships, n_ship));
-	dprintf(1, "Number of ships at port: %d\n",
-		shm_ship_get_dump_on_port(state.ships, n_ship));
+	dprintf(1, "Number of ships at at docks: %d\n",
+		shm_ship_get_dump_at_dock(state.ships, n_ship));
 	dprintf(1, "**********CARGO**********\n");
 	for(type = 0; type < n_cargo; type++){
 		dprintf(1, "Type %d:\n", type);
