@@ -182,20 +182,21 @@ void generate_coordinates(void)
 void signal_handler_init(void)
 {
 	static struct sigaction sa;
-	sigset_t mask;
 
 	bzero(&sa, sizeof(sa));
 	sa.sa_handler = signal_handler;
 
 	sigaction(SIGSEGV, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
-
 	sigaction(SIGSWELL, &sa, NULL);
+	sigaction(SIGDAY, &sa, NULL);
 }
 
 void signal_handler(int signal)
 {
 	switch (signal) {
+	case SIGDAY:
+		break;
 	case SIGSWELL:
 		shm_port_set_is_in_swell(state.port, state.id, TRUE);
 		convert_and_sleep(get_swell_duration(state.general) / 24.0);

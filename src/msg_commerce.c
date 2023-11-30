@@ -53,7 +53,7 @@ bool_t msg_commerce_receive(int queue_id, int type, int *sender_id,
 	long ret;
 	struct commerce_msg msg;
 	do {
-		ret = msgrcv(queue_id, &msg, MSG_SIZE, MSG_TYPE(type), IPC_NOWAIT);
+		ret = msgrcv(queue_id, &msg, MSG_SIZE, MSG_TYPE(type), 0);
 		if (!restarting && ret < 0)
 			return FALSE;
 	} while(ret < 0);
