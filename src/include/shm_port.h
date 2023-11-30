@@ -92,9 +92,9 @@ void shm_port_set_is_in_swell(shm_port_t *p, int port_id, bool_t value);
  * @brief Sets the number of available cargo at a specific port in the dump.
  * @param p Pointer to the shm_port_t structure.
  * @param port_id The identifier of the port.
- * @param n The number of available cargo to set in the dump.
+ * @param amount The number of available cargo to set in the dump.
  */
-void shm_port_set_dump_cargo_available(shm_port_t *p, int port_id, int n);
+void shm_port_update_dump_cargo_available(shm_general_t *g, shm_port_t *p, shm_offer_t *o, int port_id);
 
 /**
  * @brief Increases the total shipped cargo at a specific port in the dump.

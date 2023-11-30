@@ -104,8 +104,7 @@ void loop(void)
 			state.current_day = day;
 			/* Dumping expired stuff */
 			shm_port_remove_expired(state.general, state.port, state.offer, state.cargo, state.cargo_hold, state.id);
-			shm_port_set_dump_cargo_available(state.port, state.id,
-							  shm_offer_get_tot_quantity(state.general, state.offer, state.id));
+			shm_port_update_dump_cargo_available(state.general, state.port, state.offer, state.id);
 			/* Generation of new demand/offer */
 			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
@@ -157,6 +156,7 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 			msg = msg_commerce_create(ship_id, state.id, cargo_type, quantity, expiration_date, status);
 			msg_commerce_send(msg_out_id, &msg);
 		}
+		shm_port_update_dump_cargo_available(state.general, state.port, state.offer, state.id);
 	} else {
 		msg = msg_commerce_create(ship_id, state.id, -1, -1, -1, STATUS_REFUSED);
 		msg_commerce_send(msg_out_id, &msg);
