@@ -231,8 +231,8 @@ void print_final_report(void) {
 		dprintf(1, "Type %d:\n", type);
 		dprintf(1, "\t%d generated since the beginning;\n",
 			shm_cargo_get_dump_total_generated(state.cargo, type));
-		dprintf(1, "\t%d always in port;\n",
-			shm_cargo_get_dump_unsold_in_port(state.cargo, type));
+		dprintf(1, "\t%d unsold in port;\n",
+			shm_cargo_get_dump_available_in_port(state.cargo, type));
 		dprintf(1, "\t%d expired in ports;\n",
 			shm_cargo_get_dump_expired_in_port(state.cargo, type));
 		dprintf(1, "\t%d expired on ships;\n",

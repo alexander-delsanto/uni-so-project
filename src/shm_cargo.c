@@ -29,10 +29,8 @@ struct shm_cargo {
 
 	int max_offer;
 	int max_demand;
-	int sold_by_port;
 	/* for final report */
 	int dump_total_generated;
-	int dump_unsold_in_port;
 	int dump_expired_in_port;
 	int dump_expired_on_ship;
 	int dump_received_in_port;
@@ -117,11 +115,6 @@ int shm_cargo_get_min_size_id(shm_cargo_t *c, shm_general_t *g)
 
 
 int shm_cargo_get_dump_total_generated(shm_cargo_t *c, int id){return c[id].dump_total_generated;}
-int shm_cargo_get_dump_unsold_in_port(shm_cargo_t *c, int id)
-{
-	return c[id].dump_total_generated -
-	       (c[id].dump_expired_in_port + c[id].sold_by_port);
-}
 int shm_cargo_get_dump_expired_in_port(shm_cargo_t *c, int id){return c[id].dump_expired_in_port;}
 int shm_cargo_get_dump_expired_on_ship(shm_cargo_t *c, int id){return c[id].dump_expired_on_ship;}
 int shm_cargo_get_dump_received_in_port(shm_cargo_t *c, int id){return c[id].dump_received_in_port;}
@@ -169,11 +162,6 @@ void shm_cargo_update_dump_available_on_ship(shm_cargo_t *c, int id, int quantit
 	sem_execute_semop(sem_cargo_id, id, -1, 0);
 	c[id].dump_available_on_ship += quantity;
 	sem_execute_semop(sem_cargo_id, id, 1, 0);
-}
-
-void shm_cargo_set_dump_sold_by_port(shm_cargo_t *c, int id, int quantity)
-{
-	c[id].sold_by_port += quantity;	/* TODO: da settare nel trade della nave */
 }
 
 void shm_cargo_set_dump_port_max_offer(shm_cargo_t *c, int cargo_id, int port_id, int quantity)
