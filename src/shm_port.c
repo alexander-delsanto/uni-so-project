@@ -139,3 +139,18 @@ bool_t shm_port_get_dump_swell_final(shm_port_t *p, int port_id){return p[port_i
 int shm_port_get_dump_cargo_available(shm_port_t *p, int port_id){return p[port_id].dump_cargo_available;}
 int shm_port_get_dump_cargo_shipped(shm_port_t *p, int port_id){return p[port_id].dump_cargo_shipped;}
 int shm_port_get_dump_cargo_received(shm_port_t *p, int port_id){return p[port_id].dump_cargo_received;}
+
+void shm_port_remove_expired(shm_general_t *g, shm_port_t *p, shm_offer_t *o, shm_cargo_t *c, o_list_t **cargo_hold, int port_id)
+{
+	int i, removed, sem_cargo_id;
+	sem_cargo_id = sem_cargo_get_id(g);
+
+	for (i = 0; i < get_merci(g); i++) {
+		removed = cargo_list_remove_expired(cargo_hold[i], get_current_day(g));
+		if (removed > 0){
+			shm_offer_remove_quantity(o, g, port_id, i, removed);
+			shm_cargo_update_dump_available_in_port(c, i, -removed, sem_cargo_id);
+			shm_cargo_update_dump_expired_in_port(c, i, removed, sem_cargo_id);
+		}
+	}
+}

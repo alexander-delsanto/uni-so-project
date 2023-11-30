@@ -183,6 +183,7 @@ void shm_ship_remove_expired(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_
 		if (removed > 0) {
 			s[ship_id].capacity -= removed * shm_cargo_get_size(c, i);
 			shm_cargo_update_dump_available_on_ship(c, i, -removed, sem_cargo_id);
+			shm_cargo_update_dump_expired_on_ship(c, i, removed, sem_cargo_id);
 		}
 	}
 

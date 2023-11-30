@@ -4,6 +4,9 @@
 #include <sys/types.h>
 
 #include "shm_general.h"
+#include "shm_cargo.h"
+#include "shm_offer_demand.h"
+#include "cargo_list.h"
 #include "types.h"
 
 /**
@@ -197,5 +200,7 @@ int shm_port_get_dump_cargo_shipped(shm_port_t *p, int port_id);
  * @return The total number of received cargo at the specified port.
  */
 int shm_port_get_dump_cargo_received(shm_port_t *p, int port_id);
+
+void shm_port_remove_expired(shm_general_t *g, shm_port_t *p, shm_offer_t *o, shm_cargo_t *c, o_list_t **cargo_hold, int port_id);
 
 #endif
