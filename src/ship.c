@@ -211,7 +211,7 @@ void trade(void)
 	sigaddset(&mask, SIGMAELSTROM);
 
 	/* Requesting dock */
-	sem_execute_semop(sem_docks_id, state.curr_port_id, -1, 0);
+	sem_execute_semop(sem_docks_id, state.curr_port_id, -1, SEM_UNDO);
 	shm_ship_set_is_at_dock(state.ship, state.id, TRUE);
 	/*dprintf(1, "ship %d: got dock at port %d\n", state.id, state.curr_port_id);*/
 
@@ -251,7 +251,7 @@ void trade(void)
 	/*dprintf(1, "ship %d capacity: %d/%d\n", state.id, shm_ship_get_capacity(state.ship, state.id), get_capacity(state.general));*/
 
 	/* Releasing dock */
-	sem_execute_semop(sem_docks_id, state.curr_port_id, 1, 0);
+	sem_execute_semop(sem_docks_id, state.curr_port_id, 1, SEM_UNDO);
 	shm_ship_set_is_at_dock(state.ship, state.id, FALSE);
 
 }
