@@ -23,10 +23,10 @@ void cargo_list_add(o_list_t *list, int quantity, int expire);
 /**
  * @brief Removes cargo items with a specific expire from the list.
  * @param list The cargo list.
- * @param expire_day The expiration date to check against.
+ * @param day The expiration date to check against.
  * @return The amount of removed cargo items.
  */
-int cargo_list_remove_expired(o_list_t *list, int expire_day);
+int cargo_list_remove_expired(o_list_t *list, int day);
 
 /**
  * @brief Pops cargo items from the cargo list based on the needed quantity.

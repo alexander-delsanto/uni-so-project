@@ -66,7 +66,7 @@ void cargo_list_add(o_list_t *list, int quantity, int expire)
 	}
 }
 
-int cargo_list_remove_expired(o_list_t *list, int expire_day)
+int cargo_list_remove_expired(o_list_t *list, int day)
 {
 	struct node *tmp;
 	int qt;
@@ -81,7 +81,7 @@ int cargo_list_remove_expired(o_list_t *list, int expire_day)
 
 	qt = 0;
 
-	if (list->head->expire == expire_day) {
+	if (list->head->expire < day) {
 		qt = list->head->quantity;
 		tmp = list->head;
 		list->head = list->head->next;
