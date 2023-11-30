@@ -116,12 +116,10 @@ void loop(void)
 			shm_offer_demand_generate(state.offer, state.demand,
 						  state.cargo_hold, state.id,
 						  state.cargo, state.general);
-
-			dprintf(1, "port %d: after generate:\n", state.id);
-			for (i = 0; i < n_merci; i++) {
+/*			for (i = 0; i < n_merci; i++) {
 				dprintf(1, "id cargo: %d:\n", i);
 				cargo_list_print_all(state.cargo_hold[i]);
-			}
+			}*/
 /*			for (i = 0; i < n_merci; i++) {
 				tot_demand += shm_demand_get_quantity(state.general, state.demand, state.id, i);
 			}
@@ -167,11 +165,8 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 		cargo = cargo_list_pop_needed(state.cargo_hold[cargo_type], exchanged_amount);
 		if (cargo == NULL)
 			dprintf(1, "cargo is null\n");
-		dprintf(1, "after pop_needed\n");
-		cargo_list_print_all(cargo);
 		while (exchanged_amount > 0) {
 			cargo_list_pop(cargo, &quantity, &expiration_date);
-			dprintf(1, "after pop single\n");
 			if (quantity != -1)
 				dprintf(1, "port %d: - quantity: %d, exp_date: %d\n", state.id, quantity, expiration_date);
 			exchanged_amount -= quantity;

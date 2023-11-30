@@ -110,7 +110,7 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, int quantity)
 
 	cnt = quantity;
 
-	while (list->head->next != NULL || cnt > 0) {
+	while (list->head != NULL && cnt > 0) {
 		if (list->head->quantity <= cnt) {
 			cargo_list_add(output, list->head->quantity, list->head->expire);
 			cnt -= list->head->quantity;
@@ -124,6 +124,11 @@ o_list_t *cargo_list_pop_needed(o_list_t *list, int quantity)
 		}
 	}
 
+	if (list->head == NULL && cnt > 0) {
+		cargo_list_delete(output);
+		output = NULL;
+	}
+
 	return output;
 }
 
@@ -131,8 +136,9 @@ void cargo_list_delete(o_list_t *list)
 {
 	struct node *cur, *tmp;
 
-	cur = list->head;
+	if (list == NULL) return;
 
+	cur = list->head;
 	while (cur != NULL) {
 		tmp = cur;
 		cur = cur->next;
