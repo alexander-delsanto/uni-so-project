@@ -1,4 +1,4 @@
-# Project report
+# Transito navale di merci - Project report
 ## Master
 The "master.c" module serves as the main controller for the simulation system, managing ports, ships, and weather, 
 through inter-process communication. 
@@ -40,10 +40,19 @@ The master process waits for child processes termination and then it cleans up t
 - `close_all()` terminates the simulation, sending signals to all relevant processes, deleting IPC resources, and printing the final report.
 
 ## Shared memory
-boh
+`lib/shm.h` is a helper library that has been used as a facilitation to create/attach/detach/destroy 
+shared memory segment on the aforementioned `shm_*` header files dedicated to the shared sturctures.
 
 ## Semaphore
-boh
+`lib/semaphore.h` is a helper library that has been used as a facilitation to create/handle/destroy arrays of semaphores.
+
+// DETTAGLIO DI COME USIAMO I SEMAFORI NEI VARI CASI
+
+## Signal
+- **SIGDAY**: defined as SIGUSR1, used by master to signal a new day which triggers new cargo generations and daily reports;
+- **SIGSWELL**: defined as SIGUSR2, used by weather to signal if a SWELL occurs to a port;
+- **SIGSTORM**: defined as SIGUSR2, used by weather to signal if a STORM occurs to a ship;
+- **SIGMAELSTROM**: defined as SIGTERM, used by weather to signal if a MAELSTROM occurs to a ship that terminates after it.
 
 ## Message
 `src/msg_commerce.h` contains structures and functions to handle messages between ports and ships.
