@@ -46,7 +46,8 @@ shared memory segment on the aforementioned `shm_*` header files dedicated to th
 ## Semaphore
 `lib/semaphore.h` is a helper library that has been used as a facilitation to create/handle/destroy arrays of semaphores.
 
-// DETTAGLIO DI COME USIAMO I SEMAFORI NEI VARI CASI
+Semaphores have been used to synchronize the starting of the simulation, for managing port docks and for managing access
+to the cargo share memory.
 
 ## Signal
 - **SIGDAY**: defined as SIGUSR1, used by master to signal a new day which triggers new cargo generations and daily reports;
