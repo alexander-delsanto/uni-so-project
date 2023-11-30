@@ -35,13 +35,13 @@ These reports include information about cargo, ships, ports, and weather conditi
 ### Terminating the simulation
 When we reach the end of the simulation (after SO_DAYS seconds), ships and ports processes detach themselves from shared memory and terminate.
 
-The master process waits for child processes termination and then it cleans up the shared memory and semaphores.
+The master process waits for child processes termination, then it cleans up the shared memory and semaphores.
 - `check_ships_all_dead()` determines whether all ships are dead. 
 - `close_all()` terminates the simulation, sending signals to all relevant processes, deleting IPC resources, and printing the final report.
 
 ## Shared memory
 `lib/shm.h` is a helper library that has been used as a facilitation to create/attach/detach/destroy 
-shared memory segment on the aforementioned `shm_*` header files dedicated to the shared sturctures.
+shared memory segment on the aforementioned `shm_*` header files dedicated to the shared structures.
 
 ## Semaphore
 `lib/semaphore.h` is a helper library that has been used as a facilitation to create/handle/destroy arrays of semaphores.
