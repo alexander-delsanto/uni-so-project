@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
 	}
 	state.port = shm_port_attach(state.general);
 	state.cargo = shm_cargo_attach(state.general);
-	state.offer = shm_offer_ports_init(state.general);
-	state.demand = shm_demand_init(state.general);
+	state.offer = shm_offer_attach(state.general);
+	state.demand = shm_demand_attach(state.general);
 	state.cargo_hold = malloc(8 * get_merci(state.general));
 	for (i = 0; i < get_merci(state.general); i++) {
 		state.cargo_hold[i] = cargo_list_create();

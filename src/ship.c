@@ -328,7 +328,6 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
-	/* TODO detach offer and demand */
 	int i;
 
 	for (i = 0; i < get_merci(state.general); i++) {
@@ -342,5 +341,5 @@ void close_all(void)
 	shm_offer_detach(state.offer);
 	shm_demand_detach(state.demand);
 	shm_general_detach(state.general);
-	exit(0);
+	exit(EXIT_SUCCESS);
 }

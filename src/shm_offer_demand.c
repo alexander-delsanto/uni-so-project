@@ -19,10 +19,12 @@
 
 struct shm_offer {
 	int data;
+	int dump_tot_offered;
 };
 
 struct shm_demand {
 	int data;
+	int dump_tot_demanded;
 };
 
 
@@ -200,18 +202,22 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 
 		if (d[index].data > 0) {
 			d[index].data += random_quantity;
+			d[index].dump_tot_demanded += random_quantity;
 		} else if (o[index].data > 0) {
 			o[index].data += random_quantity;
+			o[index].dump_tot_offered += random_quantity;
 			cargo_list_add(l[random_id], random_quantity, expiration + get_current_day(g));
 			shm_cargo_update_dump_available_in_port(c, random_id, random_quantity, sem_cargo_id);
 			shm_cargo_update_dump_total_generated(c, random_id, random_quantity, sem_cargo_id);
 		} else {
 			if (RANDOM_BOOL() == TRUE) {
 				o[index].data = random_quantity;
+				o[index].dump_tot_offered += random_quantity;
 				cargo_list_add(l[random_id],random_quantity, expiration + get_current_day(g));
 				shm_cargo_update_dump_available_in_port(c, random_id, random_quantity, sem_cargo_id);
 				shm_cargo_update_dump_total_generated(c, random_id, random_quantity, sem_cargo_id);
 			} else {
+				d[index].dump_tot_demanded += random_quantity;
 				d[index].data = random_quantity;
 			}
 		}
