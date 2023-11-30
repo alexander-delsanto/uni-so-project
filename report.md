@@ -3,6 +3,7 @@
 The "master.c" module serves as the main controller for the simulation system, managing ports, ships, and weather, 
 through inter-process communication. 
 It utilizes shared memory and semaphores for coordination between different processes. 
+
 The simulation involves the movement of ships between ports, cargo generation, trade activities and weather conditions management.
 
 The struct **state** encapsulates the shared data structures and the weather process identifier. 
@@ -15,6 +16,7 @@ It includes pointers to shared data structures for the general configuration, po
 The `main()` initializes the signal handlers, reads the configuration from a file, and sets up shared memory and 
 semaphores. 
 Then it forks processes for ports, ships, and weather. 
+
 The simulation starts after synchronizing the processes using semaphores.
 
 ### Process initialization
@@ -32,6 +34,7 @@ These reports include information about cargo, ships, ports, and weather conditi
 
 ### Terminating the simulation
 When we reach the end of the simulation (after SO_DAYS seconds), ships and ports processes detach themselves from shared memory and terminate.
+
 The master process waits for child processes termination and then it cleans up the shared memory and semaphores.
 - `check_ships_all_dead()` determines whether all ships are dead. 
 - `close_all()` terminates the simulation, sending signals to all relevant processes, deleting IPC resources, and printing the final report.
@@ -43,10 +46,18 @@ boh
 boh
 
 ## Message
-boh
+`src/msg_commerce.h` contains structures and functions to handle messages between ports and ships.
 
-## Port and ship communications
-The "msg_commerce.h" module ...(non mi viene il verbo corretto) communication between ports and ships in commerce system. 
+Every message has a status used to decode the request and brings a support structure containing all the possible informations.
+
+From port to ship message status: 
+- **STATUS_ACCEPTED**: port accepts all the offer proposed from the ship;
+- **STATUS_PARTIAL**: port accepts a part of the offer proposed from the ship, depending on the request;
+- **STATUS_REFUSED**: port refuses the ship's offer.
+
+From ship to port message status:
+- **STATUS_SELL**: ship sends goodies to port
+- **STATUS_BUY**: ship take goodies from port
 
 ## Port
 The port interacts with ships, manages cargo, and participates in commerce through offers and demands.
