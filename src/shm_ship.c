@@ -90,10 +90,8 @@ void shm_ship_set_is_at_dock(shm_ship_t *s, int id, bool_t value){s[id].is_at_do
 void shm_ship_set_dump_had_storm(shm_ship_t *s, int id){s[id].dump_had_storm = TRUE;}
 
 /* Getters */
-pid_t shm_ship_get_pid(shm_ship_t *s, int id){return s[id].pid;}
 bool_t shm_ship_get_is_dead(shm_ship_t *s, int id){return s[id].is_dead;}
 bool_t shm_ship_get_is_moving(shm_ship_t *s, int id){return s[id].is_moving;}
-bool_t shm_ship_get_is_at_dock(shm_ship_t *s, int id){return s[id].is_at_dock;}
 struct coord shm_ship_get_coords(shm_ship_t *s, int id){return s[id].coords;}
 int shm_ship_get_capacity(shm_ship_t *s, int id){return s[id].capacity;}
 
@@ -132,7 +130,7 @@ int shm_ship_get_dump_had_storm(shm_general_t *g, shm_ship_t *s)
 {
 	int id, cnt = 0;
 	for(id = 0; id < get_navi(g); id++)
-		if(s[id].is_dead == FALSE && s[id].dump_had_storm == TRUE)
+		if(s[id].dump_had_storm == TRUE)
 			cnt++;
 	return cnt;
 }
@@ -160,15 +158,6 @@ int shm_ship_get_dump_is_dead(shm_ship_t *s, int n_ships)
 			cnt++;
 		}
 	}
-	return cnt;
-}
-
-int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
-{
-	int i, cnt = 0;
-	for(i = 0; i < n_ships; i++)
-		if(s[i].dump_storm_final == TRUE)
-			cnt++;
 	return cnt;
 }
 
