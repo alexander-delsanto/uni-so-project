@@ -200,7 +200,8 @@ int cargo_list_get_quantity(o_list_t *list) {
 	struct node *cur;
 	int qty = 0;
 
-	if (list == NULL || list->head == NULL) {
+	if (list == NULL) {
+		dprintf(1, "cargo_list.c: cargo_list_get_quantity: list is NULL\n");
 		return -1;
 	}
 
