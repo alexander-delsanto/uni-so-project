@@ -276,21 +276,18 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 			o[index].data += random_quantity;
 			cargo_list_add(l[random_id], random_quantity, expiration + get_current_day(g));
 			shm_cargo_update_dump_available_in_port(c, random_id, random_quantity, sem_cargo_id);
-			/*shm_cargo_set_dump_total_generated(c, random_id, random_quantity);*/
-			/*dprintf(1, "cargo %d: %d generated\n", random_id, random_quantity);*/
+			shm_cargo_update_dump_total_generated(c, random_id, random_quantity, sem_cargo_id);
 		} else {
 			if (RANDOM_BOOL() == TRUE) {
 				o[index].data = random_quantity;
 				cargo_list_add(l[random_id],random_quantity, expiration + get_current_day(g));
 				shm_cargo_update_dump_available_in_port(c, random_id, random_quantity, sem_cargo_id);
-				/*shm_cargo_set_dump_total_generated(c, random_id, random_quantity);*/
-				/*dprintf(1, "cargo %d: %d generated\n", random_id, random_quantity);*/
+				shm_cargo_update_dump_total_generated(c, random_id, random_quantity, sem_cargo_id);
 			} else {
 				d[index].data = random_quantity;
 			}
 		}
 
-/*		dprintf(1, "cargo: %d - Aggiunto %d di peso %d\n", random_id, random_quantity, random_quantity * size);*/
 		current_fill -= random_quantity * size;
 	}
 }

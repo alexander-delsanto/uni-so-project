@@ -161,7 +161,7 @@ int shm_cargo_get_dump_port_max_offer(shm_cargo_t *c, int cargo_id);
  * @param id Cargo type ID.
  * @param quantity Quantity to add.
  */
-void shm_cargo_set_dump_total_generated(shm_cargo_t *c, int id, int quantity);
+void shm_cargo_update_dump_total_generated(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
 
 /**
  * @brief Sets the quantity of unsold cargo in the port for a specific cargo type.

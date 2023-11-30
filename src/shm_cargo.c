@@ -131,9 +131,11 @@ int shm_cargo_get_dump_port_max_demand(shm_cargo_t *c, int cargo_id){return c[ca
 int shm_cargo_get_dump_port_max_offer(shm_cargo_t *c, int cargo_id){return c[cargo_id].dump_id_max_offer;}
 
 /* Setters */
-void shm_cargo_set_dump_total_generated(shm_cargo_t *c, int id, int quantity)
+void shm_cargo_update_dump_total_generated(shm_cargo_t *c, int id, int quantity, int sem_cargo_id)
 {
+	sem_execute_semop(sem_cargo_id, id, -1, 0);
 	c[id].dump_total_generated += quantity;
+	sem_execute_semop(sem_cargo_id, id, 1, 0);
 }
 
 void shm_cargo_update_dump_expired_in_port(shm_cargo_t *c, int id, int quantity, int sem_cargo_id)
