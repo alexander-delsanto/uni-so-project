@@ -31,6 +31,7 @@ recompile: clean all
 
 clean:
 	@$(RM) -r $(BIN_DIR) && ipcrm -a
+	@$(RM) output.log
 
 run: all
 	cd bin && ./$(TARGET)
