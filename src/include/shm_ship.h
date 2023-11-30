@@ -3,8 +3,13 @@
 
 #include <sys/types.h>
 #include "shm_general.h"
+#include "shm_cargo.h"
+#include "cargo_list.h"
 #include "types.h"
 
+/**
+ * @brief Represents the shared memory structure for ship information.
+ */
 typedef struct shm_ship shm_ship_t;
 
 /**
@@ -154,15 +159,71 @@ int shm_ship_get_capacity(shm_ship_t *s, int id);
 bool_t shm_ship_get_is_at_dock(shm_ship_t *s, int id);
 
 /* Dump getters */
-int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships);
-int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships);
-int shm_ship_get_dump_at_dock(shm_ship_t *s, int n_ships);
-int shm_ship_get_dump_had_storm(shm_ship_t *s, int n_ships);
-int shm_ship_get_dump_had_maelstrom(shm_ship_t *s, int n_ships);
-int shm_ship_get_dump_is_dead(shm_ship_t *s, int n_ships);
-int shm_ship_get_dump_present_by_id(shm_ship_t *s, int id, int type);
-int shm_ship_get_dump_expired_by_id(shm_ship_t *s, int id, int type);
 
+/**
+ * @brief Gets the number of ships with cargo in the dump.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param n_ships The total number of ships.
+ * @return The number of ships with cargo.
+ */
+int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships);
+
+/**
+ * @brief Gets the number of ships without cargo in the dump.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param n_ships The total number of ships.
+ * @return The number of ships without cargo.
+ */
+int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships);
+
+/**
+ * @brief Gets the number of ships at the dock in the dump.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param n_ships The total number of ships.
+ * @return The number of ships at the dock.
+ */
+int shm_ship_get_dump_at_dock(shm_ship_t *s, int n_ships);
+
+/**
+ * @brief Gets the number of ships that had a storm in the dump.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param n_ships The total number of ships.
+ * @return The number of ships that had a storm.
+ */
+int shm_ship_get_dump_had_storm(shm_ship_t *s, int n_ships);
+
+/**
+ * @brief Gets the number of ships that had a maelstrom in the dump.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param n_ships The total number of ships.
+ * @return The number of ships that had a maelstrom.
+ */
+int shm_ship_get_dump_had_maelstrom(shm_ship_t *s, int n_ships);
+
+/**
+ * @brief Gets the number of dead ships in the dump.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param n_ships The total number of ships.
+ * @return The number of dead ships.
+ */
+int shm_ship_get_dump_is_dead(shm_ship_t *s, int n_ships);
+
+/**
+ * @brief Gets the number of ships with storm_final in the dump.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param n_ships The total number of ships.
+ * @return The number of ships with storm_final.
+ */
+int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships);
+
+/**
+ * @brief Updates the capacity of a specific ship.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param ship_id The identifier of the ship.
+ * @param update_value The value to update the capacity.
+ */
 void shm_ship_update_capacity(shm_ship_t *s, int ship_id, int update_value);
+
+void shm_ship_remove_expired(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id);
 
 #endif

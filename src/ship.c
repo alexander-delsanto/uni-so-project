@@ -213,20 +213,19 @@ void trade(void)
 	/* Requesting dock */
 	sem_execute_semop(sem_docks_id, state.curr_port_id, -1, 0);
 	shm_ship_set_is_at_dock(state.ship, state.id, TRUE);
-	dprintf(1, "ship %d: got dock at port %d\n", state.id, state.curr_port_id);
+	/*dprintf(1, "ship %d: got dock at port %d\n", state.id, state.curr_port_id);*/
 
 	/* Selling */
 	if (shm_ship_get_capacity(state.ship, state.id) < get_capacity(state.general)) {
 		/*dprintf(1, "ship %d: selling to port %d\n", state.id, state.curr_port_id);*/
 		for (i = 0; i < n_cargo; i++) {
-			n_expired = cargo_list_remove_expired(state.cargo_hold[i], get_current_day(state.general));
-			shm_ship_update_capacity(state.ship, state.id, n_expired * shm_cargo_get_size(state.cargo, i));
+			shm_ship_remove_expired(state.general, state.ship, state.cargo, state.cargo_hold, state.id);
 			/*cargo_list_ship_remove_expired(state.cargo_hold, state.general, state.ship, state.id, state.cargo);*/
 			sigprocmask(SIG_BLOCK, &mask, NULL);
 			tons_moved = sell(i);
 			sigprocmask(SIG_UNBLOCK, &mask, NULL);
 			if (tons_moved > 0)
-				dprintf(1, "ship %d: unloading %d tons at port %d\n", state.id, tons_moved, state.curr_port_id);
+				/*dprintf(1, "ship %d: unloading %d tons at port %d\n", state.id, tons_moved, state.curr_port_id);*/
 			convert_and_sleep(tons_moved / (double)load_speed);
 		}
 	}
@@ -236,8 +235,7 @@ void trade(void)
 	for (i = 0; i < n_cargo; i++) {
 		if (shm_ship_get_capacity(state.ship, state.id) <= 0) break;
 		/*dprintf(1, "ship %d: buying from port %d\n", state.id, state.curr_port_id);*/
-		n_expired = cargo_list_remove_expired(state.cargo_hold[cargo_type], get_current_day(state.general));
-		shm_ship_update_capacity(state.ship, state.id, n_expired * shm_cargo_get_size(state.cargo, cargo_type));
+		shm_ship_remove_expired(state.general, state.ship, state.cargo, state.cargo_hold, state.id);
 		/*cargo_list_ship_remove_expired(state.cargo_hold, state.general, state.ship, state.id, state.cargo);*/
 		cargo_type = (cargo_type + i) % n_cargo;
 		/*dprintf(1, "port %d offers %d of cargo %d\n", state.curr_port_id, shm_offer_get_quantity(state.general, state.offer, state.curr_port_id, cargo_type), cargo_type);*/
@@ -247,10 +245,10 @@ void trade(void)
 		tons_moved = buy(cargo_type);
 		sigprocmask(SIG_UNBLOCK, &mask, NULL);
 		if (tons_moved > 0)
-			dprintf(1, "ship %d: loading %d tons at port %d\n", state.id, tons_moved, state.curr_port_id);
+			/*dprintf(1, "ship %d: loading %d tons at port %d\n", state.id, tons_moved, state.curr_port_id);*/
 		convert_and_sleep(tons_moved / (double)load_speed);
 	}
-	dprintf(1, "ship capacity: %d/%d\n", shm_ship_get_capacity(state.ship, state.id), get_capacity(state.general));
+	/*dprintf(1, "ship %d capacity: %d/%d\n", state.id, shm_ship_get_capacity(state.ship, state.id), get_capacity(state.general));*/
 
 	/* Releasing dock */
 	sem_execute_semop(sem_docks_id, state.curr_port_id, 1, 0);
@@ -289,7 +287,7 @@ int ship_sell(int amount_to_sell, int cargo_type)
 
 	tons_sold = amount_to_sell * shm_cargo_get_size(state.cargo, cargo_type);
 	shm_ship_update_capacity(state.ship, state.id, tons_sold);
-	/*shm_cargo_set_dump_received_in_port(state.cargo, cargo_type, amount_to_sell);*/
+	shm_cargo_update_dump_available_on_ship(state.cargo, cargo_type, -amount_to_sell, sem_cargo_get_id(state.general));
 	return tons_sold;
 }
 
@@ -326,8 +324,9 @@ int ship_buy(int cargo_type, int amount_to_buy, int expiration_date)
 	cargo_list_add(state.cargo_hold[cargo_type], amount_to_buy, expiration_date);
 
 	tons_bought = amount_to_buy * shm_cargo_get_size(state.cargo, cargo_type);
-	dprintf(1, "Tons bought: %d\n", tons_bought);
 	shm_ship_update_capacity(state.ship, state.id, -tons_bought);
+	shm_cargo_update_dump_available_on_ship(state.cargo, cargo_type, amount_to_buy, sem_cargo_get_id(state.general));
+
 	return tons_bought;
 
 }
@@ -344,6 +343,7 @@ void signal_handler(int signal)
 		dprintf(1, "Ship %d: Received SIGMAELSTROM signal.\n",
 			state.id);
 		shm_ship_set_is_dead(state.ship, state.id);
+		shm_ship_remove_expired(state.general, state.ship, state.cargo, state.cargo_hold, state.id);
 		close_all();
 	case SIGSEGV:
 		dprintf(1, "ship.c: id: %d: Received SIGSEGV signal.\n", state.id);

@@ -173,3 +173,15 @@ int ship_shm_get_dump_storm_final(shm_ship_t *s, int n_ships)
 }
 
 void shm_ship_update_capacity(shm_ship_t *s, int ship_id, int update_value){s[ship_id].capacity += update_value;}
+
+void shm_ship_remove_expired(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id)
+{
+	int i, removed;
+	for (i = 0; i < get_merci(g); i++) {
+		removed = cargo_list_remove_expired(cargo_hold[i], get_current_day(g));
+		if (removed > 0)
+			s[ship_id].capacity -= removed * shm_cargo_get_size(c, i);
+	}
+
+	/* TODO dump */
+}
