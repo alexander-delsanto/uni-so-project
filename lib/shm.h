@@ -3,8 +3,8 @@
 * @brief Library that provides a more user friendly interface for System V shared memory.
 */
 
-#ifndef SHM_H
-#define SHM_H
+#ifndef OS_PROJECT_SHM_H
+#define OS_PROJECT_SHM_H
 
 #include <sys/shm.h>
 #include <sys/stat.h>

@@ -3,8 +3,8 @@
 * @brief Library that provides a more user friendly interface for System V semaphores.
 */
 
-#ifndef _SEMAPHORE_H
-#define _SEMAPHORE_H
+#ifndef OS_PROJECT_SEMAPHORE_H
+#define OS_PROJECT_SEMAPHORE_H
 
 #include <sys/sem.h>
 
