@@ -179,7 +179,7 @@ void shm_cargo_set_dump_unsold_in_port(shm_cargo_t *c, int id, int quantity);
  * @param id Cargo type ID.
  * @param quantity Quantity to set.
  */
-void shm_cargo_set_dump_expired_in_port(shm_cargo_t *c, int id, int quantity);
+void shm_cargo_update_dump_expired_in_port(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
 
 /**
  * @brief Sets the quantity of expired cargo on the ship for a specific cargo type.
@@ -188,7 +188,7 @@ void shm_cargo_set_dump_expired_in_port(shm_cargo_t *c, int id, int quantity);
  * @param id Cargo type ID.
  * @param quantity Quantity to set.
  */
-void shm_cargo_set_dump_expired_on_ship(shm_cargo_t *c, int id, int quantity);
+void shm_cargo_update_dump_expired_on_ship(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
 
 /**
  * @brief Sets the quantity of received cargo in the port for a specific cargo type.

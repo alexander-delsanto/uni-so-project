@@ -175,9 +175,9 @@ void print_daily_report(void) {
 		dprintf(1, "\t%d delivered to ports;\n",
 			shm_cargo_get_dump_received_in_port(state.cargo, type));
 		dprintf(1, "\t%d expired in ports;\n",
-			shm_cargo_get_dump_daily_expired_in_port(state.cargo, type));
+			shm_cargo_get_dump_expired_in_port(state.cargo, type));
 		dprintf(1, "\t%d expired on ships;\n",
-			shm_cargo_get_dump_daily_expired_on_ship(state.cargo, type));
+			shm_cargo_get_dump_expired_on_ship(state.cargo, type));
 	}
 
 	dprintf(1, "\n**********SHIPS**********\n");
