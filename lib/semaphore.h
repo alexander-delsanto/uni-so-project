@@ -42,7 +42,7 @@ void sem_setval(id_t sem_id, int sem_index, int value);
 int sem_getval(id_t sem_id, int sem_index);
 
 /**
-* @brief
+* @brief Executes a semaphore operation using semop system call.
 *
 * @param sem_id the id of the semaphore array.
 * @param sem_index the index of the semaphore in the array.
