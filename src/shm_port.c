@@ -89,8 +89,7 @@ void shm_port_delete(shm_general_t *g)
 }
 
 /* Signals to ports */
-void shm_port_send_signal_to_all_ports(shm_port_t *p, shm_general_t *g,
-				       int signal)
+void shm_port_send_signal_to_all_ports(shm_port_t *p, shm_general_t *g, int signal)
 {
 	int i;
 	int n_ships = get_porti(g);
@@ -121,13 +120,12 @@ void shm_port_update_dump_cargo_received(shm_port_t *p, int port_id, int amount)
 struct coord shm_port_get_coordinates(shm_port_t *p, int port_id){return p[port_id].coord;}
 int shm_port_get_docks(shm_port_t *p, int port_id){return p[port_id].num_docks;}
 int shm_port_get_sem_docks_id(shm_port_t *p){return p->sem_docks_id;}
-pid_t shm_port_get_pid(shm_port_t *p, int port_id){return p[port_id].pid;}
 int shm_port_get_dump_used_docks(shm_port_t *p, int port_id){return p[port_id].num_docks - sem_getval(p->sem_docks_id, port_id);}
 
-int shm_port_get_dump_had_swell(shm_port_t *p, int n_ports)
+int shm_port_get_dump_had_swell(shm_general_t *g, shm_port_t *p)
 {
 	int id, cnt = 0;
-	for(id = 0; id < n_ports; id++)
+	for(id = 0; id < get_porti(g); id++)
 		if(p[id].dump_had_swell == TRUE)
 			cnt++;
 	return cnt;

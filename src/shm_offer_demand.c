@@ -28,16 +28,6 @@ struct shm_demand {
 
 /* OFFER SHM FUNCTIONS */
 
-/**
- * @brief Gets the pointer to the shared memory for offers.
- *
- * Allocates and returns a new array of shared memory for offers.
- *
- * @param g Pointer to shared memory general information.
- * @return Pointer to shared memory for offers.
- */
-shm_offer_t *shm_offer_get(shm_general_t *g);
-
 shm_offer_t *shm_offer_ports_init(shm_general_t *g)
 {
 	int shm_id;
@@ -65,28 +55,6 @@ shm_offer_t *shm_offer_ports_attach(shm_general_t *g)
 	return offer;
 }
 
-shm_offer_t *shm_offer_get(shm_general_t *g)
-{
-	shm_offer_t *offer;
-
-	offer = calloc(get_merci(g), sizeof(shm_offer_t));
-	if (offer == NULL) {
-		return NULL;
-	}
-
-	return offer;
-}
-
-void shm_offer_add_quantity(shm_offer_t *o, shm_general_t *g, int id, int type,
-		   int quantity)
-{
-	if (o == NULL || quantity == 0) {
-		return;
-	}
-
-	o[GET_INDEX(id, type, get_merci(g))].data += quantity;
-}
-
 void shm_offer_remove_quantity(shm_offer_t *o, shm_general_t *g, int id, int type,
 		      int quantity)
 {
@@ -97,10 +65,6 @@ void shm_offer_remove_quantity(shm_offer_t *o, shm_general_t *g, int id, int typ
 	o[GET_INDEX(id, type, get_merci(g))].data -= quantity;
 }
 
-void shm_offer_delete(shm_offer_t *o)
-{
-	free(o);
-}
 
 int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id)
 {
@@ -115,49 +79,6 @@ int shm_offer_get_tot_quantity(shm_general_t *g, shm_offer_t *o, int port_id)
 		qty += o[GET_INDEX(port_id, i, n_merci)].data;
 	}
 	return qty;
-}
-
-void shm_offer_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *g,
-		     int id)
-{
-	int n, i, index;
-
-	n = get_merci(g);
-
-	for (i = 0; i < n; i++) {
-		index = GET_INDEX(id, i, n);
-		src[index].data += merge[i].data;
-	}
-}
-
-shm_offer_t *shm_offer_get_order(shm_offer_t *o, shm_general_t *g, int id,
-				 int capacity)
-{
-	int i, n_merci, cnt, index;
-	shm_offer_t *output;
-
-	cnt = 0;
-	n_merci = get_merci(g);
-	output = shm_offer_get(g);
-
-	for (i = 0; i < n_merci || cnt == capacity; i++) {
-		index = GET_INDEX(id, i, n_merci);
-		if (o[index].data == 0) {
-			continue;
-		}
-
-		if (o[index].data <= capacity - cnt) {
-			output[i].data = o[index].data;
-			cnt += o[index].data;
-			o[index].data = 0;
-		} else {
-			output[i].data = capacity - cnt;
-			o[index].data -= capacity - cnt;
-			cnt = capacity;
-		}
-	}
-
-	return output;
 }
 
 /* DEMAND SHM FUNCTIONS */
@@ -180,16 +101,6 @@ shm_demand_t *shm_demand_init(shm_general_t *g)
 	shm_demand_set_id(g, shm_id);
 
 	return demand;
-}
-
-void shm_demand_set(shm_demand_t *d, shm_general_t *g, int id, int type,
-		    int quantity)
-{
-	if (d == NULL || quantity == 0) {
-		return;
-	}
-
-	d[GET_INDEX(id, type, get_merci(g))].data += quantity;
 }
 
 int shm_demand_get_quantity(shm_general_t *g, shm_demand_t *d, int port_id, int cargo_id)

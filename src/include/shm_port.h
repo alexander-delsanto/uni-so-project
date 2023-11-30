@@ -134,15 +134,6 @@ int shm_port_get_docks(shm_port_t *p, int port_id);
  */
 int shm_port_get_sem_docks_id(shm_port_t *p);
 
-/**
- * @brief Gets the process ID of a specific port in the shared memory structure.
- * @param p Pointer to the array of port data in shared memory.
- * @param port_id Identifier of the port.
- * @return Process ID of the specified port.
- */
-pid_t shm_port_get_pid(shm_port_t *p, int port_id);
-
-
 /* Dump getters */
 
 /**
@@ -159,7 +150,7 @@ int shm_port_get_dump_used_docks(shm_port_t *p, int port_id);
  * @param n_ports The total number of ports.
  * @return The count of ports that had a swell event in the dump.
  */
-int shm_port_get_dump_had_swell(shm_port_t *p, int port_id);
+int shm_port_get_dump_had_swell(shm_general_t *g, shm_port_t *p);
 
 /**
  * @brief Gets whether a specific port had a swell event in the dump.
