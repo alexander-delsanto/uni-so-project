@@ -182,11 +182,11 @@ void print_daily_report(void) {
 
 	dprintf(1, "\n**********SHIPS**********\n");
 	dprintf(1, "Number of ships at sea with cargo: %d\n",
-		shm_ship_get_dump_with_cargo(state.ships, n_ship));
+		shm_ship_get_dump_with_cargo(state.general, state.ships));
 	dprintf(1, "Number of ships at sea without cargo: %d\n",
-		shm_ship_get_dump_without_cargo(state.ships, n_ship));
+		shm_ship_get_dump_without_cargo(state.general, state.ships));
 	dprintf(1, "Number of ships at docks: %d\n",
-		shm_ship_get_dump_at_dock(state.ships, n_ship));
+		shm_ship_get_dump_at_dock(state.general, state.ships));
 
 	dprintf(1, "\n**********PORTS**********\n");
 	for (i = 0; i < n_port; i++) {
@@ -224,11 +224,11 @@ void print_final_report(void) {
 	dprintf(1, "\n\nFINAL REPORT:\n");
 	dprintf(1, "**********SHIPS**********\n");
 	dprintf(1, "Number of ships at sea with cargo: %d\n",
-		shm_ship_get_dump_with_cargo(state.ships, n_ship));
+		shm_ship_get_dump_with_cargo(state.general, state.ships));
 	dprintf(1, "Number of ships at sea without cargo: %d\n",
-		shm_ship_get_dump_without_cargo(state.ships, n_ship));
+		shm_ship_get_dump_without_cargo(state.general, state.ships));
 	dprintf(1, "Number of ships at at docks: %d\n",
-		shm_ship_get_dump_at_dock(state.ships, n_ship));
+		shm_ship_get_dump_at_dock(state.general, state.ships));
 	dprintf(1, "**********CARGO**********\n");
 	for(type = 0; type < n_cargo; type++){
 		dprintf(1, "Type %d:\n", type);
@@ -313,7 +313,7 @@ void signal_handler(int signal)
 
 void close_all(void)
 {
-	/*print_final_report();*/
+	print_final_report();
 
 	kill(state.weather, SIGINT);
 	shm_ship_send_signal_to_all_ships(state.ships, state.general, SIGINT);

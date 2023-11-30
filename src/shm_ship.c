@@ -22,7 +22,6 @@ struct shm_ship {
 	bool_t is_at_dock;
 	struct coord coords;
 
-	bool_t dump_with_cargo;
 	bool_t dump_had_storm;
 	bool_t dump_mael_logged;	/* for daily maeltrom */
 	bool_t dump_storm_final;	/* for final report */
@@ -88,7 +87,6 @@ void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value){s[id].is_moving
 void shm_ship_set_is_at_dock(shm_ship_t *s, int id, bool_t value){s[id].is_at_dock = value;}
 
 /* Dump setters */
-void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value){s[id].dump_with_cargo = value;}
 void shm_ship_set_dump_had_storm(shm_ship_t *s, int id){s[id].dump_had_storm = TRUE;}
 
 /* Getters */
@@ -100,29 +98,31 @@ struct coord shm_ship_get_coords(shm_ship_t *s, int id){return s[id].coords;}
 int shm_ship_get_capacity(shm_ship_t *s, int id){return s[id].capacity;}
 
 /* Dump getters */
-int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_with_cargo(shm_general_t *g, shm_ship_t *s)
 {
-	int id, cnt = 0;
-	for(id = 0; id < n_ships; id++)
+	int id, max_capacity, cnt = 0;
+	max_capacity = get_capacity(g);
+	for(id = 0; id < get_navi(g); id++)
 		if(s[id].is_dead == FALSE && (s[id].is_at_dock == FALSE
-					       && s[id].dump_with_cargo == TRUE))
+					       && s[id].capacity < max_capacity))
 			cnt++;
 	return cnt;
 }
-int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_without_cargo(shm_general_t *g, shm_ship_t *s)
 {
-	int id, cnt = 0;
-	for(id = 0; id < n_ships; id++)
+	int id, max_capacity, cnt = 0;
+	max_capacity = get_capacity(g);
+	for(id = 0; id < get_navi(g); id++)
 		if(s[id].is_dead == FALSE && (s[id].is_at_dock == FALSE
-					       && s[id].dump_with_cargo == FALSE))
+					       && s[id].capacity >= max_capacity))
 			cnt++;
 	return cnt;
 }
 
-int shm_ship_get_dump_at_dock(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_at_dock(shm_general_t *g, shm_ship_t *s)
 {
 	int id, cnt = 0;
-	for(id = 0; id < n_ships; id++)
+	for(id = 0; id < get_navi(g); id++)
 		if(s[id].is_dead == FALSE && s[id].is_at_dock == TRUE)
 			cnt++;
 	return cnt;

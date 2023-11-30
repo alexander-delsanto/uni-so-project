@@ -166,7 +166,7 @@ bool_t shm_ship_get_is_at_dock(shm_ship_t *s, int id);
  * @param n_ships The total number of ships.
  * @return The number of ships with cargo.
  */
-int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships);
+int shm_ship_get_dump_with_cargo(shm_general_t *g, shm_ship_t *s);
 
 /**
  * @brief Gets the number of ships without cargo in the dump.
@@ -174,7 +174,7 @@ int shm_ship_get_dump_with_cargo(shm_ship_t *s, int n_ships);
  * @param n_ships The total number of ships.
  * @return The number of ships without cargo.
  */
-int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships);
+int shm_ship_get_dump_without_cargo(shm_general_t *g, shm_ship_t *s);
 
 /**
  * @brief Gets the number of ships at the dock in the dump.
@@ -182,7 +182,7 @@ int shm_ship_get_dump_without_cargo(shm_ship_t *s, int n_ships);
  * @param n_ships The total number of ships.
  * @return The number of ships at the dock.
  */
-int shm_ship_get_dump_at_dock(shm_ship_t *s, int n_ships);
+int shm_ship_get_dump_at_dock(shm_general_t *g, shm_ship_t *s);
 
 /**
  * @brief Gets the number of ships that had a storm in the dump.
