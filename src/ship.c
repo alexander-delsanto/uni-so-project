@@ -344,6 +344,7 @@ void signal_handler(int signal)
 			state.id);
 		shm_ship_set_is_dead(state.ship, state.id);
 		shm_ship_remove_expired(state.general, state.ship, state.cargo, state.cargo_hold, state.id);
+		shm_ship_remove_cargo_maelstrom(state.general, state.ship, state.cargo, state.cargo_hold, state.id);
 		close_all();
 	case SIGSEGV:
 		dprintf(1, "ship.c: id: %d: Received SIGSEGV signal.\n", state.id);

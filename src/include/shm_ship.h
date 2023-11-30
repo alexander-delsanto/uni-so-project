@@ -226,4 +226,6 @@ void shm_ship_update_capacity(shm_ship_t *s, int ship_id, int update_value);
 
 void shm_ship_remove_expired(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id);
 
+void shm_ship_remove_cargo_maelstrom(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id);
+
 #endif

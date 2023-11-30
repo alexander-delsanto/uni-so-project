@@ -176,12 +176,26 @@ void shm_ship_update_capacity(shm_ship_t *s, int ship_id, int update_value){s[sh
 
 void shm_ship_remove_expired(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id)
 {
-	int i, removed;
+	int i, removed, sem_cargo_id;
+	sem_cargo_id = sem_cargo_get_id(g);
 	for (i = 0; i < get_merci(g); i++) {
 		removed = cargo_list_remove_expired(cargo_hold[i], get_current_day(g));
-		if (removed > 0)
+		if (removed > 0) {
 			s[ship_id].capacity -= removed * shm_cargo_get_size(c, i);
+			shm_cargo_update_dump_available_on_ship(c, i, -removed, sem_cargo_id);
+		}
 	}
 
 	/* TODO dump */
+}
+
+void shm_ship_remove_cargo_maelstrom(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id)
+{
+	int i, to_remove, sem_cargo_id;
+	sem_cargo_id = sem_cargo_get_id(g);
+
+	for (i = 0; i < get_merci(g); i++){
+		to_remove = cargo_list_get_quantity(cargo_hold[i]);
+		shm_cargo_update_dump_available_on_ship(c, i, -to_remove, sem_cargo_id);
+	}
 }
