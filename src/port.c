@@ -35,6 +35,7 @@ struct state {
 void signal_handler(int signal);
 void signal_handler_init(void);
 void loop(void);
+static void metodo_stupido();
 
 void respond_ship_msg(int ship_id, int cargo_type, int amount, int status);
 
