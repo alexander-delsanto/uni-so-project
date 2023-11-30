@@ -260,7 +260,7 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 					random_quantity = current_fill / size_min;
 					random_id = id_min;
 				} else {
-					dprintf(1, "Riempito: %d su %d\n", fill - current_fill, fill);
+					dprintf(1, "port %d: filled: %d of %d\n", port_id, fill - current_fill, fill);
 					break;
 				}
 			}

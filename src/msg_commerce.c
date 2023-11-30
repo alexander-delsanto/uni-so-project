@@ -50,10 +50,10 @@ bool_t msg_commerce_receive(int queue_id, int type, int *sender_id,
 			    int *cargo_id, int *quantity, int *expiry_date,
 			    int *status, bool_t restarting)
 {
-	ssize_t ret;
+	long ret;
 	struct commerce_msg msg;
 	do {
-		ret = msgrcv(queue_id, &msg, MSG_SIZE, MSG_TYPE(type), 0);
+		ret = msgrcv(queue_id, &msg, MSG_SIZE, MSG_TYPE(type), IPC_NOWAIT);
 		if (!restarting && ret < 0)
 			return FALSE;
 	} while(ret < 0);

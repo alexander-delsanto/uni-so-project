@@ -100,6 +100,7 @@ void loop(void)
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
+			/*dprintf(1, "port %d: going from day %d to day %d\n", state.id, state.current_day, day);*/
 			tot_demand = 0;
 			state.current_day = day;
 			/* Dumping expired stuff */
@@ -125,7 +126,7 @@ void loop(void)
 			}
 			dprintf(1, "port %d: tot_expired: %d, tot_demand: %d, tot: %d\n", state.id, tot_expired, tot_demand, tot_expired + tot_demand);*/
 		}
-		if (msg_commerce_receive(msg_in_id, state.id, &ship_id, &needed_type, &needed_amount, NULL, &status, FALSE)) {
+		if (msg_commerce_receive(msg_in_id, state.id, &ship_id, &needed_type, &needed_amount, NULL, &status, FALSE) == TRUE) {
 			dprintf(1, "port %d: got message from ship %d with status %d requesting %d of cargo %d\n", state.id, ship_id, status,
 				needed_amount, needed_type);
 			respond_ship_msg(ship_id, needed_type, needed_amount,
