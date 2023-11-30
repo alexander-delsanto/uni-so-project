@@ -48,3 +48,9 @@ list:
 
 count:
 	@wc -l $(BINARIES_C) $(CFILES) $(SRC_DIR)/include/*.h $(LIB_DIR)/* Makefile
+
+killall-int:
+	@killall --signal INT $(BINARIES)
+
+killall-kill:
+	@killall --signal KILL $(BINARIES)
