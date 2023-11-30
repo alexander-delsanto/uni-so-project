@@ -6,6 +6,9 @@
 #include "shm_general.h"
 #include "types.h"
 
+/**
+ * @brief Represents the shared memory structure for port information.
+ */
 typedef struct shm_port shm_port_t;
 
 /**
