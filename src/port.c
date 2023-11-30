@@ -72,14 +72,9 @@ int main(int argc, char *argv[])
 	srand(time(NULL) * getpid());
 	generate_coordinates();
 
-	dprintf(1, "port %d: n_docks: %d, sem_docks_val: %d\n", state.id,
-		shm_port_get_docks(state.port, state.id),
-		sem_getval(shm_port_get_sem_docks_id(state.port), state.id));
-
 	sem_execute_semop(sem_port_init_get_id(state.general), 0, -1, 0);
 	sem_execute_semop(sem_start_get_id(state.general), 0, 0, 0);
 
-	dprintf(1, "port %d: reached loop\n", state.id);
 	loop();
 }
 
@@ -134,6 +129,7 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 		msg = msg_commerce_create(ship_id, state.id, cargo_type, exchanged_amount, -1, STATUS_ACCEPTED);
 		msg_commerce_send(msg_out_id, &msg);
 		shm_cargo_update_dump_received_in_port(state.cargo, cargo_type, exchanged_amount, sem_cargo_get_id(state.general));
+		shm_port_update_dump_cargo_received(state.port, state.id, exchanged_amount);
 
 	} else if (status == STATUS_BUY) { /* Port is selling */
 		port_amount = shm_offer_get_quantity(state.general, state.offer, state.id, cargo_type);
@@ -146,9 +142,8 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 		/*dprintf(1, "requested_amount: %d, port_amount: %d, exchanged_amount: %d\n", amount, port_amount, exchanged_amount);*/
 		shm_offer_remove_quantity(state.offer, state.general, state.id, cargo_type, exchanged_amount);
 		shm_cargo_update_dump_available_in_port(state.cargo, cargo_type, -exchanged_amount, sem_cargo_get_id(state.general));
+		shm_port_update_dump_cargo_shipped(state.port, state.id, exchanged_amount);
 		cargo = cargo_list_pop_needed(state.cargo_hold[cargo_type], exchanged_amount);
-		if (cargo == NULL)
-			dprintf(1, "cargo is null\n");
 		while (exchanged_amount > 0) {
 			cargo_list_pop(cargo, &quantity, &expiration_date);
 			exchanged_amount -= quantity;

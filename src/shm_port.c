@@ -114,8 +114,8 @@ void shm_port_set_is_in_swell(shm_port_t *p, int port_id, bool_t value)
 }
 
 void shm_port_update_dump_cargo_available(shm_general_t *g, shm_port_t *p, shm_offer_t *o, int port_id){p[port_id].dump_cargo_available = shm_offer_get_tot_quantity(g, o, port_id);}
-void shm_port_set_dump_cargo_shipped(shm_port_t *p, int port_id, int n){p[port_id].dump_cargo_shipped += n;}	/* TODO: da settare nel trade della nave */
-void shm_port_set_dump_cargo_received(shm_port_t *p, int port_id, int n){p[port_id].dump_cargo_received += n;}	/* TODO: da settare nel trade della nave */
+void shm_port_update_dump_cargo_shipped(shm_port_t *p, int port_id, int amount){p[port_id].dump_cargo_shipped += amount;}
+void shm_port_update_dump_cargo_received(shm_port_t *p, int port_id, int amount){p[port_id].dump_cargo_received += amount;}
 
 /* Getters */
 struct coord shm_port_get_coordinates(shm_port_t *p, int port_id){return p[port_id].coord;}

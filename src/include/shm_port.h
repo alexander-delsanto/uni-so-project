@@ -102,7 +102,7 @@ void shm_port_update_dump_cargo_available(shm_general_t *g, shm_port_t *p, shm_o
  * @param port_id The identifier of the port.
  * @param n The number of shipped cargo to add to the dump.
  */
-void shm_port_set_dump_cargo_shipped(shm_port_t *p, int port_id, int n);
+void shm_port_update_dump_cargo_shipped(shm_port_t *p, int port_id, int amount);
 
 /**
  * @brief Increases the total received cargo at a specific port in the dump.
@@ -110,7 +110,7 @@ void shm_port_set_dump_cargo_shipped(shm_port_t *p, int port_id, int n);
  * @param port_id The identifier of the port.
  * @param n The number of received cargo to add to the dump.
  */
-void shm_port_set_dump_cargo_received(shm_port_t *p, int port_id, int n);
+void shm_port_update_dump_cargo_received(shm_port_t *p, int port_id, int amount);
 
 /**
  * @brief Gets the coordinates of a specific port in the shared memory structure.
