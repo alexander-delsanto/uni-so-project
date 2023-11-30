@@ -220,7 +220,7 @@ void print_daily_report(void) {
 			dprintf(1, "\tPort %d\n", i);
 	}
 
-	dprintf(1, "%d ships dead due to maelstrom today.\n",
+	dprintf(1, "%d ships died due to a maelstrom.\n",
 		shm_ship_get_dump_had_maelstrom(state.general, state.ships));
 }
 
@@ -276,7 +276,7 @@ void print_final_report(void) {
 		if(shm_port_get_dump_swell_final(state.ports, i) == TRUE)
 			dprintf(1, "\tPort %d\n", i);
 	}
-	dprintf(1, "%d ships dead due to maelstrom.\n",
+	dprintf(1, "%d ships died due to a maelstrom.\n",
 		shm_ship_get_dump_is_dead(state.ships, n_ship));
 }
 
