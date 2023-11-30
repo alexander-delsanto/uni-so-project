@@ -8,7 +8,7 @@ The simulation involves the movement of ships between ports, cargo generation, t
 
 The struct **state** encapsulates the shared data structures and the weather process identifier. 
 It includes pointers to shared data structures for the general configuration, ports, ships, and cargo. 
-- **shm_general_t type**: used for general configuration;
+- **shm_general_t**: used for general configuration;
 - **shm_port_t**: shared memory segments for ports;
 - **shm_ship_t**: shared memory segments for ships;
 - **shm_cargo_t**: shared memory segments for cargo.
