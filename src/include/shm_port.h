@@ -28,11 +28,13 @@ void shm_port_ipc_init(shm_general_t *g, shm_port_t *p);
  * @return Pointer to the attached port data structure or NULL on failure.
  */
 shm_port_t *shm_port_attach(shm_general_t *g);
+
 /**
  * @brief Detaches the process from the shared memory segment for port data.
  * @param p Pointer to the array of port data in shared memory.
  */
 void shm_port_detach(shm_port_t *p);
+
 /**
  * @brief Deletes the shared memory segment for port data.
  * @param g Pointer to the general shared memory structure.
@@ -80,8 +82,28 @@ void shm_port_set_coordinates(shm_port_t *p, int port_id, struct coord coord);
  */
 void shm_port_set_is_in_swell(shm_port_t *p, int port_id, bool_t value);
 
+/**
+ * @brief Sets the number of available cargo at a specific port in the dump.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @param n The number of available cargo to set in the dump.
+ */
 void shm_port_set_dump_cargo_available(shm_port_t *p, int port_id, int n);
+
+/**
+ * @brief Increases the total shipped cargo at a specific port in the dump.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @param n The number of shipped cargo to add to the dump.
+ */
 void shm_port_set_dump_cargo_shipped(shm_port_t *p, int port_id, int n);
+
+/**
+ * @brief Increases the total received cargo at a specific port in the dump.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @param n The number of received cargo to add to the dump.
+ */
 void shm_port_set_dump_cargo_received(shm_port_t *p, int port_id, int n);
 
 /**
@@ -99,6 +121,11 @@ struct coord shm_port_get_coordinates(shm_port_t *p, int port_id);
  */
 int shm_port_get_docks(shm_port_t *p, int port_id);
 
+/**
+ * @brief Gets the semaphore identifier for docks at a specific port.
+ * @param p Pointer to the shm_port_t structure.
+ * @return The semaphore identifier for docks at the port.
+ */
 int shm_port_get_sem_docks_id(shm_port_t *p);
 
 /**
@@ -111,13 +138,61 @@ pid_t shm_port_get_pid(shm_port_t *p, int port_id);
 
 
 /* Dump getters */
+
+/**
+ * @brief Gets the number of used docks in the dump at a specific port.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @return The number of used docks at the specified port.
+ */
 int shm_port_get_dump_used_docks(shm_port_t *p, int port_id);
+
+/**
+ * @brief Gets the count of ports that had a swell event in the dump.
+ * @param p Pointer to the array of shm_port_t structures.
+ * @param n_ports The total number of ports.
+ * @return The count of ports that had a swell event in the dump.
+ */
 int shm_port_get_dump_had_swell(shm_port_t *p, int port_id);
+
+/**
+ * @brief Gets whether a specific port had a swell event in the dump.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @return TRUE if the port had a swell event in the dump, FALSE otherwise.
+ */
 bool_t shm_port_get_dump_having_swell(shm_port_t *p, int port_id);
+
+/**
+ * @brief Gets the final swell status for a specific port in the dump.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @return TRUE if the port had a swell event in the dump during entire simulation, FALSE otherwise.
+ */
 bool_t shm_port_get_dump_swell_final(shm_port_t *p, int port_id);
 
+/**
+ * @brief Gets the availability of cargo at a specific port in the dump.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @return The number of available cargo at the specified port.
+ */
 int shm_port_get_dump_cargo_available(shm_port_t *p, int port_id);
+
+/**
+ * @brief Gets the total shipped cargo at a specific port in the dump.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @return The total number of shipped cargo from the specified port.
+ */
 int shm_port_get_dump_cargo_shipped(shm_port_t *p, int port_id);
+
+/**
+ * @brief Gets the total received cargo at a specific port in the dump.
+ * @param p Pointer to the shm_port_t structure.
+ * @param port_id The identifier of the port.
+ * @return The total number of received cargo at the specified port.
+ */
 int shm_port_get_dump_cargo_received(shm_port_t *p, int port_id);
 
 #endif

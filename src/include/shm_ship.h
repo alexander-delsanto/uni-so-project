@@ -20,11 +20,13 @@ shm_ship_t *shm_ship_initialize(shm_general_t *g);
  * @return Pointer to the attached ship data structure or NULL on failure.
  */
 shm_ship_t *shm_ship_attach(shm_general_t *g);
+
 /**
  * @brief Detaches the process from the shared memory segment for ship data.
  * @param g Pointer to the array of ship data in shared memory.
  */
 void shm_ship_detach(shm_ship_t *g);
+
 /**
  * @brief Deletes the shared memory segment for ship data.
  * @param g Pointer to the general shared memory structure.
@@ -39,6 +41,7 @@ void shm_ship_delete(shm_general_t *g);
  */
 void shm_ship_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *g,
 				       int signal);
+
 /**
  * @brief Sends a signal to a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
@@ -47,7 +50,6 @@ void shm_ship_send_signal_to_all_ships(shm_ship_t *s, shm_general_t *g,
  */
 void shm_ship_send_signal_to_ship(shm_ship_t *s, int id, int signal);
 
-
 /**
  * @brief Sets the process ID for a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
@@ -55,6 +57,7 @@ void shm_ship_send_signal_to_ship(shm_ship_t *s, int id, int signal);
  * @param pid Process ID to set.
  */
 void shm_ship_set_pid(shm_ship_t *s, int id, pid_t pid);
+
 /**
  * @brief Sets the coordinates for a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
@@ -62,18 +65,21 @@ void shm_ship_set_pid(shm_ship_t *s, int id, pid_t pid);
  * @param coords Coordinates to set.
  */
 void shm_ship_set_coords(shm_ship_t *s, int id, struct coord coords);
+
 /**
  * @brief Marks a specific ship as dead in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
  * @param id Identifier of the ship.
  */
 void shm_ship_set_is_dead(shm_ship_t *s, int id);
+
 /**
  * @brief Sets the "is_moving" status for a specific ship in the shared memory structure
  * @param s Pointer to the array of ship data in shared memory.
  * @param id Identifier of the ship.
  */
 void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value);
+
 /**
  * @brief Sets the "is_at_dock" status for a specific ship in the shared memory structure
  * @param s Pointer to the array of ship data in shared memory.
@@ -82,10 +88,22 @@ void shm_ship_set_is_moving(shm_ship_t *s, int id, bool_t value);
 void shm_ship_set_is_at_dock(shm_ship_t *s, int id, bool_t value);
 
 /* Dump setters */
+
+/**
+ * @brief Sets the dump_with_cargo status for a specific ship.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param id The identifier of the ship.
+ * @param value The new value for the dump_with_cargo status.
+ */
 void shm_ship_set_dump_with_cargo(shm_ship_t *s, int id, bool_t value);
+
+
+/**
+ * @brief Sets the dump_had_storm status for a specific ship.
+ * @param s Pointer to the shm_ship_t structure.
+ * @param id The identifier of the ship.
+ */
 void shm_ship_set_dump_had_storm(shm_ship_t *s, int id);
-void shm_ship_set_dump_present(shm_ship_t *s, int ship_id, int id, int quantity);
-void shm_ship_set_dump_expired(shm_ship_t *s, int ship_id, int id, int quantity);
 
 /**
  * @brief Gets the process ID of a specific ship in the shared memory structure.
@@ -94,6 +112,7 @@ void shm_ship_set_dump_expired(shm_ship_t *s, int ship_id, int id, int quantity)
  * @return Process ID of the specified ship.
  */
 pid_t shm_ship_get_pid(shm_ship_t *s, int id);
+
 /**
  * @brief Gets the "is_dead" status of a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
@@ -101,6 +120,7 @@ pid_t shm_ship_get_pid(shm_ship_t *s, int id);
  * @return "is_dead" status of the specified ship.
  */
 bool_t shm_ship_get_is_dead(shm_ship_t *s, int id);
+
 /**
  * @brief Gets the "is_moving" status of a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
@@ -108,6 +128,7 @@ bool_t shm_ship_get_is_dead(shm_ship_t *s, int id);
  * @return "is_moving" status of the specified ship.
  */
 bool_t shm_ship_get_is_moving(shm_ship_t *s, int id);
+
 /**
  * @brief Gets the coordinates of a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
@@ -115,6 +136,7 @@ bool_t shm_ship_get_is_moving(shm_ship_t *s, int id);
  * @return Coordinates of the specified ship.
  */
 struct coord shm_ship_get_coords(shm_ship_t *s, int id);
+
 /**
  * @brief Gets the capacity of a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
@@ -122,6 +144,7 @@ struct coord shm_ship_get_coords(shm_ship_t *s, int id);
  * @return Capacity of the specified ship.
  */
 int shm_ship_get_capacity(shm_ship_t *s, int id);
+
 /**
  * @brief Gets the "is_at_docks" status of a specific ship in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.

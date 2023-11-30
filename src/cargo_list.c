@@ -3,6 +3,9 @@
 
 #include "include/cargo_list.h"
 
+/**
+ * @brief Node structure representing a cargo item.
+ */
 struct node {
 	int quantity;
 	int expire;

@@ -15,6 +15,12 @@
 #include "include/shm_port.h"
 #include "include/shm_cargo.h"
 
+/**
+ * @brief Initializes the values for the shared memory cargo structure.
+ *
+ * @param g Pointer to shared memory general information.
+ * @param cargo Pointer to shared memory for cargo.
+ */
 static void shm_cargo_values_init(shm_general_t *g, shm_cargo_t *cargo);
 
 struct shm_cargo {
@@ -39,6 +45,17 @@ struct shm_cargo {
 	int dump_daily_expired_in_port;
 };
 
+static void shm_cargo_values_init(shm_general_t *g, shm_cargo_t *cargo)
+{
+	int i, n_cargo;
+
+	n_cargo = get_merci(g);
+	for (i = 0; i < n_cargo; i++) {
+		cargo[i].batch_size = RANDOM_INTEGER(1, get_size(g));
+		cargo[i].batch_life = RANDOM_INTEGER(get_min_vita(g), get_max_vita(g));
+	}
+}
+
 shm_cargo_t *shm_cargo_initialize(shm_general_t *g)
 {
 	shm_cargo_t *cargo;
@@ -61,17 +78,6 @@ shm_cargo_t *shm_cargo_initialize(shm_general_t *g)
 	shm_cargo_values_init(g, cargo);
 
 	return cargo;
-}
-
-static void shm_cargo_values_init(shm_general_t *g, shm_cargo_t *cargo)
-{
-	int i, n_cargo;
-
-	n_cargo = get_merci(g);
-	for (i = 0; i < n_cargo; i++) {
-		cargo[i].batch_size = RANDOM_INTEGER(1, get_size(g));
-		cargo[i].batch_life = RANDOM_INTEGER(get_min_vita(g), get_max_vita(g));
-	}
 }
 
 shm_cargo_t *shm_cargo_attach(shm_general_t *g)

@@ -12,6 +12,9 @@
 #include "include/shm_offer_demand.h"
 #include "include/cargo_list.h"
 
+/**
+ * @brief Macro to calculate the index in the shared memory array.
+ */
 #define GET_INDEX(port_id,cargo_id,n_cargo) (port_id * n_cargo + cargo_id)
 
 struct shm_offer {
@@ -22,9 +25,19 @@ struct shm_demand {
 	int data;
 };
 
+
+/* OFFER SHM FUNCTIONS */
+
+/**
+ * @brief Gets the pointer to the shared memory for offers.
+ *
+ * Allocates and returns a new array of shared memory for offers.
+ *
+ * @param g Pointer to shared memory general information.
+ * @return Pointer to shared memory for offers.
+ */
 shm_offer_t *shm_offer_get(shm_general_t *g);
 
-/* OFFER */
 shm_offer_t *shm_offer_ports_init(shm_general_t *g)
 {
 	int shm_id;
@@ -84,10 +97,24 @@ void shm_offer_remove_quantity(shm_offer_t *o, shm_general_t *g, int id, int typ
 	o[GET_INDEX(id, type, get_merci(g))].data -= quantity;
 }
 
-
 void shm_offer_delete(shm_offer_t *o)
 {
 	free(o);
+}
+
+int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id)
+{
+	return o[GET_INDEX(port_id,cargo_id, get_merci(g))].data;
+}
+
+int shm_offer_get_tot_quantity(shm_general_t *g, shm_offer_t *o, int port_id)
+{
+	int i, qty = 0;
+	int n_merci = get_merci(g);
+	for(i = 0; i < n_merci; i++) {
+		qty += o[GET_INDEX(port_id, i, n_merci)].data;
+	}
+	return qty;
 }
 
 void shm_offer_merge(shm_offer_t *src, shm_offer_t *merge, shm_general_t *g,
@@ -133,7 +160,8 @@ shm_offer_t *shm_offer_get_order(shm_offer_t *o, shm_general_t *g, int id,
 	return output;
 }
 
-/* DEMAND */
+/* DEMAND SHM FUNCTIONS */
+
 shm_demand_t *shm_demand_init(shm_general_t *g)
 {
 	int shm_id;
@@ -164,6 +192,11 @@ void shm_demand_set(shm_demand_t *d, shm_general_t *g, int id, int type,
 	d[GET_INDEX(id, type, get_merci(g))].data += quantity;
 }
 
+int shm_demand_get_quantity(shm_general_t *g, shm_demand_t *d, int port_id, int cargo_id)
+{
+	return d[GET_INDEX(port_id,cargo_id, get_merci(g))].data;
+}
+
 void shm_demand_remove_quantity(shm_demand_t *d, shm_general_t *g, int id, int type,
 		       int quantity)
 {
@@ -175,7 +208,8 @@ void shm_demand_remove_quantity(shm_demand_t *d, shm_general_t *g, int id, int t
 }
 
 
-/* OFFER + DEMAND */
+/* OFFER AND DEMAND SHM FUNCTIONS */
+
 void shm_offer_demand_delete(shm_general_t *g)
 {
 	shm_delete(shm_offer_get_id(g));
@@ -257,24 +291,4 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 /*		dprintf(1, "cargo: %d - Aggiunto %d di peso %d\n", random_id, random_quantity, random_quantity * size);*/
 		current_fill -= random_quantity * size;
 	}
-}
-
-int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id)
-{
-	return o[GET_INDEX(port_id,cargo_id, get_merci(g))].data;
-}
-
-int shm_demand_get_quantity(shm_general_t *g, shm_demand_t *d, int port_id, int cargo_id)
-{
-	return d[GET_INDEX(port_id,cargo_id, get_merci(g))].data;
-}
-
-int shm_offer_get_tot_quantity(shm_general_t *g, shm_offer_t *o, int port_id)
-{
-	int i, qty = 0;
-	int n_merci = get_merci(g);
-	for(i = 0; i < n_merci; i++) {
-		qty += o[GET_INDEX(port_id, i, n_merci)].data;
-	}
-	return qty;
 }

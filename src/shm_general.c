@@ -26,6 +26,10 @@ struct shm_general {
 	int sem_start_id, sem_port_init_id, sem_dump_id;
 };
 
+/**
+ * @brief Sets the shared memory ID for the general information structure.
+ * @param g Pointer to the shm_general_t structure.
+ */
 static void shm_general_set_id(shm_general_t *g);
 void remove_comment(char *str);
 
