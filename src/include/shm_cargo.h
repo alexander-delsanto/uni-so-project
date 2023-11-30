@@ -41,7 +41,7 @@ void shm_cargo_detach(shm_cargo_t *c);
  *
  * @param c Pointer to shared memory general information.
  */
-void cargo_shm_delete(shm_general_t *c);
+void shm_cargo_delete(shm_general_t *c);
 
 /* Getters */
 

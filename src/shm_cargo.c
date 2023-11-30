@@ -89,7 +89,7 @@ void shm_cargo_detach(shm_cargo_t *c)
 	shm_detach(c);
 }
 
-void cargo_shm_delete(shm_general_t *c)
+void shm_cargo_delete(shm_general_t *c)
 {
 	shm_delete(shm_cargo_get_id(c));
 }

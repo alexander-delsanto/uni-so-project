@@ -82,28 +82,18 @@ void loop(void)
 {
 	int msg_in_id = msg_in_get_id(state.general);
 	int ship_id, needed_type, needed_amount, status;
-	int sem_cargo_id;
-	int qt_expired = 0;
-	int i, day;
-	int tot_expired = 0;
+	int day;
 
-	int n_merci;
-	int tot_demand;
-
-	n_merci = get_merci(state.general);
-	sem_cargo_id = sem_cargo_get_id(state.general);
+	shm_offer_demand_generate(state.offer, state.demand, state.cargo_hold, state.id, state.cargo, state.general);
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
-			tot_demand = 0;
 			state.current_day = day;
 			/* Dumping expired stuff */
 			shm_port_remove_expired(state.general, state.port, state.offer, state.cargo, state.cargo_hold, state.id);
 			shm_port_update_dump_cargo_available(state.general, state.port, state.offer, state.id);
 			/* Generation of new demand/offer */
-			shm_offer_demand_generate(state.offer, state.demand,
-						  state.cargo_hold, state.id,
-						  state.cargo, state.general);
+			shm_offer_demand_generate(state.offer, state.demand, state.cargo_hold, state.id, state.cargo, state.general);
 		}
 		if (msg_commerce_receive(msg_in_id, state.id, &ship_id, &needed_type, &needed_amount, NULL, &status, FALSE) == TRUE) {
 			respond_ship_msg(ship_id, needed_type, needed_amount, status);
