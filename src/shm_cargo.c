@@ -55,7 +55,7 @@ static void shm_cargo_values_init(shm_general_t *g, shm_cargo_t *cargo)
 shm_cargo_t *shm_cargo_initialize(shm_general_t *g)
 {
 	shm_cargo_t *cargo;
-	int shm_id, n_cargo, i;
+	int shm_id, n_cargo;
 	size_t size;
 
 	n_cargo = get_merci(g);

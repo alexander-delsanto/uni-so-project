@@ -82,15 +82,6 @@ int shm_cargo_get_min_size_id(shm_cargo_t *c, shm_general_t *g);
 int shm_cargo_get_dump_total_generated(shm_cargo_t *c, int id);
 
 /**
- * @brief Gets the quantity of unsold cargo in the port for a specific cargo type.
- *
- * @param c Pointer to shared memory for cargo.
- * @param id Cargo type ID.
- * @return Quantity of unsold cargo in the port.
- */
-int shm_cargo_get_dump_unsold_in_port(shm_cargo_t *c, int id);
-
-/**
  * @brief Gets the quantity of expired cargo in the port for a specific cargo type.
  *
  * @param c Pointer to shared memory for cargo.
@@ -207,24 +198,6 @@ void shm_cargo_update_dump_available_in_port(shm_cargo_t *c, int id, int quantit
  * @param quantity Quantity to set.
  */
 void shm_cargo_update_dump_available_on_ship(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
-
-/**
- * @brief Sets the quantity of daily expired cargo in the port for a specific cargo type.
- *
- * @param c Pointer to shared memory for cargo.
- * @param id Cargo type ID.
- * @param quantity Quantity to set.
- */
-void shm_cargo_set_dump_daily_expired_in_port(shm_cargo_t *c, int id, int quantity);
-
-/**
- * @brief Sets the quantity of daily expired cargo on the ship for a specific cargo type.
- *
- * @param c Pointer to shared memory for cargo.
- * @param id Cargo type ID.
- * @param quantity Quantity to set.
- */
-void shm_cargo_set_dump_daily_expired_on_ship(shm_cargo_t *c, int id, int quantity);
 
 /**
  * @brief Updates information about the maximum offer for a specific cargo type at a port.
