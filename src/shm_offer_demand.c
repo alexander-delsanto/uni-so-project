@@ -27,7 +27,6 @@ struct shm_demand {
 	int dump_tot_demanded;
 };
 
-
 /* OFFER SHM FUNCTIONS */
 
 shm_offer_t *shm_offer_init(shm_general_t *g)
@@ -71,7 +70,6 @@ void shm_offer_remove_quantity(shm_offer_t *o, shm_general_t *g, int id, int typ
 
 	o[GET_INDEX(id, type, get_merci(g))].data -= quantity;
 }
-
 
 int shm_offer_get_quantity(shm_general_t *g, shm_offer_t *o, int port_id, int cargo_id)
 {
@@ -137,7 +135,6 @@ void shm_demand_remove_quantity(shm_demand_t *d, shm_general_t *g, int id, int t
 	d[GET_INDEX(id, type, get_merci(g))].data -= quantity;
 }
 
-
 /* OFFER AND DEMAND SHM FUNCTIONS */
 
 void shm_offer_demand_delete(shm_general_t *g)
@@ -195,7 +192,6 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 				}
 			}
 		}
-
 
 		expiration = shm_cargo_get_life(c, random_id);
 		index = GET_INDEX(port_id, random_id, n_merci);

@@ -126,23 +126,6 @@ int shm_cargo_get_dump_available_in_port(shm_cargo_t *c, int id);
  */
 int shm_cargo_get_dump_available_on_ship(shm_cargo_t *c, int id);
 
-/**
- * @brief Gets the ID of the port with the maximum demand for a specific cargo type.
- *
- * @param c Pointer to shared memory for cargo.
- * @param cargo_id Cargo type ID.
- * @return ID of the port with the maximum demand.
- */
-int shm_cargo_get_dump_port_max_demand(shm_cargo_t *c, int cargo_id);
-
-/**
- * @brief Gets the ID of the port with the maximum offer for a specific cargo type.
- * @param c Pointer to shared memory for cargo.
- * @param cargo_id Cargo type ID.
- * @return ID of the port with the maximum offer.
- */
-int shm_cargo_get_dump_port_max_offer(shm_cargo_t *c, int cargo_id);
-
 /* Setters */
 
 /**
@@ -198,26 +181,5 @@ void shm_cargo_update_dump_available_in_port(shm_cargo_t *c, int id, int quantit
  * @param quantity Quantity to set.
  */
 void shm_cargo_update_dump_available_on_ship(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
-
-/**
- * @brief Updates information about the maximum offer for a specific cargo type at a port.
- *
- * @param c Pointer to shared memory for cargo.
- * @param cargo_id Cargo type ID.
- * @param port_id Port ID.
- * @param quantity The quantity to be compared with the current maximum offer quantity.
- */
-void shm_cargo_set_dump_port_max_offer(shm_cargo_t *c, int cargo_id, int port_id, int quantity);
-
-/**
- * @brief Updates information about the maximum demand for a specific cargo type at a port.
- *
- * @param c Pointer to shared memory for cargo.
- * @param cargo_id Cargo type ID.
- * @param port_id Port ID.
- * @param quantity The quantity to be compared with the current maximum demand quantity.
- */
-void shm_cargo_set_dump_port_max_demand(shm_cargo_t *c, int cargo_id, int port_id, int quantity);
-
 
 #endif

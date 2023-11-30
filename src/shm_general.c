@@ -31,6 +31,7 @@ struct shm_general {
  * @param g Pointer to the shm_general_t structure.
  */
 static void shm_general_set_id(shm_general_t *g);
+
 void remove_comment(char *str);
 
 void remove_comment(char *str) {

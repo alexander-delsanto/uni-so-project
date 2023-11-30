@@ -45,8 +45,6 @@ shm_port_t *shm_port_initialize(shm_general_t *g)
 	bzero(ports, size);
 	shm_port_set_id(g, shm_id);
 
-
-
 	return ports;
 }
 

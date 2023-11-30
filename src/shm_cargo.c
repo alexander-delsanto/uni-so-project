@@ -116,8 +116,6 @@ int shm_cargo_get_dump_expired_on_ship(shm_cargo_t *c, int id){return c[id].dump
 int shm_cargo_get_dump_received_in_port(shm_cargo_t *c, int id){return c[id].dump_received_in_port;}
 int shm_cargo_get_dump_available_in_port(shm_cargo_t *c, int id){return c[id].dump_available_in_port;}
 int shm_cargo_get_dump_available_on_ship(shm_cargo_t *c, int id){return c[id].dump_available_on_ship;}
-int shm_cargo_get_dump_port_max_demand(shm_cargo_t *c, int cargo_id){return c[cargo_id].dump_id_max_demand;}
-int shm_cargo_get_dump_port_max_offer(shm_cargo_t *c, int cargo_id){return c[cargo_id].dump_id_max_offer;}
 
 /* Setters */
 void shm_cargo_update_dump_total_generated(shm_cargo_t *c, int id, int quantity, int sem_cargo_id)
@@ -159,19 +157,3 @@ void shm_cargo_update_dump_available_on_ship(shm_cargo_t *c, int id, int quantit
 	c[id].dump_available_on_ship += quantity;
 	sem_execute_semop(sem_cargo_id, id, 1, 0);
 }
-
-void shm_cargo_set_dump_port_max_offer(shm_cargo_t *c, int cargo_id, int port_id, int quantity)
-{
-	if(quantity > c[cargo_id].max_offer) {
-		c[cargo_id].dump_id_max_offer = port_id;
-		c[cargo_id].max_offer = quantity;
-	}
-}
-void shm_cargo_set_dump_port_max_demand(shm_cargo_t *c, int cargo_id, int port_id, int quantity)
-{
-	if(quantity > c[cargo_id].max_demand) {
-		c[cargo_id].dump_id_max_demand = port_id;
-		c[cargo_id].max_demand = quantity;
-	}
-}
-

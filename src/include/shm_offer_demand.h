@@ -23,14 +23,21 @@ typedef struct shm_demand shm_demand_t;
  * @param g pointer to general SHM
  * @return Pointer to the attached offer data structure or NULL on failure.
  */
-shm_offer_t *shm_offer_ports_init(shm_general_t *g);
+shm_offer_t *shm_offer_init(shm_general_t *g);
 
 /**
  * @brief Attaches shared memory for offer data in ports.
  * @param g pointer to general shm
  * @return Pointer to the attached offer data structure.
  */
-shm_offer_t *shm_offer_ports_attach(shm_general_t *g);
+shm_offer_t *shm_offer_attach(shm_general_t *g);
+
+/**
+ * @brief Detaches from the shared memory for offer.
+ *
+ * @param o Pointer to shared memory for offer.
+ */
+void shm_offer_detach(shm_offer_t *o);
 
 /**
  * @brief Removes quantity from the shared memory for offers.
@@ -68,6 +75,20 @@ int shm_offer_get_tot_quantity(shm_general_t *g, shm_offer_t *o, int port_id);
  * @return Pointer to the attached demand data structure or NULL on failure.
  */
 shm_demand_t *shm_demand_init(shm_general_t *g);
+
+/**
+ * @brief Attaches shared memory for demand data in ports.
+ * @param g pointer to general shm
+ * @return Pointer to the attached demand data structure.
+ */
+shm_demand_t *shm_demand_attach(shm_general_t *g);
+
+/**
+ * @brief Detaches from the shared memory for demand.
+ *
+ * @param o Pointer to shared memory for demand.
+ */
+void shm_demand_detach(shm_demand_t *d);
 
 /**
  * @brief Gets the quantity of demand for a specific cargo type at a port.
@@ -108,6 +129,24 @@ void shm_offer_demand_delete(shm_general_t *g);
 void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 			       int port_id, shm_cargo_t *c, shm_general_t *g);
 
+/* Dump getters */
 
+/**
+ * @brief Gets the ID of the port that offered the highest quantity of the specified cargo.
+ * @param g Pointer to general SHM.
+ * @param o Pointer to shared memory for offers.
+ * @param cargo_type The id of the cargo.
+ * @return the ID of the port that offered the highest quantity of the specified cargo.
+ */
+int shm_offer_get_dump_highest(shm_general_t *g, shm_offer_t *o, int cargo_type);
+
+/**
+ * @brief Gets the ID of the port that demanded the highest quantity of the specified cargo.
+ * @param g Pointer to general SHM.
+ * @param d Pointer to shared memory for demands.
+ * @param cargo_type The id of the cargo.
+ * @return the ID of the port that demanded the highest quantity of the specified cargo.
+ */
+int shm_demand_get_dump_highest(shm_general_t *g, shm_demand_t *o, int cargo_type);
 
 #endif

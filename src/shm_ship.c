@@ -17,14 +17,13 @@ struct shm_ship {
 	pid_t pid;
 	int capacity;
 
-	bool_t is_dead;			/* == dump_had_maelstorm */
+	bool_t is_dead;			/* == dump_had_maelstrom */
 	bool_t is_moving;
 	bool_t is_at_dock;
 	struct coord coords;
 
 	bool_t dump_had_storm;
-	bool_t dump_mael_logged;	/* for daily maeltrom */
-	bool_t dump_storm_final;	/* for final report */
+	bool_t dump_mael_logged;	/* for daily maelstrom */
 };
 
 shm_ship_t *shm_ship_initialize(shm_general_t *g)
