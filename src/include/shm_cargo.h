@@ -143,6 +143,7 @@ void shm_cargo_update_dump_total_generated(shm_cargo_t *c, int id, int quantity,
  * @param c Pointer to shared memory for cargo.
  * @param id Cargo type ID.
  * @param quantity Quantity to set.
+ * @param sem_cargo_id Semaphore ID for the cargo type.
  */
 void shm_cargo_update_dump_expired_in_port(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
 
@@ -152,6 +153,7 @@ void shm_cargo_update_dump_expired_in_port(shm_cargo_t *c, int id, int quantity,
  * @param c Pointer to shared memory for cargo.
  * @param id Cargo type ID.
  * @param quantity Quantity to set.
+ * @param sem_cargo_id Semaphore ID for the cargo type.
  */
 void shm_cargo_update_dump_expired_on_ship(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
 
@@ -161,6 +163,7 @@ void shm_cargo_update_dump_expired_on_ship(shm_cargo_t *c, int id, int quantity,
  * @param c Pointer to shared memory for cargo.
  * @param id Cargo type ID.
  * @param quantity Quantity to set.
+ * @param sem_cargo_id Semaphore ID for the cargo type.
  */
 void shm_cargo_update_dump_received_in_port(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
 
@@ -170,6 +173,7 @@ void shm_cargo_update_dump_received_in_port(shm_cargo_t *c, int id, int quantity
  * @param c Pointer to shared memory for cargo.
  * @param id Cargo type ID.
  * @param quantity Quantity to set.
+ * @param sem_cargo_id Semaphore ID for the cargo type.
  */
 void shm_cargo_update_dump_available_in_port(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
 
@@ -179,6 +183,7 @@ void shm_cargo_update_dump_available_in_port(shm_cargo_t *c, int id, int quantit
  * @param c Pointer to shared memory for cargo.
  * @param id Cargo type ID.
  * @param quantity Quantity to set.
+ * @param sem_cargo_id Semaphore ID for the cargo type.
  */
 void shm_cargo_update_dump_available_on_ship(shm_cargo_t *c, int id, int quantity, int sem_cargo_id);
 

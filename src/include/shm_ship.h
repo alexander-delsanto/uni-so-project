@@ -137,24 +137,24 @@ int shm_ship_get_capacity(shm_ship_t *s, int id);
 
 /**
  * @brief Gets the number of ships with cargo in the dump.
+ * @param g Pointer to the general SHM structure.
  * @param s Pointer to the shm_ship_t structure.
- * @param n_ships The total number of ships.
  * @return The number of ships with cargo.
  */
 int shm_ship_get_dump_with_cargo(shm_general_t *g, shm_ship_t *s);
 
 /**
  * @brief Gets the number of ships without cargo in the dump.
+ * @param g Pointer to the general SHM structure.
  * @param s Pointer to the shm_ship_t structure.
- * @param n_ships The total number of ships.
  * @return The number of ships without cargo.
  */
 int shm_ship_get_dump_without_cargo(shm_general_t *g, shm_ship_t *s);
 
 /**
  * @brief Gets the number of ships at the dock in the dump.
+ * @param g Pointer to the general SHM structure.
  * @param s Pointer to the shm_ship_t structure.
- * @param n_ships The total number of ships.
  * @return The number of ships at the dock.
  */
 int shm_ship_get_dump_at_dock(shm_general_t *g, shm_ship_t *s);
@@ -191,8 +191,24 @@ int shm_ship_get_dump_is_dead(shm_ship_t *s, int n_ships);
  */
 void shm_ship_update_capacity(shm_ship_t *s, int ship_id, int update_value);
 
+/**
+ * @brief Removes expired cargo from a ship's cargo hold.
+ * @param g Pointer to the shared general data structure.
+ * @param s Pointer to the array of shared ship data structures.
+ * @param c Pointer to the array of shared cargo data structures.
+ * @param cargo_hold Array of cargo lists representing the cargo hold of each ship.
+ * @param ship_id The identifier of the ship from which expired cargo is to be removed.
+ */
 void shm_ship_remove_expired(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id);
 
+/**
+ * @brief Removes cargo from a ship's cargo hold during a maelstrom event.
+ * @param g Pointer to the shared general data structure.
+ * @param s Pointer to the array of shared ship data structures.
+ * @param c Pointer to the array of shared cargo data structures.
+ * @param cargo_hold Array of cargo lists representing the cargo hold of each ship.
+ * @param ship_id The identifier of the ship from which cargo is to be removed.
+ */
 void shm_ship_remove_cargo_maelstrom(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id);
 
 #endif

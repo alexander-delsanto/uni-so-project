@@ -90,9 +90,10 @@ void shm_port_set_is_in_swell(shm_port_t *p, int port_id, bool_t value);
 
 /**
  * @brief Sets the number of available cargo at a specific port in the dump.
+ * @param g Pointer to the shm_general_t structure.
  * @param p Pointer to the shm_port_t structure.
+ * @param o Pointer to the shm_offer_t structure.
  * @param port_id The identifier of the port.
- * @param amount The number of available cargo to set in the dump.
  */
 void shm_port_update_dump_cargo_available(shm_general_t *g, shm_port_t *p, shm_offer_t *o, int port_id);
 
@@ -100,7 +101,7 @@ void shm_port_update_dump_cargo_available(shm_general_t *g, shm_port_t *p, shm_o
  * @brief Increases the total shipped cargo at a specific port in the dump.
  * @param p Pointer to the shm_port_t structure.
  * @param port_id The identifier of the port.
- * @param n The number of shipped cargo to add to the dump.
+ * @param amount The number of shipped cargo to add to the dump.
  */
 void shm_port_update_dump_cargo_shipped(shm_port_t *p, int port_id, int amount);
 
@@ -108,7 +109,7 @@ void shm_port_update_dump_cargo_shipped(shm_port_t *p, int port_id, int amount);
  * @brief Increases the total received cargo at a specific port in the dump.
  * @param p Pointer to the shm_port_t structure.
  * @param port_id The identifier of the port.
- * @param n The number of received cargo to add to the dump.
+ * @param amount The number of received cargo to add to the dump.
  */
 void shm_port_update_dump_cargo_received(shm_port_t *p, int port_id, int amount);
 
@@ -192,6 +193,15 @@ int shm_port_get_dump_cargo_shipped(shm_port_t *p, int port_id);
  */
 int shm_port_get_dump_cargo_received(shm_port_t *p, int port_id);
 
+/**
+ * @brief Removes expired cargo from a port's cargo hold and updates related data structures.
+ * @param g Pointer to the shm_general_t structure.
+ * @param p Pointer to the shm_port_t structure.
+ * @param o Pointer to the array of offer.
+ * @param c Pointer to the shm_offer_t structures.
+ * @param cargo_hold Array of cargo lists representing the cargo hold of each port.
+ * @param port_id The identifier of the port.
+ */
 void shm_port_remove_expired(shm_general_t *g, shm_port_t *p, shm_offer_t *o, shm_cargo_t *c, o_list_t **cargo_hold, int port_id);
 
 #endif
