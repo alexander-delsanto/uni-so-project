@@ -180,7 +180,7 @@ void print_daily_report(void) {
 			shm_cargo_get_dump_daily_expired_on_ship(state.cargo, type));
 	}
 
-	dprintf(1, "**********SHIPS**********\n");
+	dprintf(1, "\n**********SHIPS**********\n");
 	dprintf(1, "Number of ships at sea with cargo: %d\n",
 		shm_ship_get_dump_with_cargo(state.ships, n_ship));
 	dprintf(1, "Number of ships at sea without cargo: %d\n",
@@ -188,7 +188,7 @@ void print_daily_report(void) {
 	dprintf(1, "Number of ships at docks: %d\n",
 		shm_ship_get_dump_at_dock(state.ships, n_ship));
 
-	dprintf(1, "**********PORTS**********\n");
+	dprintf(1, "\n**********PORTS**********\n");
 	for (i = 0; i < n_port; i++) {
 		dprintf(1, "Port %d:\n", i);
 		dprintf(1, "\t%d goods available;\n",
@@ -201,7 +201,7 @@ void print_daily_report(void) {
 			shm_port_get_dump_used_docks(state.ports, i), shm_port_get_docks(state.ports, i));
 	}
 
-	dprintf(1, "**********WEATHER**********\n");
+	dprintf(1, "\n**********WEATHER**********\n");
 	dprintf(1, "%d ships slowed by the storm until now.\n",
 		shm_ship_get_dump_had_storm(state.ships, n_ship));
 
@@ -291,7 +291,7 @@ void signal_handler(int signal)
 	case SIGINT:
 		close_all();
 	case SIGALRM:
-		/*print_daily_report();*/
+		print_daily_report();
 		if (check_ships_all_dead()) {
 			dprintf(1, "All ships are dead. Terminating...\n");
 			close_all();
@@ -326,7 +326,7 @@ void close_all(void)
 	sem_delete(sem_start_get_id(state.general));
 	sem_delete(sem_port_init_get_id(state.general));
 	sem_delete(shm_port_get_sem_docks_id(state.ports));
-	sem_delete(sem_dump_get_id(state.general));
+	sem_delete(sem_cargo_get_id(state.general));
 
 	shm_port_delete(state.general);
 	shm_ship_delete(state.general);
