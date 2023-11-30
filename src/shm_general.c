@@ -23,7 +23,7 @@ struct shm_general {
 	int general_shm_id, ship_shm_id, port_shm_id, cargo_shm_id;
 	int offer_shm_id, demand_shm_id;
 	int msg_in_id, msg_out_id;
-	int sem_start_id, sem_port_init_id, sem_dump_id;
+	int sem_start_id, sem_port_init_id, sem_cargo_id;
 };
 
 /**
@@ -88,13 +88,15 @@ shm_general_t *read_from_path(char *path, shm_general_t **g)
 
 void shm_general_ipc_init(shm_general_t *g)
 {
+	int i;
 	/* Semaphores */
 	g->sem_start_id = sem_create(SEM_START_KEY, 1);
 	sem_setval(g->sem_start_id, 0, 1);
-	g->sem_dump_id = sem_create(SEM_DUMP_KEY, 1);
-	sem_setval(g->sem_dump_id, 0, 1);
 	g->sem_port_init_id = sem_create(SEM_PORTS_INITIALIZED_KEY, g->so_porti);
 	sem_setval(g->sem_port_init_id, 0, g->so_porti);
+	g->sem_cargo_id = sem_create(SEM_CARGO_KEY, g->so_merci);
+	for (i = 0; i < g->so_merci; i++)
+		sem_setval(g->sem_cargo_id, i, 1);
 
 	/* Message queues */
 	g->msg_in_id = msg_commerce_in_port_init();
@@ -134,7 +136,7 @@ int shm_demand_get_id(shm_general_t *g){return g->demand_shm_id;}
 
 int sem_start_get_id(shm_general_t *g){return g->sem_start_id;}
 int sem_port_init_get_id(shm_general_t *g){return g->sem_port_init_id;}
-int sem_dump_get_id(shm_general_t *g){return g->sem_dump_id;}
+int sem_cargo_get_id(shm_general_t *g){return g->sem_cargo_id;}
 
 int msg_in_get_id(shm_general_t *g){return g->msg_in_id;}
 int msg_out_get_id(shm_general_t *g){return g->msg_out_id;}

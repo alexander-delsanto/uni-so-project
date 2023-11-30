@@ -11,7 +11,7 @@
 #define SEM_PORTS_INITIALIZED_KEY 0x00ffffff
 #define SEM_START_KEY 0x10ffffff
 #define SEM_DOCK_KEY 0x11ffffff
-#define SEM_DUMP_KEY 0x12ffffff
+#define SEM_CARGO_KEY 0x12ffffff
 
 #define MSG_IN_PORT_KEY 0x100fffff
 #define MSG_OUT_PORT_KEY 0x110fffff

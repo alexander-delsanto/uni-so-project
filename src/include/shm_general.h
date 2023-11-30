@@ -140,7 +140,7 @@ int sem_port_init_get_id(shm_general_t *g);
  * @param g Pointer to the shm_general_t structure.
  * @return The semaphore ID for the dump semaphore.
  */
-int sem_dump_get_id(shm_general_t *g);
+int sem_cargo_get_id(shm_general_t *g);
 
 /* Message queues id getters */
 
