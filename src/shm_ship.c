@@ -128,19 +128,19 @@ int shm_ship_get_dump_at_dock(shm_general_t *g, shm_ship_t *s)
 	return cnt;
 }
 
-int shm_ship_get_dump_had_storm(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_had_storm(shm_general_t *g, shm_ship_t *s)
 {
 	int id, cnt = 0;
-	for(id = 0; id < n_ships; id++)
+	for(id = 0; id < get_navi(g); id++)
 		if(s[id].is_dead == FALSE && s[id].dump_had_storm == TRUE)
 			cnt++;
 	return cnt;
 }
 
-int shm_ship_get_dump_had_maelstrom(shm_ship_t *s, int n_ships)
+int shm_ship_get_dump_had_maelstrom(shm_general_t *g, shm_ship_t *s)
 {
 	int id, cnt = 0;
-	for(id = 0; id < n_ships; id++){
+	for(id = 0; id < get_navi(g); id++){
 		if(s[id].is_dead == TRUE && s[id].dump_mael_logged == FALSE)
 		{
 			s[id].dump_mael_logged = TRUE;

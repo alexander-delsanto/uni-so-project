@@ -160,13 +160,10 @@ pid_t run_process(char *name, int index)
 
 void print_daily_report(void) {
 	int i, qty, type;
-	int n_port = get_porti(state.general);
-	int n_ship = get_navi(state.general);
-	int n_cargo = get_merci(state.general);
 
 	dprintf(1, "\nDaily report #%d:\n", get_current_day(state.general));
 	dprintf(1, "**********CARGO**********\n");
-	for(type = 0; type < n_cargo; type++){
+	for(type = 0; type < get_merci(state.general); type++){
 		dprintf(1, "Type %d:\n", type);
 		dprintf(1, "\t%d available in ports;\n",
 			shm_cargo_get_dump_available_in_port(state.cargo, type));
@@ -189,7 +186,7 @@ void print_daily_report(void) {
 		shm_ship_get_dump_at_dock(state.general, state.ships));
 
 	dprintf(1, "\n**********PORTS**********\n");
-	for (i = 0; i < n_port; i++) {
+	for (i = 0; i < get_porti(state.general); i++) {
 		dprintf(1, "Port %d:\n", i);
 		dprintf(1, "\t%d goods available;\n",
 			shm_port_get_dump_cargo_available(state.ports, i));
@@ -203,16 +200,16 @@ void print_daily_report(void) {
 
 	dprintf(1, "\n**********WEATHER**********\n");
 	dprintf(1, "%d ships slowed by the storm until now.\n",
-		shm_ship_get_dump_had_storm(state.ships, n_ship));
+		shm_ship_get_dump_had_storm(state.general, state.ships));
 
 	dprintf(1, "List of ports affecting by the swell at the moment: \n");
-	for (i = 0; i < n_port; i++) {
+	for (i = 0; i < get_porti(state.general); i++) {
 		if(shm_port_get_dump_having_swell(state.ports, i) == TRUE)
 			dprintf(1, "\tPort %d\n", i);
 	}
 
 	dprintf(1, "%d ships dead due to maelstrom today.\n",
-		shm_ship_get_dump_had_maelstrom(state.ships, n_ship));
+		shm_ship_get_dump_had_maelstrom(state.general, state.ships));
 }
 
 void print_final_report(void) {
@@ -259,7 +256,7 @@ void print_final_report(void) {
 
 	dprintf(1, "**********WEATHER**********\n");
 	dprintf(1, "%d ships slowed by the storm.\n",
-		shm_ship_get_dump_had_storm(state.ships, n_ship));
+		shm_ship_get_dump_had_storm(state.general, state.ships));
 	dprintf(1, "List of ports affected by the swell: \n");
 	for (i = 0; i < n_port; i++) {
 		if(shm_port_get_dump_swell_final(state.ports, i) == TRUE)
