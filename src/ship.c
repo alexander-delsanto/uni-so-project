@@ -315,7 +315,7 @@ void signal_handler(int signal)
 		convert_and_sleep(get_storm_duration(state.general) / 24.0);
 		break;
 	case SIGMAELSTROM:
-		shm_ship_set_is_dead(state.ship, state.id);
+		shm_ship_set_had_maelstrom(state.ship, state.id);
 		shm_ship_remove_expired(state.general, state.ship, state.cargo, state.cargo_hold, state.id);
 		shm_ship_remove_cargo_maelstrom(state.general, state.ship, state.cargo, state.cargo_hold, state.id);
 		close_all();
@@ -335,6 +335,7 @@ void close_all(void)
 	}
 	free(state.cargo_hold);
 
+	shm_ship_set_is_dead(state.ship, state.id);
 	shm_port_detach(state.port);
 	shm_ship_detach(state.ship);
 	shm_cargo_detach(state.cargo);

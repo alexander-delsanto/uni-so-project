@@ -137,12 +137,8 @@ int shm_ship_get_dump_had_maelstrom(shm_general_t *g, shm_ship_t *s)
 {
 	int id, cnt = 0;
 	for(id = 0; id < get_navi(g); id++){
-		if(s[id].is_dead == TRUE && s[id].dump_mael_logged == FALSE)
-		{
-			s[id].dump_mael_logged = TRUE;
+		if(s[id].had_maelstrom == TRUE)
 			cnt++;
-		}
-
 	}
 	return cnt;
 }

@@ -211,7 +211,7 @@ void print_daily_report(void) {
 	}
 
 	dprintf(1, "\n**********WEATHER**********\n");
-	dprintf(1, "%d ships slowed by the storm until now.\n",
+	dprintf(1, "%d ships affected by storm.\n",
 		shm_ship_get_dump_had_storm(state.general, state.ships));
 
 	dprintf(1, "List of ports affecting by the swell at the moment: \n");
@@ -225,7 +225,7 @@ void print_daily_report(void) {
 }
 
 void print_final_report(void) {
-	int i, type, cnt;
+	int i, type;
 	int n_port = get_porti(state.general);
 	int n_ship = get_navi(state.general);
 	int n_cargo = get_merci(state.general);
