@@ -137,7 +137,6 @@ void loop(void)
 }
 
 
-
 void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 {
 	o_list_t *cargo;
@@ -166,6 +165,8 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 		dprintf(1, "requested_amount: %d, port_amount: %d, exchanged_amount: %d\n", amount, port_amount, exchanged_amount);
 		shm_offer_remove_quantity(state.offer, state.general, state.id, cargo_type, exchanged_amount);
 		cargo = cargo_list_pop_needed(state.cargo_hold[cargo_type], exchanged_amount);
+		if (cargo == NULL)
+			dprintf(1, "cargo is null\n");
 		dprintf(1, "after pop_needed\n");
 		cargo_list_print_all(cargo);
 		while (exchanged_amount > 0) {

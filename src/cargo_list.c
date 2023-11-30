@@ -149,7 +149,7 @@ void cargo_list_print_all(o_list_t *list)
 	cur = list->head;
 
 	while (cur != NULL) {
-		printf("%d %d\n", cur->quantity, cur->expire);
+		dprintf(1, "quantity:%d, expire: %d\n", cur->quantity, cur->expire);
 		cur = cur->next;
 	}
 }
