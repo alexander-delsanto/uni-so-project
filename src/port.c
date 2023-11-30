@@ -87,7 +87,7 @@ void loop(void)
 {
 	int msg_in_id = msg_in_get_id(state.general);
 	int ship_id, needed_type, needed_amount, status;
-	int sem_dump_id;
+	int sem_cargo_id;
 	int qt_expired = 0;
 	int i, day;
 	int tot_expired = 0;
@@ -96,7 +96,7 @@ void loop(void)
 	int tot_demand;
 
 	n_merci = get_merci(state.general);
-	sem_dump_id = sem_dump_get_id(state.general);
+	sem_cargo_id = sem_cargo_get_id(state.general);
 	while (1) {
 		day = get_current_day(state.general);
 		if (state.current_day < day) {
@@ -107,6 +107,7 @@ void loop(void)
 			for (i = 0; i < n_merci; i++) {
 				qt_expired = cargo_list_remove_expired(state.cargo_hold[i], state.current_day);
 				shm_offer_remove_quantity(state.offer, state.general, state.id, i, qt_expired);
+				shm_cargo_update_dump_available_in_port(state.cargo, i, -qt_expired, sem_cargo_id);
 				/* TODO dump expired */
 			}
 
@@ -127,8 +128,8 @@ void loop(void)
 			dprintf(1, "port %d: tot_expired: %d, tot_demand: %d, tot: %d\n", state.id, tot_expired, tot_demand, tot_expired + tot_demand);*/
 		}
 		if (msg_commerce_receive(msg_in_id, state.id, &ship_id, &needed_type, &needed_amount, NULL, &status, FALSE) == TRUE) {
-			dprintf(1, "port %d: got message from ship %d with status %d requesting %d of cargo %d\n", state.id, ship_id, status,
-				needed_amount, needed_type);
+			/*dprintf(1, "port %d: got message from ship %d with status %d requesting %d of cargo %d\n", state.id, ship_id, status,
+				needed_amount, needed_type);*/
 			respond_ship_msg(ship_id, needed_type, needed_amount,
 					 status);
 		}
@@ -161,15 +162,14 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 			return;
 		}
 		exchanged_amount = MIN(amount, port_amount);
-		dprintf(1, "requested_amount: %d, port_amount: %d, exchanged_amount: %d\n", amount, port_amount, exchanged_amount);
+		/*dprintf(1, "requested_amount: %d, port_amount: %d, exchanged_amount: %d\n", amount, port_amount, exchanged_amount);*/
 		shm_offer_remove_quantity(state.offer, state.general, state.id, cargo_type, exchanged_amount);
+		shm_cargo_update_dump_available_in_port(state.cargo, cargo_type, -exchanged_amount, sem_cargo_get_id(state.general));
 		cargo = cargo_list_pop_needed(state.cargo_hold[cargo_type], exchanged_amount);
 		if (cargo == NULL)
 			dprintf(1, "cargo is null\n");
 		while (exchanged_amount > 0) {
 			cargo_list_pop(cargo, &quantity, &expiration_date);
-			if (quantity != -1)
-				dprintf(1, "port %d: - quantity: %d, exp_date: %d\n", state.id, quantity, expiration_date);
 			exchanged_amount -= quantity;
 			status = exchanged_amount <= 0 ? STATUS_ACCEPTED : STATUS_PARTIAL;
 			msg = msg_commerce_create(ship_id, state.id, cargo_type, quantity, expiration_date, status);
