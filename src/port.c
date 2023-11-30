@@ -153,6 +153,7 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 		shm_demand_remove_quantity(state.demand, state.general, state.id, cargo_type, exchanged_amount);
 		msg = msg_commerce_create(ship_id, state.id, cargo_type, exchanged_amount, -1, STATUS_ACCEPTED);
 		msg_commerce_send(msg_out_id, &msg);
+		shm_cargo_update_dump_received_in_port(state.cargo, cargo_type, exchanged_amount, sem_cargo_get_id(state.general));
 
 	} else if (status == STATUS_BUY) { /* Port is selling */
 		port_amount = shm_offer_get_quantity(state.general, state.offer, state.id, cargo_type);

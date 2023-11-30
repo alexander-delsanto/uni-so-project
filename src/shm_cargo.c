@@ -148,9 +148,11 @@ void shm_cargo_set_dump_total_generated(shm_cargo_t *c, int id, int quantity)
 {
 	c[id].dump_expired_on_ship += quantity;
 }*/
-void shm_cargo_set_dump_received_in_port(shm_cargo_t *c, int id, int quantity)
+void shm_cargo_update_dump_received_in_port(shm_cargo_t *c, int id, int quantity, int sem_cargo_id)
 {
+	sem_execute_semop(sem_cargo_id, id, -1, 0);
 	c[id].dump_received_in_port += quantity;	/* TODO: da settare nel trade della nave */
+	sem_execute_semop(sem_cargo_id, id, 1, 0);
 }
 void shm_cargo_update_dump_available_in_port(shm_cargo_t *c, int id, int quantity, int sem_cargo_id)
 {
