@@ -311,7 +311,6 @@ void signal_handler(int signal)
 {
 	switch (signal) {
 	case SIGSTORM:
-		dprintf(1, "Ship %d: Received SIGSTORM signal.\n", state.id);
 		shm_ship_set_dump_had_storm(state.ship, state.id);
 		convert_and_sleep(get_storm_duration(state.general) / 24.0);
 		break;
