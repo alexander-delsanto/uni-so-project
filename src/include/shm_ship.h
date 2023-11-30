@@ -161,16 +161,16 @@ int shm_ship_get_dump_at_dock(shm_general_t *g, shm_ship_t *s);
 
 /**
  * @brief Gets the number of ships that had a storm in the dump.
+ * @param g Pointer to the general SHM structure.
  * @param s Pointer to the shm_ship_t structure.
- * @param n_ships The total number of ships.
  * @return The number of ships that had a storm.
  */
 int shm_ship_get_dump_had_storm(shm_general_t *g, shm_ship_t *s);
 
 /**
  * @brief Gets the number of ships that had a maelstrom in the dump.
+ * @param g Pointer to the general SHM structure.
  * @param s Pointer to the shm_ship_t structure.
- * @param n_ships The total number of ships.
  * @return The number of ships that had a maelstrom.
  */
 int shm_ship_get_dump_had_maelstrom(shm_general_t *g, shm_ship_t *s);
