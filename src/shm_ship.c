@@ -34,11 +34,10 @@ shm_ship_t *shm_ship_initialize(shm_general_t *g)
 	size_t size;
 
 	n_ships = get_navi(g);
-	size = (sizeof(shm_ship_t) + (sizeof(int) * get_merci(g)) * 2) * n_ships;
+	size = sizeof(struct shm_ship) * n_ships;
 
 	id = shm_create(SHM_DATA_SHIPS_KEY, size);
 	if (id == -1) {
-		dprintf(1, "ciao\n");
 		return NULL;
 	}
 

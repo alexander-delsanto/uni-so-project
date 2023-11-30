@@ -1,9 +1,7 @@
 #define _GNU_SOURCE
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <signal.h>
 
 #include "../lib/shm.h"
 #include "../lib/semaphore.h"
@@ -11,8 +9,6 @@
 #include "include/utils.h"
 #include "include/const.h"
 #include "include/shm_general.h"
-#include "include/types.h"
-#include "include/shm_port.h"
 #include "include/shm_cargo.h"
 
 /**
@@ -60,7 +56,7 @@ shm_cargo_t *shm_cargo_initialize(shm_general_t *g)
 
 	n_cargo = get_merci(g);
 
-	size = (sizeof(struct shm_cargo) * n_cargo);
+	size = sizeof(struct shm_cargo) * n_cargo;
 
 	shm_id = shm_create(SHM_DATA_CARGO_KEY, size);
 	if (shm_id == -1) {

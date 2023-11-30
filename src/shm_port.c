@@ -31,13 +31,10 @@ struct shm_port {
 shm_port_t *shm_port_initialize(shm_general_t *g)
 {
 	shm_port_t *ports;
-	int shm_id, n_ports;
+	int shm_id;
 	size_t size;
 
-	n_ports = get_porti(g);
-
-	size = (sizeof(shm_port_t) + 4 * (sizeof(int) * get_merci(g))) *
-	       n_ports;
+	size = sizeof(struct shm_port) * get_porti(g);
 
 	shm_id = shm_create(SHM_DATA_PORTS_KEY, size);
 	if (shm_id == -1) {
@@ -72,9 +69,7 @@ void shm_port_ipc_init(shm_general_t *g, shm_port_t *p)
 shm_port_t *shm_port_attach(shm_general_t *g)
 {
 	shm_port_t *ports;
-
 	ports = shm_attach(shm_port_get_id(g));
-
 	return ports;
 }
 

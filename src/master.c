@@ -24,6 +24,8 @@ struct state {
 	shm_port_t *ports;
 	shm_ship_t *ships;
 	shm_cargo_t *cargo;
+	shm_offer_t *offer;
+	shm_demand_t *demand;
 	pid_t weather;
 };
 
@@ -68,6 +70,16 @@ int main(int argc, char *argv[])
 
 	state.cargo = shm_cargo_initialize(state.general);
 	if (state.cargo == NULL) {
+		exit(1);
+	}
+
+	state.offer = shm_offer_init(state.general);
+	if (state.offer == NULL) {
+		exit(1);
+	}
+
+	state.demand = shm_demand_init(state.general);
+	if (state.demand == NULL) {
 		exit(1);
 	}
 
@@ -226,7 +238,7 @@ void print_final_report(void) {
 		shm_ship_get_dump_without_cargo(state.general, state.ships));
 	dprintf(1, "Number of ships at at docks: %d\n",
 		shm_ship_get_dump_at_dock(state.general, state.ships));
-	dprintf(1, "**********CARGO**********\n");
+	dprintf(1, "\n**********CARGO**********\n");
 	for(type = 0; type < n_cargo; type++){
 		dprintf(1, "Type %d:\n", type);
 		dprintf(1, "\t%d generated since the beginning;\n",
@@ -239,9 +251,13 @@ void print_final_report(void) {
 			shm_cargo_get_dump_expired_on_ship(state.cargo, type));
 		dprintf(1, "\t%d delivered to ports;\n",
 			shm_cargo_get_dump_received_in_port(state.cargo, type));
+		dprintf(1, "\ttop offering port: %d;\n",
+			shm_offer_get_dump_highest(state.general, state.offer, type));
+		dprintf(1, "\ttop requesting port: %d;\n",
+			shm_demand_get_dump_highest(state.general, state.demand, type));
 	}
 
-	dprintf(1, "**********PORTS**********\n");
+	dprintf(1, "\n**********PORTS**********\n");
 	for (i = 0; i < n_port; i++) {
 		dprintf(1, "Port %d:\n", i);
 		dprintf(1, "\t%d goods available;\n",
@@ -252,9 +268,7 @@ void print_final_report(void) {
 			shm_port_get_dump_cargo_received(state.ports, i));
 	}
 
-	/* TODO: Indicate the port that has offered the most goods and the one that has requested the most goods. */
-
-	dprintf(1, "**********WEATHER**********\n");
+	dprintf(1, "\n**********WEATHER**********\n");
 	dprintf(1, "%d ships slowed by the storm.\n",
 		shm_ship_get_dump_had_storm(state.general, state.ships));
 	dprintf(1, "List of ports affected by the swell: \n");

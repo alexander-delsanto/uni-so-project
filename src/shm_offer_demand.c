@@ -28,7 +28,7 @@ struct shm_demand {
 
 /* OFFER SHM FUNCTIONS */
 
-shm_offer_t *shm_offer_ports_init(shm_general_t *g)
+shm_offer_t *shm_offer_init(shm_general_t *g)
 {
 	int shm_id;
 	size_t size;
@@ -48,11 +48,16 @@ shm_offer_t *shm_offer_ports_init(shm_general_t *g)
 	return offer;
 }
 
-shm_offer_t *shm_offer_ports_attach(shm_general_t *g)
+shm_offer_t *shm_offer_attach(shm_general_t *g)
 {
 	shm_offer_t *offer;
 	offer = shm_attach(shm_offer_get_id(g));
 	return offer;
+}
+
+void shm_offer_detach(shm_offer_t *o)
+{
+	shm_detach(o);
 }
 
 void shm_offer_remove_quantity(shm_offer_t *o, shm_general_t *g, int id, int type,
@@ -101,6 +106,18 @@ shm_demand_t *shm_demand_init(shm_general_t *g)
 	shm_demand_set_id(g, shm_id);
 
 	return demand;
+}
+
+shm_demand_t *shm_demand_attach(shm_general_t *g)
+{
+	shm_demand_t *demands;
+	demands = shm_attach(shm_demand_get_id(g));
+	return demands;
+}
+
+void shm_demand_detach(shm_demand_t *d)
+{
+	shm_detach(d);
 }
 
 int shm_demand_get_quantity(shm_general_t *g, shm_demand_t *d, int port_id, int cargo_id)
@@ -201,4 +218,32 @@ void shm_offer_demand_generate(shm_offer_t *o, shm_demand_t *d, o_list_t **l,
 
 		current_fill -= random_quantity * size;
 	}
+}
+
+int shm_offer_get_dump_highest(shm_general_t *g, shm_offer_t *o, int cargo_type)
+{
+	int i, n_cargo, tmp, max = -1, max_id = -1;
+	n_cargo = get_merci(g);
+	for (i = 0; i < get_porti(g); i++) {
+		tmp = o[GET_INDEX(i, cargo_type, n_cargo)].dump_tot_offered;
+		if (tmp > max) {
+			max = tmp;
+			max_id = i;
+		}
+	}
+	return max_id;
+}
+
+int shm_demand_get_dump_highest(shm_general_t *g, shm_demand_t *d, int cargo_type)
+{
+	int i, n_cargo, tmp, max = -1, max_id = -1;
+	n_cargo = get_merci(g);
+	for (i = 0; i < get_porti(g); i++) {
+		tmp = d[GET_INDEX(i, cargo_type, n_cargo)].dump_tot_demanded;
+		if (tmp > max) {
+			max = tmp;
+			max_id = i;
+		}
+	}
+	return max_id;
 }

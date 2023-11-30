@@ -35,12 +35,10 @@ struct state {
 void signal_handler(int signal);
 void signal_handler_init(void);
 void loop(void);
-static void metodo_stupido();
 
 void respond_ship_msg(int ship_id, int cargo_type, int amount, int status);
 
 void generate_coordinates(void);
-void handle_message(void);
 
 void close_all(void);
 
@@ -222,6 +220,8 @@ void close_all(void)
 	free(state.cargo_hold);
 	shm_port_detach(state.port);
 	shm_cargo_detach(state.cargo);
+	shm_offer_detach(state.offer);
+	shm_demand_detach(state.demand);
 	shm_general_detach(state.general);
 	exit(EXIT_SUCCESS);
 }

@@ -339,6 +339,8 @@ void close_all(void)
 	shm_port_detach(state.port);
 	shm_ship_detach(state.ship);
 	shm_cargo_detach(state.cargo);
+	shm_offer_detach(state.offer);
+	shm_demand_detach(state.demand);
 	shm_general_detach(state.general);
 	exit(0);
 }
