@@ -23,7 +23,7 @@ struct shm_ship {
 	struct coord coords;
 
 	bool_t dump_had_storm;
-	bool_t dump_mael_logged;	/* for daily maelstrom */
+	bool_t had_maelstrom;	/* for daily maelstrom */
 };
 
 shm_ship_t *shm_ship_initialize(shm_general_t *g)
@@ -86,6 +86,7 @@ void shm_ship_set_is_at_dock(shm_ship_t *s, int id, bool_t value){s[id].is_at_do
 
 /* Dump setters */
 void shm_ship_set_dump_had_storm(shm_ship_t *s, int id){s[id].dump_had_storm = TRUE;}
+void shm_ship_set_had_maelstrom(shm_ship_t *s, int id){s[id].had_maelstrom = TRUE;}
 
 /* Getters */
 bool_t shm_ship_get_is_dead(shm_ship_t *s, int id){return s[id].is_dead;}
