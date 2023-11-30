@@ -11,7 +11,6 @@
 /**
  * @return a random double between min and max (included).
  */
-/* TODO: la rand dipende da stdlib, è un side effect che non venga inclusa da sè */
 #define RANDOM_DOUBLE(min, max) \
 	(random() / (double)RAND_MAX * (max - min) + (min))
 /**

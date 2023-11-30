@@ -169,8 +169,6 @@ void shm_ship_remove_expired(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_
 			shm_cargo_update_dump_expired_on_ship(c, i, removed, sem_cargo_id);
 		}
 	}
-
-	/* TODO dump */
 }
 
 void shm_ship_remove_cargo_maelstrom(shm_general_t *g, shm_ship_t *s, shm_cargo_t *c, o_list_t **cargo_hold, int ship_id)

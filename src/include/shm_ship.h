@@ -72,6 +72,13 @@ void shm_ship_set_pid(shm_ship_t *s, int id, pid_t pid);
 void shm_ship_set_coords(shm_ship_t *s, int id, struct coord coords);
 
 /**
+ * @brief Marks a specific ship that it received a maelstrom in the shared memory structure.
+ * @param s Pointer to the array of ship data in shared memory.
+ * @param id Identifier of the ship.
+ */
+void shm_ship_set_had_maelstrom(shm_ship_t *s, int id);
+
+/**
  * @brief Marks a specific ship as dead in the shared memory structure.
  * @param s Pointer to the array of ship data in shared memory.
  * @param id Identifier of the ship.
