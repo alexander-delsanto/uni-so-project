@@ -117,8 +117,7 @@ void signal_handler_init(void)
 
 void run_ports(void)
 {
-	int i, sem_id;
-	int n_port;
+	int i, n_port;
 	pid_t pid;
 
 	n_port = get_porti(state.general);
@@ -171,7 +170,7 @@ pid_t run_process(char *name, int index)
 }
 
 void print_daily_report(void) {
-	int i, qty, type;
+	int i, type;
 
 	dprintf(1, "\nDaily report #%d:\n", get_current_day(state.general));
 	dprintf(1, "**********CARGO**********\n");

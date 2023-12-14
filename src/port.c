@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	state.cargo = shm_cargo_attach(state.general);
 	state.offer = shm_offer_attach(state.general);
 	state.demand = shm_demand_attach(state.general);
-	state.cargo_hold = malloc(8 * get_merci(state.general));
+	state.cargo_hold = malloc(sizeof(state.cargo_hold) * get_merci(state.general));
 	for (i = 0; i < get_merci(state.general); i++) {
 		state.cargo_hold[i] = cargo_list_create();
 	}
@@ -127,7 +127,6 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 			return;
 		}
 		exchanged_amount = MIN(amount, port_amount);
-		/*dprintf(1, "requested_amount: %d, port_amount: %d, exchanged_amount: %d\n", amount, port_amount, exchanged_amount);*/
 		shm_offer_remove_quantity(state.offer, state.general, state.id, cargo_type, exchanged_amount);
 		shm_cargo_update_dump_available_in_port(state.cargo, cargo_type, -exchanged_amount, sem_cargo_get_id(state.general));
 		shm_port_update_dump_cargo_shipped(state.port, state.id, exchanged_amount);

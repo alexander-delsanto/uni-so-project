@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 	state.demand = shm_demand_attach(state.general);
 	state.offer = shm_offer_attach(state.general);
 
-	state.cargo_hold = malloc(8 * get_merci(state.general));
+	state.cargo_hold = malloc(sizeof(state.cargo_hold) * get_merci(state.general));
 	for (i = 0; i < get_merci(state.general); i++) {
 		state.cargo_hold[i] = cargo_list_create();
 	}
@@ -185,7 +185,6 @@ int find_new_destination_port(void)
 void trade(void)
 {
 	int i, n_cargo, cargo_type, sem_docks_id;
-	int n_expired;
 	int load_speed, tons_moved;
 	sigset_t mask;
 	load_speed = get_load_speed(state.general);
@@ -239,7 +238,6 @@ int sell(int cargo_type)
 	int quantity, status;
 
 	available_in_ship = 0;
-	/*available_in_ship = cargo_list_get_quantity_by_id(state.cargo_hold, cargo_type);*/
 	available_in_ship += cargo_list_get_quantity(state.cargo_hold[cargo_type]);
 
 	port_demand = shm_demand_get_quantity(state.general, state.demand, state.curr_port_id, cargo_type);
