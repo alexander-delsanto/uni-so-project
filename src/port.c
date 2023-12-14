@@ -139,6 +139,7 @@ void respond_ship_msg(int ship_id, int cargo_type, int amount, int status)
 			msg_commerce_send(msg_out_id, &msg);
 		}
 		shm_port_update_dump_cargo_available(state.general, state.port, state.offer, state.id);
+        cargo_list_delete(cargo);
 	} else {
 		msg = msg_commerce_create(ship_id, state.id, -1, -1, -1, STATUS_REFUSED);
 		msg_commerce_send(msg_out_id, &msg);
